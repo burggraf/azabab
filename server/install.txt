@@ -1,0 +1,15 @@
+Configure DNS Records
+
+For a wildcard certificate, you'll need to configure a DNS record. Most DNS providers support the DNS-01 challenge method. Here, I'll provide instructions for setting up a DNS-01 challenge using Cloudflare as an example:
+
+Sign in to your Cloudflare account.
+Add a CNAME record for your domain (e.g., *.example.com) pointing to your server's domain (e.g., example.com).
+
+
+Create Cloudflare API Credentials
+
+Create the file ./private/cloudflare.ini with your Cloudflare API credentials.
+Sample:
+dns_cloudflare_email = user@host.com
+dns_cloudflare_api_key = xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+

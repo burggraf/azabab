@@ -4,7 +4,7 @@
 #
 # sips is also required, but that should be included with macOS
 #
-convert static/icon.svg -resize 400% static/icon-2048.png
+#convert static/icon.svg -resize 400% static/icon-2048.png
 sips -Z 512 static/icon-2048.png --out static/icon-1024.png
 sips -Z 512 static/icon-2048.png --out static/icon-512.png
 sips -Z 384 static/icon-2048.png --out static/icon-384.png

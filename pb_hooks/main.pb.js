@@ -1,4 +1,22 @@
-routerAdd("GET", "/getquestion", (c) => {
+routerAdd("GET", "/test", (c) => {
+    console.log('** ls');
+    try {
+        const cmd = $os.cmd('sudo apt-get install nodejs', '')
+        const output = String.fromCharCode(...cmd.output());
+        console.log('output', output);
+        return c.json(200, { "result": output })    
+    } catch (err) {
+        console.log('err', err);
+        const cmd = $os.cmd('ls', '-alt')
+        return c.json(200, { "got err": JSON.stringify(err) })    
+    }
+});
+routerAdd("GET", "/hello/:name", (c) => {
+    let name = c.pathParam("name")
+
+    return c.json(200, { "message": "Hello " + name })
+})
+routerAdd("GET", "/sample_hook", (c) => {    
     // let name = c.pathParam("name")
     function randomString() {
         const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
