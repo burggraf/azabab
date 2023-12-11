@@ -10,9 +10,10 @@ The `install.sh` script will install and configure everything you need:
     - configuration scripts
     - and more...
 - Install and configure Nginx
-- Add cron job to renew the SSL certificat
+- Add cron job to renew the SSL certificate
 - Build the Docker image (pbdocker)
-- Create a service to run rust-server.exe
+- Create a service to run rust-server.exe (to start containers)
+- Add cron job to stop containers that have been inactive more than 5 minutes
 - Set up a set of 8 sample domains for quick testing (a.domain.com through h.domain.com)
 
 ## Assumptions
