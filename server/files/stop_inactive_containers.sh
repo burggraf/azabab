@@ -23,7 +23,8 @@ for container in $containers; do
         # Test if the file is older than the inactivity threshold
         if [ $file_age -gt $INACTIVITY_THRESHOLD ]; then
             # echo "The file for container $container is older than $INACTIVITY_THRESHOLD seconds. ($file_age)"
-            docker stop -t 0 $container
+            /home/ubuntu/stats.sh $container stop
+            sudo docker stop -t 0 $container
             echo "Stopped container $container ($file_age seconds inactive) `date`" >> /home/ubuntu/stop_inactive_containers.log
         else
             # echo "The file for container $container is not older than $INACTIVITY_THRESHOLD seconds. ($file_age)"

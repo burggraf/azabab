@@ -12,4 +12,3 @@ docker run \
 pbdocker > /dev/null
 sleep 1
 echo 'OK'
-
