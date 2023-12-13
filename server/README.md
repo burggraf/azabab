@@ -15,6 +15,7 @@ The `install.sh` script will install and configure everything you need:
 - Create a service to run rust-server.exe (to start containers)
 - Add cron job to stop containers that have been inactive more than 5 minutes
 - Set up a set of 8 sample domains for quick testing (a.domain.com through h.domain.com)
+- Create the ssh-server Docker image to support scp command-line copying files to/from the server
 
 ## Assumptions
 
