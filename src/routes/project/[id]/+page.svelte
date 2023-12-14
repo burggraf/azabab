@@ -60,7 +60,9 @@
     const siteChange = async (event: any) => {
         console.log('siteChange', event.target.value)
         console.log(event)
-        project_instances[0][event.target_id] = event.target.value || ''
+        const fieldname = event.target.id.split('_')[0]
+        const index = event.target.id.split('_')[1]
+        project_instances[index][fieldname] = event.target.value || ''
     }
 </script>
 <IonPage {ionViewWillEnter}>
@@ -146,12 +148,12 @@
 					<ion-label>Instances</ion-label>
 				</ion-col>
 			</ion-row>
-            {#each project_instances as project_instance}
+            {#each project_instances as project_instance, index}
                 <ion-row>
                     <ion-col>
                         <ion-item class="GridItem" lines="none">
                             <ion-select
-                                id="type"
+                                id={"type_" + index}
                                 label="Type"
                                 value={project_instance.type}
                                 placeholder="Select One"                                
@@ -164,7 +166,7 @@
                     <ion-col>
                         <ion-item class="GridItem" lines="none">
                             <ion-select
-                                id="id"
+                                id={"id_" + index}
                                 label="Data Center"
                                 value={project_instance.id}
                                 placeholder="Select One"                                
@@ -178,9 +180,9 @@
                 </ion-row>
             {/each}
         </ion-grid>
-        project: {JSON.stringify(project)}
+        <!-- project: {JSON.stringify(project)}
         <br />
-        project_instances: {JSON.stringify(project_instances)}
+        project_instances: {JSON.stringify(project_instances)} -->
     </ion-content>
 </IonPage>
 <style>
