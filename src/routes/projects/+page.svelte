@@ -41,7 +41,7 @@
                 >
                     <ion-label>
                         <h2>{project.name}</h2>
-                        <p>{project.subdomain}</p>
+                        <p>{project.domain}</p>
                     </ion-label>
                 </ion-item>
             {/each}

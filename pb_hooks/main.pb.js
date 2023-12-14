@@ -1,7 +1,70 @@
-routerAdd("GET", "/test", (c) => {
+routerAdd("POST", "/createproject", async (c) => {
+    // read the body via the cached request object
+    // (this method is commonly used in hook handlers because it allows reading the body more than once)
+    const data = $apis.requestInfo(c).data
+
+    const info   = $apis.requestInfo(c);
+    // const admin  = info.admin;      // empty if not authenticated as admin
+    const user = info.authRecord; // empty if not authenticated as regular auth record
+    // console.log('info', JSON.stringify(info, null, 2));
+    // console.log('admin', JSON.stringify(admin, null, 2));
+    if (!user) {
+        return c.json(401, { "error": "not logged in" })    
+    }
+    if (data?.project?.owner !== user?.id) {
+        return c.json(401, { "error": "not your project" })
+    }
+    // create the project record
+    const projectInsert = arrayOf(new DynamicModel({
+        "id": "",
+    }))
+    $app.dao().db()
+        .newQuery(`insert into projects (name, owner, ownertype, domain) 
+                    values ('${data?.project?.name}', '${data?.project?.owner}', '${data?.project?.ownertype}', '${data?.project?.domain}')
+                    returning id`)
+        .all(projectInsert) // throw an error on db failure
+    // get the id of the newly inserted project
+    const newId = projectInsert[0].id;
+    // create the project_instances record
+    const project_instancesInsert = arrayOf(new DynamicModel({
+        "port": 0
+    }))
+    $app.dao().db()
+        .newQuery(`insert into project_instance (project_id, site_id, port, type, domain) 
+                    values ('${newId}', 
+                    '${data?.project_instances[0]?.id}', 
+                    (select coalesce((select max(port)+1 FROM project_instance where site_id = '${data?.project_instances[0]?.id}'),10001)),
+                    '${data?.project_instances[0]?.type}',
+                    '${data?.project?.domain}')
+                    returning port`)
+        .all(project_instancesInsert) // throw an error on db failure
+
+    const newPort = project_instancesInsert[0].port;
+    // now use (data?.project?.domain) and (newPort) to create the nginx config file
+    
+    return c.json(200, { "result": "ok" })    
+
+})
+
+routerAdd("GET", "/test", async (c) => {
     console.log('** ls');
     try {
-        const cmd = $os.cmd('sudo apt-get install nodejs', '')
+
+        const domains = arrayOf(new DynamicModel({
+            // describe the shape of the data (used also as initial values)
+            "domain":     "",
+            "port": 0,
+        }))
+        
+        $app.dao().db()
+            .newQuery("SELECT domain, port FROM domain_mappings")
+            .all(domains) // throw an error on db failure
+
+        console.log('domains', JSON.stringify(domains, null, 2));        
+
+        const cmd = $os.cmd('ssh', 'ubuntu@west-2.azabab.com', 'ls')
+        // const error = String.fromCharCode(...cmd.stderr());
+        console.log(JSON.stringify(cmd, null, 2));
         const output = String.fromCharCode(...cmd.output());
         console.log('output', output);
         return c.json(200, { "result": output })    

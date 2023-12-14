@@ -7,9 +7,9 @@
 	export let id = $page.params.id
     let sites: any = []
     const project: any = {
-        subdomain: '',
+        domain: '',
         name: '',
-        owner: $currentUser.id,
+        owner: $currentUser?.id,
         ownertype: 'person'
     }
     const project_instances: any = [{
@@ -22,7 +22,7 @@
         if (id !== 'new') {
             const record = await pb.collection('projects').getOne(id)
             console.log('record', record)
-            project.subdomain = record.subdomain
+            project.domain = record.domain
             project.name = record.name
             project.owner = record.owner
             project.ownertype = record.ownertype
@@ -38,14 +38,27 @@
         console.log("save")
         if (id === 'new') { 
             delete project.id;
-            const record = await pb.collection('projects').create(project)
-            console.log('record', record)
+
+            const { email } = await pb.send(
+                "/createproject",
+                {
+                method: "POST",
+                body: {
+                    project,
+                    project_instances,
+                },
+                },
+            );
+        
+
+            //const record = await pb.collection('projects').create(project)
+            //console.log('record', record)
             // goto(`/project/${record.id}`)
-            goto("/projects")
+            //goto("/projects")
         } else {
-            const result = await pb.collection('projects').update(id, project)
-            console.log('result', result)
-            goto("/projects")
+            //const result = await pb.collection('projects').update(id, project)
+            //console.log('result', result)
+            //goto("/projects")
         }
     }
     const back = async () => {
@@ -84,7 +97,7 @@
 		<ion-grid class="ion-padding Grid">
 			<ion-row>
 				<ion-col>
-					<ion-label>Subdomain</ion-label>
+					<ion-label>domain</ion-label>
 				</ion-col>
 			</ion-row>
 			<ion-row>
@@ -94,10 +107,10 @@
 							on:ionInput={handleChange}
 							class="loginInputBoxWithIcon"
 							type="text"
-                            id="subdomain"
-							placeholder="Subdomain"
+                            id="domain"
+							placeholder="domain"
 							style="--padding-start: 10px;"
-							value={project.subdomain}
+							value={project.domain}
 							debounce={500}
 						/>
 						<!-- <ion-icon
