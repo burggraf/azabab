@@ -10,5 +10,11 @@ sudo docker stats \
 	| sed 's| / |\t|g' \
 	| grep -v 'ssh-server' > $FILE
 
-# Change file permissions to read and write for everyone
-chmod 666 $FILE
+# Check if file size is greater than 0
+if [ -s $FILE ]; then
+    # Change file permissions to read and write for everyone
+    chmod 666 $FILE
+else
+    # Delete the file if it's empty (0 bytes)
+    rm $FILE
+fi
