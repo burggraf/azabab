@@ -1,6 +1,10 @@
 #!/bin/bash
 # stats.sh <container_name> <event_name>
 # i.e. stats.sh container123 start
+#
+# log format:
+# timestamp, event, container_name, cpu (% of allowed), mem, net/i, net/o, block/i, block/o
+#
 FILE="/home/ubuntu/stats/$(date -u '+%s').txt"
 
 sudo docker stats \
