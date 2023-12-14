@@ -1,5 +1,7 @@
 <script lang="ts">
-	import IonPage from "$ionpage";
+    import { currentUser } from "$services/backend.service";
+    import IonPage from "$ionpage";
+    console.log('$currentUser', $currentUser);
   </script>
 <IonPage>
     <ion-header>

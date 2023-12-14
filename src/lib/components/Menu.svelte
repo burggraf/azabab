@@ -60,6 +60,7 @@
 			icon: 'barChart',
 			children: [
 				{ title: 'Welcome', url: 'welcome', icon: 'map', disabled: false },
+				{ title: 'Projects', url: 'projects', icon: 'map', disabled: false },
 			],
 		},
 		{
