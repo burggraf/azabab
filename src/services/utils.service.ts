@@ -13,6 +13,15 @@ export const gen_random_uuid = () => {
 }
 export const uuid_generate_v4 = gen_random_uuid;
 
+export const generateRandomString = (length: number) => {
+  // generate a random string consisting of lower case letters and digits
+  let result = ''
+  const characters = 'abcdefghijklmnopqrstuvwxyz0123456789'
+  const charactersLength = characters.length
+  for (let i = 0; i < length; i++)
+    result += characters.charAt(Math.floor(Math.random() * charactersLength))
+  return result
+}
 export const openModal = async (theModal: any, theProps: any = {}, theOptions: any = {}) => {
   const obj: any = {
     component: theModal,

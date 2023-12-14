@@ -1,11 +1,20 @@
 <script lang="ts">
+	import { goto } from "$app/navigation"
 	import IonPage from "$ionpage";
 	import { addOutline } from "ionicons/icons"
+    import { pb } from "$services/backend.service";
+    let projects: any = []
     const ionViewWillEnter = async () => {
         console.log("ionViewWillEnter")
+        const records = await pb.collection('projects').getFullList({
+            sort: '-created',
+        });
+        console.log('records', records)
+        projects = records
     }
     const newProject = async () => {
         console.log("newProject")
+        goto("/project/new")
     }
 </script>
 <IonPage {ionViewWillEnter}>
@@ -22,8 +31,19 @@
         </ion-toolbar>
     </ion-header>
     <ion-content class="ion-padding">
-        <h1>
-            Projects
-        </h1>
+        <ion-list>
+            {#each projects as project}
+                <ion-item
+                    lines="full"
+                    on:click={() => {
+                        goto(`/project/${project.id}`)
+                    }}
+                >
+                    <ion-label>
+                        <h2>{project.name}</h2>
+                        <p>{project.subdomain}</p>
+                    </ion-label>
+                </ion-item>
+            {/each}
     </ion-content>
 </IonPage>
