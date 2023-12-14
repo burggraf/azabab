@@ -5,13 +5,19 @@
     import { currentUser, pb } from "$services/backend.service";
 	import { goto } from "$app/navigation"
 	export let id = $page.params.id
+    let sites: any = []
     const project: any = {
         subdomain: '',
         name: '',
         owner: $currentUser.id,
         ownertype: 'person'
     }
-    const ionViewWillEnter = async () => {
+    const project_instances: any = [{
+        id: '',
+        name: '',
+        type: 'primary'
+    }]
+    const ionViewWillEnter = async () => {        
         console.log("ionViewWillEnter")
         if (id !== 'new') {
             const record = await pb.collection('projects').getOne(id)
@@ -20,6 +26,12 @@
             project.name = record.name
             project.owner = record.owner
             project.ownertype = record.ownertype
+        }
+        sites = await pb.collection('sites').getFullList({
+            fields: 'id, name, code',
+        });
+        if (id === 'new') {
+            project_instances[0].id = sites[0].id
         }
     }
     const save = async () => {
@@ -44,16 +56,12 @@
         console.log('handleChange', event.target.value)
         console.log(event)
         project[event.target.id] = event.target.value || ''
-		// name = event.target.value!
-		// if ($currentUser) {
-		// 	pb.collection('users').update($currentUser.id, {
-		// 		name: name,
-		// 	})
-		// } else {
-		// 	console.log('*** no currentUser -- aborting name change ***')
-		// 	return
-		// }
 	}
+    const siteChange = async (event: any) => {
+        console.log('siteChange', event.target.value)
+        console.log(event)
+        project_instances[0][event.target_id] = event.target.value || ''
+    }
 </script>
 <IonPage {ionViewWillEnter}>
     <ion-header>
@@ -71,7 +79,7 @@
         </ion-toolbar>
     </ion-header>
     <ion-content class="ion-padding">
-		<ion-grid class="ion-padding LoginGrid">
+		<ion-grid class="ion-padding Grid">
 			<ion-row>
 				<ion-col>
 					<ion-label>Subdomain</ion-label>
@@ -79,14 +87,14 @@
 			</ion-row>
 			<ion-row>
 				<ion-col>
-					<ion-item class="loginItem" lines="none">
+					<ion-item class="GridItem" lines="none">
 						<ion-input
 							on:ionInput={handleChange}
 							class="loginInputBoxWithIcon"
 							type="text"
                             id="subdomain"
 							placeholder="Subdomain"
-							style="--padding-start: 10px;width: 150px;"
+							style="--padding-start: 10px;"
 							value={project.subdomain}
 							debounce={500}
 						/>
@@ -108,14 +116,14 @@
 			</ion-row>
 			<ion-row>
 				<ion-col>
-					<ion-item class="loginItem" lines="none">
+					<ion-item class="GridItem" lines="none">
 						<ion-input
 							on:ionInput={handleChange}
 							class="loginInputBoxWithIcon"
 							type="text"
                             id="name"
 							placeholder="Project Name"
-							style="--padding-start: 10px;width: 150px;"
+							style="--padding-start: 10px;"
 							value={project.name}
 							debounce={500}
 						/>
@@ -129,10 +137,50 @@
 					</ion-item>
 				</ion-col>
 			</ion-row>
-
-
 		</ion-grid>
+
+
+        <ion-grid class="ion-padding Grid">
+            <ion-row>
+				<ion-col>
+					<ion-label>Instances</ion-label>
+				</ion-col>
+			</ion-row>
+            {#each project_instances as project_instance}
+                <ion-row>
+                    <ion-col>
+                        <ion-item class="GridItem" lines="none">
+                            <ion-select
+                                id="type"
+                                label="Type"
+                                value={project_instance.type}
+                                placeholder="Select One"                                
+                                on:ionChange={siteChange}>
+                                <ion-select-option value="primary">primary</ion-select-option>
+                                <ion-select-option value="replica">replica</ion-select-option>
+                            </ion-select>
+                        </ion-item>
+                    </ion-col>    
+                    <ion-col>
+                        <ion-item class="GridItem" lines="none">
+                            <ion-select
+                                id="id"
+                                label="Data Center"
+                                value={project_instance.id}
+                                placeholder="Select One"                                
+                                on:ionChange={siteChange}>
+                                {#each sites as site}
+                                    <ion-select-option value={site.id}>{site.name}</ion-select-option>
+                                {/each}
+                            </ion-select>
+                        </ion-item>
+                    </ion-col>
+                </ion-row>
+            {/each}
+        </ion-grid>
         project: {JSON.stringify(project)}
+        <br />
+        project_instances: {JSON.stringify(project_instances)}
     </ion-content>
 </IonPage>
 <style>
@@ -153,8 +201,8 @@
 		max-width: 100%;
 		max-height: 100%;
 	}
-	.LoginGrid {
-		max-width: 375px;
+	.Grid {
+		max-width: 500px;
 	}
 	.ProvidersGrid {
 		max-width: 375px;
@@ -174,7 +222,7 @@
 		margin-right: 10px;
 	}
 
-	.loginItem {
+	.GridItem {
 		--padding-start: 0px;
 		--padding-end: 0px;
 		--inner-padding-end: 0px;
