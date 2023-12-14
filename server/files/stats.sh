@@ -3,8 +3,8 @@
 # i.e. stats.sh container123 start
 #
 # log format:
-# timestamp, event, container_name, cpu (% of allowed), mem, net/i, net/o, block/i, block/o
-#
+# timestamp,   event, container_name,   cpu (% of allowed),    mem, mem max,  net/i,  net/o, block/i, block/o
+# 1702512402	start	       10004  0.96%	               10.76MiB	  256MiB  5.78kB  12.6kB	  0B   69.6kB
 FILE="/home/ubuntu/stats/$(date -u '+%s').txt"
 
 sudo docker stats \
