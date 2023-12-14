@@ -41,7 +41,20 @@ routerAdd("POST", "/createproject", async (c) => {
 
     const newPort = project_instancesInsert[0].port;
     // now use (data?.project?.domain) and (newPort) to create the nginx config file
+    console.log('now create new entry for:')
+    console.log('domain', data?.project?.domain)
+    console.log('port', newPort)
+    console.log('site domain', data?.site?.domain)
+    // update: /etc/nginx/domain_ports.txt
+    const cmd = $os.cmd('ssh', `ubuntu@${data?.site?.domain}`, 
+        `echo "${data?.project?.domain}.${data?.site?.domain}  ${newPort};" | sudo tee -a /etc/nginx/domain_ports.txt && sudo kill -HUP \$(cat /var/run/nginx.pid)`);
+    // const error = String.fromCharCode(...cmd.stderr());
+    console.log(JSON.stringify(cmd, null, 2));
+    const output = String.fromCharCode(...cmd.output());   
     
+    // reload domain_ports.txt file to update domain port mappings
+    // ssh ubuntu@$1  "sudo kill -HUP \$(cat /var/run/nginx.pid)"
+
     return c.json(200, { "result": "ok" })    
 
 })

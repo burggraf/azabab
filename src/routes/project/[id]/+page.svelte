@@ -5,14 +5,33 @@
     import { currentUser, pb } from "$services/backend.service";
 	import { goto } from "$app/navigation"
 	export let id = $page.params.id
-    let sites: any = []
-    const project: any = {
+    interface Project {
+        id: string,
+        domain: string,
+        name: string,
+        owner: string,
+        ownertype: string
+    }
+    interface ProjectInstance {
+        id: string,
+        name: string,
+        type: string
+    }
+    interface Site {
+        id: string,
+        name: string,
+        code: string,
+        domain: string
+    }
+    let sites: Site[] = []
+    const project: Project = {
+        id: '',
         domain: '',
         name: '',
         owner: $currentUser?.id,
         ownertype: 'person'
     }
-    const project_instances: any = [{
+    const project_instances: ProjectInstance[] = [{
         id: '',
         name: '',
         type: 'primary'
@@ -28,7 +47,7 @@
             project.ownertype = record.ownertype
         }
         sites = await pb.collection('sites').getFullList({
-            fields: 'id, name, code',
+            fields: 'id, name, code, domain',
         });
         if (id === 'new') {
             project_instances[0].id = sites[0].id
@@ -36,19 +55,22 @@
     }
     const save = async () => {
         console.log("save")
+        const site = sites.find(site => site.id === project_instances[0].id)
         if (id === 'new') { 
-            delete project.id;
-
-            const { email } = await pb.send(
+            const { result } = await pb.send(
                 "/createproject",
                 {
                 method: "POST",
                 body: {
                     project,
                     project_instances,
+                    site
                 },
                 },
             );
+            console.log('result', result)
+            // open the project in a new windows
+            window.open(`https://${project.domain}.${site.domain}/_/`, '_blank')
         
 
             //const record = await pb.collection('projects').create(project)
