@@ -1,7 +1,3 @@
-<script context="module">
-    export const prerender = false;
-    export const ssr = false;
-</script>
 <script lang="ts">
     import IonPage from "$ionpage";
     import { page } from '$app/stores'
