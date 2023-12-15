@@ -116,6 +116,7 @@
         },
         {
           text: "OK",
+          role: "confirm",
           handler: () => {
             if (obj.okHandler) {
                 obj.okHandler();

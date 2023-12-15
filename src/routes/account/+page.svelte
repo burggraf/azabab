@@ -10,7 +10,10 @@
 	} from 'ionicons/icons'
 	import { pb, currentUser, apiURL } from '$services/backend.service'
 	import { onMount } from 'svelte'
+	import { modalController } from '$ionic/svelte'
+	import keyModal from './keyModal.svelte'
 	let name = ''
+	let keys: any = []
 	const handleNameChange = async (event: any) => {
 		name = event.target.value!
 		if ($currentUser) {
@@ -23,39 +26,41 @@
 		}
 	}
 
-	const handleChange = async (event: any) => {}
-
 	const upload = () => {
 		const fileInput: any = document.getElementById('fileInput')
 		fileInput.click()
 	}
 	const deleteAvatar = async () => {
 		if ($currentUser) {
-			const result = await pb.collection('users').update($currentUser.id, { avatar: null })
-			console.log('*** deleteAvatar result', result)
+			await pb.collection('users').update($currentUser.id, { avatar: null })
 		}
 	}
-	onMount(async () => {
-		console.log('onMount')
+	const loadKeys = async () => {
+		keys = await pb.collection('user_keys').getFullList({
+				sort: 'sort_key',
+			});
+	}
+	const ionViewWillEnter = async () => {
+		console.log('ionViewWillEnter')
 		if ($currentUser) {
 			name = $currentUser.name
-			console.log('$currentUser', $currentUser)
+			loadKeys()
 		}
+	}
 
+	onMount(async () => {
+		console.log('onMount')
 		const fileInput: any = document.getElementById('fileInput')
 		if (fileInput) {
-			console.log('*** fileInput found ***', fileInput)
 			fileInput.addEventListener('change', async function () {
 				const formData = new FormData()
 
 				for (let file of fileInput.files) {
-					console.log('*** file', file)
 					formData.append('avatar', file)
 				}
 
 				try {
-					const result = await pb.collection('users').update($currentUser.id, formData)
-					console.log('file upload result', result)
+					await pb.collection('users').update($currentUser.id, formData)
 				} catch (error) {
 					console.error('Error uploading file:', error)
 				}
@@ -65,26 +70,47 @@
 		}
 
 		const reorderGroup = document.getElementById('keygroup')
-		console.log('**** reorderGroup', reorderGroup)
 		if (reorderGroup) {
-			reorderGroup.addEventListener('ionItemReorder', ({ detail }) => {
-				// The `from` and `to` properties contain the index of the item
-				// when the drag started and ended, respectively
-				console.log('Dragged from index', detail.from, 'to', detail.to)
-
-				// Finish the reorder and position the item in the DOM based on
-				// where the gesture ended. This method can also be called directly
-				// by the reorder group
+			reorderGroup.addEventListener('ionItemReorder', async ({ detail }) => {
+				// console.log('Dragged from index', detail.from, 'to', detail.to)
+				const itemToMove = keys.splice(detail.from, 1)[0];
+			    keys.splice(detail.to, 0, itemToMove);
+				updateKeyOrder()
 				detail.complete()
+				//loadKeys();
 			})
 		}
 	})
-	const ionViewWillEnter = async () => {
-		console.log('ionViewWillEnter')
+	const updateKeyOrder = async () => {
+		for (let i = 0; i < keys.length; i++) {
+			const key = keys[i]
+			key.sort_key = i
+			await pb.collection('user_keys').update(key.id, key)
+		}
 	}
 	const addKey = async () => {
-		console.log('addKey')
+		await showKeyModal()
 	}
+	const editKey = async (key: any) => {
+		await showKeyModal(key)
+	}
+	const showKeyModal = async (key?: any) => {
+		const modal = await modalController.create({
+			component: keyModal,
+			componentProps: {data: key},
+			showBackdrop: true,
+			backdropDismiss: false,
+		})
+
+		modal.onDidDismiss().then((value) => {
+			//if (value.role === 'backdrop') console.log('Backdrop clicked');
+			loadKeys()
+		})
+
+		await modal.present()
+	}
+
+
 </script>
 
 <IonPage {ionViewWillEnter}>
@@ -179,10 +205,12 @@
 			<ion-row>
 				<ion-col>
 					<ion-reorder-group id="keygroup" disabled={false}>
-						<ion-item>
-							<ion-label> Item 1 </ion-label>
-							<ion-reorder slot="end" />
-						</ion-item>
+						{#each keys as key}
+							<ion-item on:click={()=>{editKey(key)}}>
+								<ion-label>{key.title || "Unnamed Public SSH Key"}</ion-label>
+								<ion-reorder slot="end" />
+							</ion-item>
+						{/each}
 					</ion-reorder-group>
 					<ion-item lines="none">
 						<ion-button style="width: 100%;" size="default" expand="block" on:click={addKey}>
