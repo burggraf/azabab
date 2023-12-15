@@ -1,5 +1,6 @@
 <script lang="ts">
 	import IonPage from '$ionpage'
+	import Keys from '$components/Keys.svelte'
 	import {
 		add,
 		addOutline,
@@ -10,10 +11,7 @@
 	} from 'ionicons/icons'
 	import { pb, currentUser, apiURL } from '$services/backend.service'
 	import { onMount } from 'svelte'
-	import { modalController } from '$ionic/svelte'
-	import keyModal from './keyModal.svelte'
 	let name = ''
-	let keys: any = []
 	const handleNameChange = async (event: any) => {
 		name = event.target.value!
 		if ($currentUser) {
@@ -35,16 +33,10 @@
 			await pb.collection('users').update($currentUser.id, { avatar: null })
 		}
 	}
-	const loadKeys = async () => {
-		keys = await pb.collection('user_keys').getFullList({
-				sort: 'sort_key',
-			});
-	}
 	const ionViewWillEnter = async () => {
 		console.log('ionViewWillEnter')
 		if ($currentUser) {
 			name = $currentUser.name
-			loadKeys()
 		}
 	}
 
@@ -69,47 +61,7 @@
 			console.log('*** fileInput not found ***')
 		}
 
-		const reorderGroup = document.getElementById('keygroup')
-		if (reorderGroup) {
-			reorderGroup.addEventListener('ionItemReorder', async ({ detail }) => {
-				// console.log('Dragged from index', detail.from, 'to', detail.to)
-				const itemToMove = keys.splice(detail.from, 1)[0];
-			    keys.splice(detail.to, 0, itemToMove);
-				updateKeyOrder()
-				detail.complete()
-				//loadKeys();
-			})
-		}
 	})
-	const updateKeyOrder = async () => {
-		for (let i = 0; i < keys.length; i++) {
-			const key = keys[i]
-			key.sort_key = i
-			await pb.collection('user_keys').update(key.id, key)
-		}
-	}
-	const addKey = async () => {
-		await showKeyModal()
-	}
-	const editKey = async (key: any) => {
-		await showKeyModal(key)
-	}
-	const showKeyModal = async (key?: any) => {
-		const modal = await modalController.create({
-			component: keyModal,
-			componentProps: {data: key},
-			showBackdrop: true,
-			backdropDismiss: false,
-		})
-
-		modal.onDidDismiss().then((value) => {
-			//if (value.role === 'backdrop') console.log('Backdrop clicked');
-			loadKeys()
-		})
-
-		await modal.present()
-	}
-
 
 </script>
 
@@ -196,27 +148,8 @@
 			</ion-row>
 		</ion-grid>
 
-		<ion-grid class="ion-padding Grid">
-			<ion-row>
-				<ion-col>
-					<ion-item-divider>Public SSH Keys</ion-item-divider>
-					<ion-reorder-group id="keygroup" disabled={false}>
-						{#each keys as key}
-							<ion-item on:click={()=>{editKey(key)}}>
-								<ion-label>{key.title || "Unnamed Public SSH Key"}</ion-label>
-								<ion-reorder slot="end" />
-							</ion-item>
-						{/each}
-					</ion-reorder-group>
-					<ion-item lines="none">
-						<ion-button style="width: 100%;" size="default" expand="block" on:click={addKey}>
-							<ion-icon slot="icon-only" icon={addOutline} />
-							<ion-label>Add New Public SSH Key</ion-label>
-						</ion-button>
-					</ion-item>
-				</ion-col>
-			</ion-row>
-		</ion-grid>
+		<Keys />
+
 	</ion-content>
 </IonPage>
 
