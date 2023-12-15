@@ -199,11 +199,7 @@
 		<ion-grid class="ion-padding Grid">
 			<ion-row>
 				<ion-col>
-					<ion-label>Public SSH Keys</ion-label>
-				</ion-col>
-			</ion-row>
-			<ion-row>
-				<ion-col>
+					<ion-item-divider>Public SSH Keys</ion-item-divider>
 					<ion-reorder-group id="keygroup" disabled={false}>
 						{#each keys as key}
 							<ion-item on:click={()=>{editKey(key)}}>
