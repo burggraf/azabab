@@ -1,5 +1,9 @@
+<script context="module">
+    export const prerender = false;
+    export const ssr = false;
+</script>
 <script lang="ts">
-	import IonPage from "$ionpage";
+    import IonPage from "$ionpage";
     import { page } from '$app/stores'
 	import { arrowBackOutline, checkmarkOutline } from "ionicons/icons"
     import { currentUser, pb } from "$services/backend.service";

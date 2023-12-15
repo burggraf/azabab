@@ -4,6 +4,7 @@ import { adapter } from './adapter.mjs'
 // you don't need to do this if you're using generateSW strategy in your app
 import { generateSW } from './pwa.mjs'
 
+
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
 	// Consult https://github.com/sveltejs/svelte-preprocess
@@ -12,7 +13,7 @@ const config = {
 	kit: {
 		adapter,
 		serviceWorker: {
-			register: false,
+		register: false,
 		},
 		files: {
 			// you don't need to do this if you're using generateSW strategy in your app
@@ -27,7 +28,14 @@ const config = {
 			'$stores': 'src/stores',
 			'$components': 'src/components',
 			'$localdata': 'src/localdata',
-		},		
+		},	
+		prerender: {
+			// use relative URLs similar to an anchor tag <a href="/test/1"></a>
+			// do not include group layout folders in the path such as /(group)/test/1
+			entries: ['*',
+			'/project/[id]',
+			]
+		}
 	},
 };
 
