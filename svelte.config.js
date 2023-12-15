@@ -34,6 +34,7 @@ const config = {
 			// do not include group layout folders in the path such as /(group)/test/1
 			entries: ['*',
 			'/project/[id]',
+			'/welcome',
 			]
 		}
 	},

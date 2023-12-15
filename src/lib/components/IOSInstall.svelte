@@ -8,7 +8,7 @@
 	const doneThat = async () => {
 		const options = {
 			header: 'Great!',
-			subHeader: 'Thanks for installing pbsveltic!',
+			subHeader: 'Thanks for installing Azabab!',
 			message: 'The app should now be visible as icon on your home screen.',
 			buttons: [
 				{
@@ -29,12 +29,12 @@
 </script>
 
 <svelte:head>
-	<title>Install pbsveltic</title>
+	<title>Install Azabab</title>
 </svelte:head>
 
 <ion-content fullscreen class="ion-padding">
 	<br />
-	<img src="/icon-512.png" alt="pbsveltic" width="55%" />
+	<img src="/icon-512.png" alt="Azabab" width="55%" />
 	<h2>Hey there!</h2>
 	{#if !isSafari}
 		<br /><br />

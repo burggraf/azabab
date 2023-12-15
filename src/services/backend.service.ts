@@ -21,12 +21,8 @@ const protocol = window.location.protocol;
 export let apiURL = `${protocol}//${host}`;
 if (port) apiURL += `:${port}`;
 apiURL += '/';
-// if (host !== 'localhost' && host !== '127.0.0.1') {
-//   apiURL = 'https://pbsveltic.pockethost.io/';
-// }
 console.log('apiURL', apiURL);
 export const pb = new PocketBase(apiURL);
-//export const pb = new PocketBase('http://west.ovh.dmarie.com');
 
 export let currentUser: any = writable<any | null>(null);
 
