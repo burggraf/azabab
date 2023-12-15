@@ -2,7 +2,7 @@ use hyper::{Body, Request, Response, Server, StatusCode};
 use hyper::service::{make_service_fn, service_fn};
 use std::process::Command;
 use hyper::client::Client;
-use tokio::process::Command as TokioCommand;
+//use tokio::process::Command as TokioCommand;
 
 #[tokio::main]
 async fn main() {
@@ -52,15 +52,16 @@ async fn request_handler(req: Request<Body>) -> Result<Response<Body>, hyper::Er
 
     let resp = client.request(forward_req).await?;
 
-    if output_str.trim() == "OK" {
-        let _stats_handle = TokioCommand::new("sudo")
-            .arg("/home/ubuntu/stats.sh")
-            .arg(original_port)
-            .arg("start")
-            .spawn();    
-        // Note: We're not using .await here, so the command runs in the background
-        // If you want to handle the result later, you can store _stats_handle and use .await on it
-    }    
+    // moved the below code to monitor-container-startups.sh
+    // if output_str.trim() == "OK" {
+    //     let _stats_handle = TokioCommand::new("sudo")
+    //         .arg("/home/ubuntu/stats.sh")
+    //         .arg(original_port)
+    //         .arg("start")
+    //         .spawn();    
+    //     // Note: We're not using .await here, so the command runs in the background
+    //     // If you want to handle the result later, you can store _stats_handle and use .await on it
+    // }    
     // Forward the response back
     Ok(resp)
 }
