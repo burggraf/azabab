@@ -13,9 +13,14 @@
         ownertype: string
     }
     interface ProjectInstance {
-        id: string,
-        name: string,
-        type: string
+        code: string;
+        domain: string;
+        id: string;
+        port: number;
+        site_domain: string;
+        site_name: string;
+        site_id: string;
+        type: string;
     }
     interface Site {
         id: string,
@@ -31,21 +36,31 @@
         owner: $currentUser?.id,
         ownertype: 'person'
     }
-    const project_instances: ProjectInstance[] = [{
-        id: '',
-        name: '',
-        type: 'primary'
+    let project_instances: ProjectInstance[] = [{
+        code: "",
+        domain: "",
+        id: "",
+        port: 0,
+        site_domain: "",
+        site_name: "",
+        site_id: "",
+        type: "primary"
     }]
     const ionViewWillEnter = async () => {        
         console.log("ionViewWillEnter")
         if (id !== 'new') {
             console.log('looking for projects with id', id)
             const record = await pb.collection('projects').getOne(id)
-            console.log('record', record)
+            console.log('project record', record)
             project.domain = record.domain
             project.name = record.name
             project.owner = record.owner
             project.ownertype = record.ownertype
+            project_instances = await pb.collection('instance_view').getFullList({
+                filter: `project_id = "${id}"`,
+                fields: 'code, domain, id, port, site_domain, site_name, site_id, type',                
+            })
+            console.log('project_instances', project_instances)
         }
         sites = await pb.collection('sites').getFullList({
             fields: 'id, name, code, domain',
@@ -187,6 +202,7 @@
 				</ion-col>
 			</ion-row>
             {#each project_instances as project_instance, index}
+            <!-- code, domain, id, port, site_domain, site_name, type -->
                 <ion-row>
                     <ion-col>
                         <ion-item class="GridItem" lines="none">
@@ -206,7 +222,7 @@
                             <ion-select
                                 id={"id_" + index}
                                 label="Data Center"
-                                value={project_instance.id}
+                                value={project_instance.site_id}
                                 placeholder="Select One"                                
                                 on:ionChange={siteChange}>
                                 {#each sites as site}
