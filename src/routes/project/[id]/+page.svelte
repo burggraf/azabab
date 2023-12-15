@@ -39,6 +39,7 @@
     const ionViewWillEnter = async () => {        
         console.log("ionViewWillEnter")
         if (id !== 'new') {
+            console.log('looking for projects with id', id)
             const record = await pb.collection('projects').getOne(id)
             console.log('record', record)
             project.domain = record.domain
@@ -110,9 +111,11 @@
             </ion-buttons>
             <ion-title>Project</ion-title>
             <ion-buttons slot="end">
+                {#if id === 'new'}
                 <ion-button on:click={save}>
                     <ion-icon slot="icon-only" icon={checkmarkOutline} />
                 </ion-button>
+                {/if}
         </ion-toolbar>
     </ion-header>
     <ion-content class="ion-padding">
