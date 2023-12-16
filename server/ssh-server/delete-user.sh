@@ -13,7 +13,7 @@ SSHD_CONFIG_FILE="/etc/ssh/sshd_config"
 cp $SSHD_CONFIG_FILE "${SSHD_CONFIG_FILE}.bak"
 
 # Use sed to delete the matched line and the one following it
-sed -i "/Match User $USERNAME/,+1 d" $SSHD_CONFIG_FILE
+sed -i "/Match User $USERNAME\$/,+1 d" $SSHD_CONFIG_FILE
 
 # Delete the user account
 deluser $USERNAME
