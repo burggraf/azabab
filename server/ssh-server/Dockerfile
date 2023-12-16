@@ -30,6 +30,7 @@ RUN ssh-keygen -A
 
 COPY ./start.sh .
 COPY ./create-user.sh .
+COPY ./delete-user.sh .
 COPY ./generate-ssh-keys.sh .
 
 RUN ./generate-ssh-keys.sh

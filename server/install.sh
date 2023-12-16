@@ -90,6 +90,19 @@ echo ""
 ssh ubuntu@$1 "sudo docker build -t pbdocker ."
 
 echo ""
+echo "Copy ssh-server files to the server"
+echo ""
+ssh ubuntu@$1 "mkdir ~/ssh-server"
+scp ssh-server/* ubuntu@$1:~/ssh-server
+
+echo ""
+echo "*** Build the ssh-server Docker image ***"
+echo ""
+ssh ubuntu@$1 "cd ~/ssh-server;sudo docker build -t ssh-server ."
+scp files/start-ssh-server.sh ubuntu@$1:~
+ssh ubuntu@$1 "~/start-ssh-server.sh"
+
+echo ""
 echo "Create a service to run rust-server.exe"
 echo ""
 ssh ubuntu@$1 "sudo mv ~/rust-server.service /etc/systemd/system"
@@ -139,19 +152,6 @@ echo "Reload the cron scheduler"
 echo ""
 ssh ubuntu@$1 "sudo service cron reload"
 ssh ubuntu@$1 "sudo crontab -l"
-
-echo ""
-echo "Copy ssh-server files to the server"
-echo ""
-ssh ubuntu@$1 "mkdir ~/ssh-server"
-scp ssh-server/* ubuntu@$1:~/ssh-server
-
-echo ""
-echo "*** Build the ssh-server Docker image ***"
-echo ""
-ssh ubuntu@$1 "cd ~/ssh-server;sudo docker build -t ssh-server ."
-scp files/start-ssh-server.sh ubuntu@$1:~
-ssh ubuntu@$1 "~/start-ssh-server.sh"
 
 echo ""
 echo "Install Litestream"
