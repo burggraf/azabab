@@ -14,7 +14,21 @@ routerAdd('POST', '/createproject', async (c) => {
 	if (data?.project?.owner !== user?.id) {
 		return c.json(200, { data: null, error: 'not your project' })
 	}
-
+    if (!data?.project?.name) {
+        return c.json(200, { data: null, error: 'project name is required' })
+    }   
+    if (data?.project?.ownertype !== 'person' && data?.project?.ownertype !== 'org') {
+        return c.json(200, { data: null, error: 'ownertype must be "person" or "org"' })
+    }
+    if (!data?.project?.domain) {
+        return c.json(200, { data: null, error: 'domain is required' })
+    }
+    if (!data?.project_instances[0]?.id) {
+        return c.json(200, { data: null, error: 'site id is required' })
+    }
+    if (data?.project_instances[0]?.type !== 'primary' && data?.project_instances[0]?.type !== 'replica') {
+        return c.json(200, { data: null, error: 'type must be "primary" or "replica"' })
+    }
 	try {
 		// create the project record
 		const projectInsert = arrayOf(

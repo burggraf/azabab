@@ -1,0 +1,12 @@
+[Unit]
+Description=Docker SSH Server
+After=docker.service
+Requires=docker.service
+
+[Service]
+Restart=always
+ExecStart=/usr/bin/docker run --rm -d -p 2222:22 -v /home/ubuntu/data:/data --name ssh-server ssh-server
+ExecStop=/usr/bin/docker stop ssh-server
+
+[Install]
+WantedBy=multi-user.target
