@@ -11,10 +11,17 @@
 	import { onMount } from 'svelte'
 	import { modalController } from '$ionic/svelte'
 	import keyModal from './keyModal.svelte'
-	let keys: any = []
+    interface Key {
+        id: string,
+        title: string,
+        sort_key: number,
+        key: string
+    }
+	let keys: Key[] = []
 
 	const loadKeys = async () => {
 		keys = await pb.collection('user_keys').getFullList({
+                fields: 'id,title,key,sort_key',
 				sort: 'sort_key',
 			});
 	}

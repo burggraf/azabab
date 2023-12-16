@@ -6,8 +6,11 @@
 	import { toast } from '$services/toast'
 	import { onMount } from 'svelte'
 	import { showConfirm } from '$services/alert.service'
+    interface IObjectKeys {
+        [key: string]: string | number;
+    }
 
-	type Data = {
+	interface Data extends IObjectKeys {
 		key: string
 		title: string
 		user_id: string

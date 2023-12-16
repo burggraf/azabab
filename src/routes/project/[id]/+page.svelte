@@ -5,14 +5,19 @@
     import { currentUser, pb } from "$services/backend.service";
 	import { goto } from "$app/navigation"
 	export let id = $page.params.id
-    interface Project {
+
+    interface IObjectKeys {
+        [key: string]: string | number;
+    }
+
+    interface Project extends IObjectKeys {
         id: string,
         domain: string,
         name: string,
         owner: string,
         ownertype: string
     }
-    interface ProjectInstance {
+    interface ProjectInstance extends IObjectKeys {
         code: string;
         domain: string;
         id: string;
@@ -28,6 +33,14 @@
         code: string,
         domain: string
     }
+
+    interface Key {
+        id: string,
+        title: string,
+        sort_key: number,
+        key: string
+    }
+
     let sites: Site[] = []
     const project: Project = {
         id: '',
@@ -71,8 +84,27 @@
     }
     const save = async () => {
         console.log("save")
+        /*
+        to create a new project, we need to send:
+
+            data.project.owner
+            data.project.name
+            data.project.ownertype
+            data.project.domain
+            
+            data.project_instances[0].id
+            data.project_instances[0].type
+
+            data.site.domain 
+        */
         const site = sites.find(site => site.id === project_instances[0].id)
         if (id === 'new') { 
+            console.log('creating new project')
+            console.log('sending', {
+                project,
+                project_instances,
+                site
+            })
             const { result } = await pb.send(
                 "/createproject",
                 {
@@ -115,6 +147,7 @@
         const index = event.target.id.split('_')[1]
         project_instances[index][fieldname] = event.target.value || ''
     }
+
 </script>
 <IonPage {ionViewWillEnter}>
     <ion-header>
@@ -135,34 +168,6 @@
     </ion-header>
     <ion-content class="ion-padding">
 		<ion-grid class="ion-padding Grid">
-			<ion-row>
-				<ion-col>
-					<ion-label>domain</ion-label>
-				</ion-col>
-			</ion-row>
-			<ion-row>
-				<ion-col>
-					<ion-item class="GridItem" lines="none">
-						<ion-input
-							on:ionInput={handleChange}
-							class="loginInputBoxWithIcon"
-							type="text"
-                            id="domain"
-							placeholder="domain"
-							style="--padding-start: 10px;"
-							value={project.domain}
-							debounce={500}
-						/>
-						<!-- <ion-icon
-							class="inputIcon"
-							icon={}
-							size="large"
-							color="medium"
-							slot="start"
-						/> -->
-					</ion-item>
-				</ion-col>
-			</ion-row>
 
 			<ion-row>
 				<ion-col>
@@ -192,8 +197,37 @@
 					</ion-item>
 				</ion-col>
 			</ion-row>
-		</ion-grid>
 
+            <ion-row>
+				<ion-col>
+					<ion-label>domain</ion-label>
+				</ion-col>
+			</ion-row>
+			<ion-row>
+				<ion-col>
+					<ion-item class="GridItem" lines="none">
+						<ion-input
+							on:ionInput={handleChange}
+							class="loginInputBoxWithIcon"
+							type="text"
+                            id="domain"
+							placeholder="domain"
+							style="--padding-start: 10px;"
+							value={project.domain}
+							debounce={500}
+						/>
+						<!-- <ion-icon
+							class="inputIcon"
+							icon={}
+							size="large"
+							color="medium"
+							slot="start"
+						/> -->
+					</ion-item>
+				</ion-col>
+			</ion-row>
+
+		</ion-grid>
 
         <ion-grid class="ion-padding Grid">
             <ion-row>
@@ -234,6 +268,8 @@
                 </ion-row>
             {/each}
         </ion-grid>
+
+
         <!-- project: {JSON.stringify(project)}
         <br />
         project_instances: {JSON.stringify(project_instances)} -->
