@@ -1,161 +1,217 @@
-routerAdd("POST", "/createproject", async (c) => {
-    // read the body via the cached request object
-    // (this method is commonly used in hook handlers because it allows reading the body more than once)
-    const data = $apis.requestInfo(c).data
+routerAdd('POST', '/createproject', async (c) => {
+	// read the body via the cached request object
+	// (this method is commonly used in hook handlers because it allows reading the body more than once)
+	const data = $apis.requestInfo(c).data
 
-    const info   = $apis.requestInfo(c);
-    // const admin  = info.admin;      // empty if not authenticated as admin
-    const user = info.authRecord; // empty if not authenticated as regular auth record
-    // console.log('info', JSON.stringify(info, null, 2));
-    // console.log('admin', JSON.stringify(admin, null, 2));
-    if (!user) {
-        return c.json(401, { "error": "not logged in" })    
-    }
-    if (data?.project?.owner !== user?.id) {
-        return c.json(401, { "error": "not your project" })
-    }
-    // create the project record
-    const projectInsert = arrayOf(new DynamicModel({
-        "id": "",
-    }))
-    $app.dao().db()
-        .newQuery(`insert into projects (name, owner, ownertype, domain) 
+	const info = $apis.requestInfo(c)
+	// const admin  = info.admin;      // empty if not authenticated as admin
+	const user = info.authRecord // empty if not authenticated as regular auth record
+	// console.log('info', JSON.stringify(info, null, 2));
+	// console.log('admin', JSON.stringify(admin, null, 2));
+	if (!user) {
+		return c.json(200, { data: null, error: 'not logged in' })
+	}
+	if (data?.project?.owner !== user?.id) {
+		return c.json(200, { data: null, error: 'not your project' })
+	}
+
+	try {
+		// create the project record
+		const projectInsert = arrayOf(
+			new DynamicModel({
+				id: '',
+			})
+		)
+		$app
+			.dao()
+			.db()
+			.newQuery(
+				`insert into projects (name, owner, ownertype, domain) 
                     values ('${data?.project?.name}', '${data?.project?.owner}', '${data?.project?.ownertype}', '${data?.project?.domain}')
-                    returning id`)
-        .all(projectInsert) // throw an error on db failure
-    // get the id of the newly inserted project
-    const newId = projectInsert[0].id;
-    // create the project_instances record
-    const project_instancesInsert = arrayOf(new DynamicModel({
-        "port": 0
-    }))
-    $app.dao().db()
-        .newQuery(`insert into project_instance (project_id, site_id, port, type, domain) 
+                    returning id`
+			)
+			.all(projectInsert) // throw an error on db failure
+		// get the id of the newly inserted project
+		const newId = projectInsert[0].id
+		// create the project_instances record
+		const project_instancesInsert = arrayOf(
+			new DynamicModel({
+				port: 0,
+			})
+		)
+		$app
+			.dao()
+			.db()
+			.newQuery(
+				`insert into project_instance (project_id, site_id, port, type, domain) 
                     values ('${newId}', 
                     '${data?.project_instances[0]?.id}', 
                     (select coalesce((select max(port)+1 FROM project_instance where site_id = '${data?.project_instances[0]?.id}'),10001)),
                     '${data?.project_instances[0]?.type}',
                     '${data?.project?.domain}')
-                    returning port`)
-        .all(project_instancesInsert) // throw an error on db failure
+                    returning port`
+			)
+			.all(project_instancesInsert) // throw an error on db failure
 
-    const newPort = project_instancesInsert[0].port;
-    // now use (data?.project?.domain) and (newPort) to create the nginx config file
-    console.log('now create new entry for:')
-    console.log('domain', data?.project?.domain)
-    console.log('port', newPort)
-    console.log('site domain', data?.site?.domain)
-    // update: /etc/nginx/domain_ports.txt
-    const cmd = $os.cmd('ssh', `ubuntu@${data?.site?.domain}`, 
-        `echo "${data?.project?.domain}.${data?.site?.domain}  ${newPort};" | sudo tee -a /etc/nginx/domain_ports.txt && sudo kill -HUP \$(cat /var/run/nginx.pid)`);
-    // const error = String.fromCharCode(...cmd.stderr());
-    console.log(JSON.stringify(cmd, null, 2));
-    const output = String.fromCharCode(...cmd.output());   
-    
-    // reload domain_ports.txt file to update domain port mappings
-    // ssh ubuntu@$1  "sudo kill -HUP \$(cat /var/run/nginx.pid)"
+		const newPort = project_instancesInsert[0].port
+		// now use (data?.project?.domain) and (newPort) to create the nginx config file
+		console.log('now create new entry for:')
+		console.log('domain', data?.project?.domain)
+		console.log('port', newPort)
+		console.log('site domain', data?.site?.domain)
+		// update: /etc/nginx/domain_ports.txt
+		const cmd = $os.cmd(
+			'ssh',
+			`ubuntu@${data?.site?.domain}`,
+			`echo "${data?.project?.domain}.${data?.site?.domain}  ${newPort};" | sudo tee -a /etc/nginx/domain_ports.txt && sudo kill -HUP \$(cat /var/run/nginx.pid)`
+		)
+		// const error = String.fromCharCode(...cmd.stderr());
+		console.log(JSON.stringify(cmd, null, 2))
+		const output = String.fromCharCode(...cmd.output())
 
-    return c.json(200, { "result": "ok" })    
+		// reload domain_ports.txt file to update domain port mappings
+		// ssh ubuntu@$1  "sudo kill -HUP \$(cat /var/run/nginx.pid)"
 
+		return c.json(200, { data: newId, error: null })
+	} catch (projectInsertError) {
+		console.log('projectInsertError', projectInsertError)
+        for (let attr in projectInsertError) {
+            console.log('attr', attr)
+            console.log(`projectInsertError.${attr} = ${projectInsertError[attr]}`)
+        }
+        for (let attr in projectInsertError.value) {
+            console.log('attr', attr)
+            console.log(`projectInsertError.value.${attr} = ${projectInsertError.value[attr]}`)
+        }
+        console.log('projectInsertError.value', projectInsertError.value, typeof projectInsertError.value)
+		return c.json(200, { data: null, error: projectInsertError.value.error() })
+	}
 })
 
-routerAdd("GET", "/test", async (c) => {
-    console.log('** ls');
-    try {
+routerAdd('GET', '/test', async (c) => {
+	console.log('** ls')
+	try {
+		const domains = arrayOf(
+			new DynamicModel({
+				// describe the shape of the data (used also as initial values)
+				domain: '',
+				port: 0,
+			})
+		)
 
-        const domains = arrayOf(new DynamicModel({
-            // describe the shape of the data (used also as initial values)
-            "domain":     "",
-            "port": 0,
-        }))
-        
-        $app.dao().db()
-            .newQuery("SELECT domain, port FROM domain_mappings")
-            .all(domains) // throw an error on db failure
+		$app.dao().db().newQuery('SELECT domain, port FROM domain_mappings').all(domains) // throw an error on db failure
 
-        console.log('domains', JSON.stringify(domains, null, 2));        
+		console.log('domains', JSON.stringify(domains, null, 2))
 
-        const cmd = $os.cmd('ssh', 'ubuntu@west-2.azabab.com', 'ls')
-        // const error = String.fromCharCode(...cmd.stderr());
-        console.log(JSON.stringify(cmd, null, 2));
-        const output = String.fromCharCode(...cmd.output());
-        console.log('output', output);
-        return c.json(200, { "result": output })    
-    } catch (err) {
-        console.log('err', err);
-        const cmd = $os.cmd('ls', '-alt')
-        return c.json(200, { "got err": JSON.stringify(err) })    
-    }
-});
-routerAdd("GET", "/hello/:name", (c) => {
-    let name = c.pathParam("name")
-
-    return c.json(200, { "message": "Hello " + name })
+		const cmd = $os.cmd('ssh', 'ubuntu@west-2.azabab.com', 'ls')
+		// const error = String.fromCharCode(...cmd.stderr());
+		console.log(JSON.stringify(cmd, null, 2))
+		const output = String.fromCharCode(...cmd.output())
+		console.log('output', output)
+		return c.json(200, { result: output })
+	} catch (err) {
+		console.log('err', err)
+		const cmd = $os.cmd('ls', '-alt')
+		return c.json(200, { 'got err': JSON.stringify(err) })
+	}
 })
-routerAdd("GET", "/sample_hook", (c) => {    
-    // let name = c.pathParam("name")
-    function randomString() {
-        const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
-        let result = '';
-        for (let i = 15; i > 0; --i) result += chars[Math.floor(Math.random() * chars.length)];
-        return result;
-    };
-    
-    const result = new DynamicModel({
-        a:"",b:"",c:"",category:"",d:"",difficulty:"",id:"",question:"",subcategory:""
-    })
+routerAdd('GET', '/hello/:name', (c) => {
+	let name = c.pathParam('name')
 
-    try {
-        const user = c.get("authRecord") // empty if not authenticated as regular auth record    
-        if (user === null) {
-            console.log("user is null")
-            try {
-                $app.dao().db()
-                .newQuery(`SELECT trivia.a,trivia.b,trivia.c,trivia.d,trivia.category,trivia.difficulty,trivia.subcategory,trivia.id,trivia.question FROM trivia where trivia.id >= '${randomString()}' order by trivia.id asc LIMIT 1`)
-                .one(result) // throw an error on db failure or missing row
-            } catch (forwarderror) {
-                console.log("forwarderror:", forwarderror)
-                try {
-                    if (forwarderror.value.error() === 'sql: no rows in result set') {
-                        $app.dao().db()
-                        .newQuery(`SELECT trivia.a,trivia.b,trivia.c,trivia.d,trivia.category,trivia.difficulty,trivia.subcategory,trivia.id,trivia.question FROM trivia where trivia.id <= '${randomString()}' order by trivia.id asc LIMIT 1`)
-                        .one(result) // throw an error on db failure or missing row
-                    }    
-                } catch (finalerror) {
-                    console.log("finalerror:", finalerror)
-                    return c.json(200, { "error": finalerror })
-                }
-            }    
-        } else {
-            console.log("user is: ", user?.id)
-            try {
-                $app.dao().db()
-                .newQuery(`SELECT trivia.a,trivia.b,trivia.c,trivia.d,trivia.category,trivia.difficulty,trivia.subcategory,trivia.id,trivia.question FROM trivia left outer join trivia_log on trivia_log.user = '${user?.id}' and trivia_log.question = trivia.id where trivia.id >= '${randomString()}' and trivia_log.id is null order by trivia.id asc LIMIT 1`)
-                .one(result) // throw an error on db failure or missing row
-            } catch (forwarderror) {
-                console.log("forwarderror:", forwarderror)
-                try {
-                    if (forwarderror.value.error() === 'sql: no rows in result set') {
-                        $app.dao().db()
-                        .newQuery(`SELECT trivia.a,trivia.b,trivia.c,trivia.d,trivia.category,trivia.difficulty,trivia.subcategory,trivia.id,trivia.question FROM trivia left outer join trivia_log on trivia_log.user = '${user?.id}' and trivia_log.question = trivia.id where trivia.id <= '${randomString()}' and trivia_log.id is null order by trivia.id asc LIMIT 1`)
-                        .one(result) // throw an error on db failure or missing row
-                    }    
-                } catch (finalerror) {
-                    console.log("finalerror:", finalerror)
-                    return c.json(200, { "error": finalerror })
-                }
-            }
-    
-        }        
-        return c.json(200, { result })
-    } catch (err) {
-        console.log("err:", err)
-        return c.json(200, { "error": err })
-    }
+	return c.json(200, { message: 'Hello ' + name })
+})
+routerAdd(
+	'GET',
+	'/sample_hook',
+	(c) => {
+		// let name = c.pathParam("name")
+		function randomString() {
+			const chars = 'abcdefghijklmnopqrstuvwxyz0123456789'
+			let result = ''
+			for (let i = 15; i > 0; --i) result += chars[Math.floor(Math.random() * chars.length)]
+			return result
+		}
 
+		const result = new DynamicModel({
+			a: '',
+			b: '',
+			c: '',
+			category: '',
+			d: '',
+			difficulty: '',
+			id: '',
+			question: '',
+			subcategory: '',
+		})
 
-}, /* optional middlewares */)
-
+		try {
+			const user = c.get('authRecord') // empty if not authenticated as regular auth record
+			if (user === null) {
+				console.log('user is null')
+				try {
+					$app
+						.dao()
+						.db()
+						.newQuery(
+							`SELECT trivia.a,trivia.b,trivia.c,trivia.d,trivia.category,trivia.difficulty,trivia.subcategory,trivia.id,trivia.question FROM trivia where trivia.id >= '${randomString()}' order by trivia.id asc LIMIT 1`
+						)
+						.one(result) // throw an error on db failure or missing row
+				} catch (forwarderror) {
+					console.log('forwarderror:', forwarderror)
+					try {
+						if (forwarderror.value.error() === 'sql: no rows in result set') {
+							$app
+								.dao()
+								.db()
+								.newQuery(
+									`SELECT trivia.a,trivia.b,trivia.c,trivia.d,trivia.category,trivia.difficulty,trivia.subcategory,trivia.id,trivia.question FROM trivia where trivia.id <= '${randomString()}' order by trivia.id asc LIMIT 1`
+								)
+								.one(result) // throw an error on db failure or missing row
+						}
+					} catch (finalerror) {
+						console.log('finalerror:', finalerror)
+						return c.json(200, { error: finalerror })
+					}
+				}
+			} else {
+				console.log('user is: ', user?.id)
+				try {
+					$app
+						.dao()
+						.db()
+						.newQuery(
+							`SELECT trivia.a,trivia.b,trivia.c,trivia.d,trivia.category,trivia.difficulty,trivia.subcategory,trivia.id,trivia.question FROM trivia left outer join trivia_log on trivia_log.user = '${
+								user?.id
+							}' and trivia_log.question = trivia.id where trivia.id >= '${randomString()}' and trivia_log.id is null order by trivia.id asc LIMIT 1`
+						)
+						.one(result) // throw an error on db failure or missing row
+				} catch (forwarderror) {
+					console.log('forwarderror:', forwarderror)
+					try {
+						if (forwarderror.value.error() === 'sql: no rows in result set') {
+							$app
+								.dao()
+								.db()
+								.newQuery(
+									`SELECT trivia.a,trivia.b,trivia.c,trivia.d,trivia.category,trivia.difficulty,trivia.subcategory,trivia.id,trivia.question FROM trivia left outer join trivia_log on trivia_log.user = '${
+										user?.id
+									}' and trivia_log.question = trivia.id where trivia.id <= '${randomString()}' and trivia_log.id is null order by trivia.id asc LIMIT 1`
+								)
+								.one(result) // throw an error on db failure or missing row
+						}
+					} catch (finalerror) {
+						console.log('finalerror:', finalerror)
+						return c.json(200, { error: finalerror })
+					}
+				}
+			}
+			return c.json(200, { result })
+		} catch (err) {
+			console.log('err:', err)
+			return c.json(200, { error: err })
+		}
+	} /* optional middlewares */
+)
 
 // fires only for "users" (not) "managers" auth collections
 // onRecordAfterConfirmVerificationRequest((e) => {
@@ -164,13 +220,12 @@ routerAdd("GET", "/sample_hook", (c) => {
 //     // e.redirect(200, "http://localhost:8100/welcome");
 // }, "users")
 
-
 onRealtimeConnectRequest((e) => {
-    ////console.log('onRealtimeConnectRequest', JSON.stringify(e,null,2))
-    // for (let attr in e.httpContext) {
-    //     console.log(`httpContext.${attr} = ${e.httpContext[attr]}`)
-    // }
-/*
+	////console.log('onRealtimeConnectRequest', JSON.stringify(e,null,2))
+	// for (let attr in e.httpContext) {
+	//     console.log(`httpContext.${attr} = ${e.httpContext[attr]}`)
+	// }
+	/*
 2023/12/02 08:07:03 client.channel = function reflect.methodValueCall() { [native code] }
 2023/12/02 08:07:03 client.discard = function reflect.methodValueCall() { [native code] }
 2023/12/02 08:07:03 client.get = function reflect.methodValueCall() { [native code] }
@@ -244,9 +299,8 @@ onRealtimeConnectRequest((e) => {
 
 
 */
-
 })
 
 onRealtimeDisconnectRequest((e) => {
-    ////console.log('onRealtimeDisconnectRequest', JSON.stringify(e,null,2))
+	////console.log('onRealtimeDisconnectRequest', JSON.stringify(e,null,2))
 })
