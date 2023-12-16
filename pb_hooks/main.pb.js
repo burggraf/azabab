@@ -87,14 +87,21 @@ routerAdd('POST', '/createproject', async (c) => {
             url:     "http://west-2.azabab.com:5000/createproject",
             method:  "POST",
             body:    JSON.stringify({"domain": data?.project?.domain + '.' + data?.site?.domain, "port": newPort.toString()}),
-            headers: {"content-type": "application/json","Authorization": "your_predefined_auth_token"},
+            headers: {
+                "content-type": "application/json",
+                "Authorization": "your_predefined_auth_token"
+            },
             timeout: 120, // in seconds
         })
-        console.log('res', res)
+        console.log('res', JSON.stringify(res,null,2))
+        if (res.json?.error) {
+            return c.json(200, { data: null, error: res.json.error })
+        } else {
+            return c.json(200, { data: newId, error: null })
+        }
 		// reload domain_ports.txt file to update domain port mappings
 		// ssh ubuntu@$1  "sudo kill -HUP \$(cat /var/run/nginx.pid)"
 
-		return c.json(200, { data: newId, error: null })
 	} catch (projectInsertError) {
 		console.log('projectInsertError', projectInsertError)
         for (let attr in projectInsertError) {

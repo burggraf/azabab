@@ -86,13 +86,13 @@ async fn handle_create_project(mut req: Request<Body>) -> Result<Response<Body>,
         if auth_header != AUTH_TOKEN {
             return Ok(Response::builder()
                 .status(StatusCode::UNAUTHORIZED)
-                .body(Body::from("Unauthorized"))
+                .body(Body::from(json!({ "data": null, "error": "Unauthorized" }).to_string()))
                 .unwrap());
         }
     } else {
         return Ok(Response::builder()
             .status(StatusCode::UNAUTHORIZED)
-            .body(Body::from("No Authorization Header"))
+            .body(Body::from(json!({ "data": null, "error": "No Authorization Header" }).to_string()))
             .unwrap());
     }
 
