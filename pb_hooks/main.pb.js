@@ -74,15 +74,23 @@ routerAdd('POST', '/createproject', async (c) => {
 		console.log('port', newPort)
 		console.log('site domain', data?.site?.domain)
 		// update: /etc/nginx/domain_ports.txt
-		const cmd = $os.cmd(
+        /*
+        const cmd = $os.cmd(
 			'ssh',
 			`ubuntu@${data?.site?.domain}`,
 			`echo "${data?.project?.domain}.${data?.site?.domain}  ${newPort};" | sudo tee -a /etc/nginx/domain_ports.txt && sudo kill -HUP \$(cat /var/run/nginx.pid)`
 		)
-		// const error = String.fromCharCode(...cmd.stderr());
 		console.log(JSON.stringify(cmd, null, 2))
 		const output = String.fromCharCode(...cmd.output())
-
+        */
+        const res = $http.send({
+            url:     "http://west-2.azabab.com:5000/createproject",
+            method:  "POST",
+            body:    JSON.stringify({"domain": data?.project?.domain + '.' + data?.site?.domain, "port": newPort.toString()}),
+            headers: {"content-type": "application/json","Authorization": "your_predefined_auth_token"},
+            timeout: 120, // in seconds
+        })
+        console.log('res', res)
 		// reload domain_ports.txt file to update domain port mappings
 		// ssh ubuntu@$1  "sudo kill -HUP \$(cat /var/run/nginx.pid)"
 
