@@ -39,35 +39,33 @@ routerAdd('GET', '/create-ssh-keys/:project_instance_id', (c) => {
 	for (const kkey of keys) {
 		ssh_key_string += kkey.key
 	}
-	console.log('ssh_key_string', ssh_key_string)
-	if (ssh_key_string.length === 0) {
-		return c.json(200, { data: null, error: 'no keys found' })
+
+	if (keys.length === 0) {
+		$app
+		.dao()
+		.db()
+		.newQuery(
+			`SELECT sites.domain as site,project_instance.domain as username,port,'' as key 
+			from project_instance join sites on sites.id = project_instance.site_id 
+			join projects on projects.id = project_instance.project_id 
+			where project_instance.id = '${project_instance_id}' 
+			and projects.owner = '${user.id}'`
+		)
+		.all(keys) // throw an error on db failure		
+		// 
 	}
+
+	// console.log('ssh_key_string', ssh_key_string)
+	// if (ssh_key_string.length === 0) {
+	// 	return c.json(200, { data: null, error: 'no keys found' })
+	// }
+
 	console.log('keys[0].site', keys[0].site)
 	console.log('keys[0].username', keys[0].username)
 	console.log('keys[0].port', keys[0].port)
-	//ssh_key_string = ssh_key_string.replace(/\n/g, '\\n')
 	console.log('ssh_key_string', ssh_key_string)
-	//ssh_key_string = 'xxx'
-
+	console.log('ssh_key_string.length', ssh_key_string.length)
 	try {
-		// const cmd = $os.cmd(
-		// 	'ssh',
-		// 	// `-t`,
-		// 	`ubuntu@${keys[0].site}`,
-		// 	`/home/ubuntu/create-ssh-keys.sh`, 
-		// 	`${keys[0].username}`,
-		// 	`${keys[0].port}`,
-		// 	`\"${ssh_key_string}\"`
-		// )
-		// console.log('cmd', cmd)
-		// //const error = String.fromCharCode(...cmd.stderr());
-		// //console.log('error', error)
-		// //console.log(JSON.stringify(cmd, null, 2))
-		// const output = String.fromCharCode(...cmd.output())
-		// console.log('------------')
-		// console.log('output', output)
-		// console.log('------------')
 		let res;
 		try {
 			res = $http.send({
@@ -85,19 +83,11 @@ routerAdd('GET', '/create-ssh-keys/:project_instance_id', (c) => {
 				timeout: 120, // in seconds
 			})	
 		} catch (httpError) {
-			console.log('httpError', httpError)
+			// console.log('httpError', httpError)
 			return c.json(200, { data: null, error: httpError.value.error() })
 		}
-		console.log('finished the call')
         console.log('res', JSON.stringify(res,null,2))
-        if (res.json?.error) {
-            return c.json(200, { data: null, error: res.json.error })
-        } else {
-            return c.json(200, { data: newId, error: null })
-        }
-
-
-		return c.json(200, { data: "OK", error: null })
+		return c.json(res.statusCode, res.json)
 	
 	} catch (e) {
 		console.log('e', createUserError.value.error())

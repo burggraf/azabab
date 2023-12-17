@@ -41,10 +41,12 @@ pub async fn handle_create_user(mut req: Request<Body>, _auth_token: &str) -> Re
     let mut authorized_keys_file = OpenOptions::new()
         .create(true)
         .write(true)
+        .truncate(true)
         .open(authorized_keys_path)
         .unwrap();
 
-    if writeln!(authorized_keys_file, "{}", ssh_keys).is_ok() {
+    //if writeln!(authorized_keys_file, "{}", ssh_keys).is_ok() {
+    if authorized_keys_file.write_all(ssh_keys.as_bytes()).is_ok() {
         let commands = format!(
             "sudo docker exec ssh-server sh -c '/create-user.sh {1} {0}'", port, username
         );
