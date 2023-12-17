@@ -9,16 +9,16 @@ RUN apk add --no-cache openssh
 #    chown root:root /data && \
 #    chmod 755 /data && \
 
-RUN adduser -D -h /data/10001 10001
+##RUN adduser -D -h /data/10001 10001
 
 # Set password for the user
-RUN echo "10001:" | chpasswd
+##RUN echo "10001:" | chpasswd
 
 # Configure SSHD for SCP/SFTP-only Access
-RUN echo 'StrictModes no' >> /etc/ssh/sshd_config && \
-    echo '' >> /etc/ssh/sshd_config && \
-    echo 'Match User 10001' >> /etc/ssh/sshd_config && \
-    echo 'ChrootDirectory /data/10001' >> /etc/ssh/sshd_config
+RUN echo 'StrictModes no' >> /etc/ssh/sshd_config
+##    echo '' >> /etc/ssh/sshd_config && \
+##    echo 'Match User 10001' >> /etc/ssh/sshd_config && \
+##    echo 'ChrootDirectory /data/10001' >> /etc/ssh/sshd_config
 
 #RUN echo 'Subsystem sftp internal-sftp' >> /etc/ssh/sshd_config
 
