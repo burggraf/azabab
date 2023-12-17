@@ -1,4 +1,5 @@
 mod create_project;
+mod create_user;
 mod catch_all_handler;
 
 use hyper::{Body, Request, Response, Server};
@@ -33,7 +34,10 @@ async fn request_handler(req: Request<Body>) -> Result<Response<Body>, hyper::Er
     match (req.uri().path(), req.method()) {
         ("/createproject", &hyper::Method::POST) => {
             create_project::handle_create_project(req, AUTH_TOKEN).await
-        }        
+        },
+        ("/createuser", &hyper::Method::POST) => {
+            create_user::handle_create_user(req, AUTH_TOKEN).await
+        },        
         _ => catch_all_handler::handle_catch_all(req).await
     }
 }

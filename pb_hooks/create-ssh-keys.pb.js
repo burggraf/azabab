@@ -51,28 +51,57 @@ routerAdd('GET', '/create-ssh-keys/:project_instance_id', (c) => {
 	//ssh_key_string = 'xxx'
 
 	try {
-		const cmd = $os.cmd(
-			'ssh',
-			// `-t`,
-			`ubuntu@${keys[0].site}`,
-			`/home/ubuntu/create-ssh-keys.sh`, 
-			`${keys[0].username}`,
-			`${keys[0].port}`,
-			`\"${ssh_key_string}\"`
-		)
-		console.log('cmd', cmd)
-		//const error = String.fromCharCode(...cmd.stderr());
-		//console.log('error', error)
-		//console.log(JSON.stringify(cmd, null, 2))
-		const output = String.fromCharCode(...cmd.output())
-		console.log('------------')
-		console.log('output', output)
-		console.log('------------')
+		// const cmd = $os.cmd(
+		// 	'ssh',
+		// 	// `-t`,
+		// 	`ubuntu@${keys[0].site}`,
+		// 	`/home/ubuntu/create-ssh-keys.sh`, 
+		// 	`${keys[0].username}`,
+		// 	`${keys[0].port}`,
+		// 	`\"${ssh_key_string}\"`
+		// )
+		// console.log('cmd', cmd)
+		// //const error = String.fromCharCode(...cmd.stderr());
+		// //console.log('error', error)
+		// //console.log(JSON.stringify(cmd, null, 2))
+		// const output = String.fromCharCode(...cmd.output())
+		// console.log('------------')
+		// console.log('output', output)
+		// console.log('------------')
+		let res;
+		try {
+			res = $http.send({
+				url:     "http://west-2.azabab.com:5000/createuser",
+				method:  "POST",
+				body:    JSON.stringify({
+					"username": keys[0].username, 
+					"port": keys[0].port.toString(),
+					"ssh_keys": ssh_key_string,
+				}),
+				headers: {
+					"content-type": "application/json",
+					"Authorization": "your_predefined_auth_token"
+				},
+				timeout: 120, // in seconds
+			})	
+		} catch (httpError) {
+			console.log('httpError', httpError)
+			return c.json(200, { data: null, error: httpError.value.error() })
+		}
+		console.log('finished the call')
+        console.log('res', JSON.stringify(res,null,2))
+        if (res.json?.error) {
+            return c.json(200, { data: null, error: res.json.error })
+        } else {
+            return c.json(200, { data: newId, error: null })
+        }
+
+
 		return c.json(200, { data: "OK", error: null })
 	
 	} catch (e) {
-		console.log('e', projectInsertError.value.error())
-		return c.json(200, { data: null, error: projectInsertError.value.error() })
+		console.log('e', createUserError.value.error())
+		return c.json(200, { data: null, error: createUserError.value.error() })
 	}
 
 		

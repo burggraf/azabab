@@ -4,7 +4,7 @@ After=network.target
 
 [Service]
 Type=simple
-User=ubuntu
+User=root
 WorkingDirectory=/home/ubuntu
 ExecStart=/home/ubuntu/rust-server.exe
 Restart=on-failure
