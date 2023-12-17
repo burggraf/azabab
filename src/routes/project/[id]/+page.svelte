@@ -9,7 +9,7 @@
 	import { toast } from '$services/toast'
 
 	export let id = $page.params.id
-    console.log('**** id', id)
+	console.log('**** id', id)
 	interface IObjectKeys {
 		[key: string]: string | number
 	}
@@ -43,15 +43,15 @@
 		title: string
 		sort_key: number
 	}
-    interface ProjectInstanceKey {
-        id: string
-        project_instance_id: string
-        user_keys_id: string
-        project_id: string
-    }
+	interface ProjectInstanceKey {
+		id: string
+		project_instance_id: string
+		user_keys_id: string
+		project_id: string
+	}
 
-    let keys: Key[] = []
-    let project_instance_keys: ProjectInstanceKey[] = []
+	let keys: Key[] = []
+	let project_instance_keys: ProjectInstanceKey[] = []
 
 	let sites: Site[] = []
 	const project: Project = {
@@ -95,21 +95,20 @@
 		if (id === 'new') {
 			project_instances[0].id = sites[0].id
 		}
-        keys = await pb.collection('user_keys').getFullList({
-            fields: 'id,title,key,sort_key',
-            sort: 'sort_key',
-        });
-        console.log('keys', keys)
-        loadProjectInstanceKeys()
+		keys = await pb.collection('user_keys').getFullList({
+			fields: 'id,title,key,sort_key',
+			sort: 'sort_key',
+		})
+		console.log('keys', keys)
+		loadProjectInstanceKeys()
 	}
-    const loadProjectInstanceKeys = async () => {
-
-        project_instance_keys = await pb.collection('project_instance_keys').getFullList({
-            filter: `project_id = "${id}"`,
-            fields: 'id,project_instance_id,user_keys_id',
-        });
-        console.log('project_instance_keys', project_instance_keys)
-    }
+	const loadProjectInstanceKeys = async () => {
+		project_instance_keys = await pb.collection('project_instance_keys').getFullList({
+			filter: `project_id = "${id}"`,
+			fields: 'id,project_instance_id,user_keys_id',
+		})
+		console.log('project_instance_keys', project_instance_keys)
+	}
 	const save = async () => {
 		console.log('save')
 		/*
@@ -142,20 +141,19 @@
 				},
 			})
 			console.log('data, error', data, error)
-            if (error) {
-                if (error === 'constraint failed: UNIQUE constraint failed: projects.domain (2067)')
-                    toast('Project domain already exists', 'danger')
-                else
-                    toast(error, 'danger')
-            } else {
-                // open the project in a new windows
-                window.open(`https://${project.domain}.${site.domain}/_/`, '_blank')
+			if (error) {
+				if (error === 'constraint failed: UNIQUE constraint failed: projects.domain (2067)')
+					toast('Project domain already exists', 'danger')
+				else toast(error, 'danger')
+			} else {
+				// open the project in a new windows
+				window.open(`https://${project.domain}.${site.domain}/_/`, '_blank')
 
-                console.log('**** goto', `/project/${data}`)
-                id = data
-                goto(`/project/${data}`)
-            }
-            //const record = await pb.collection('projects').create(project)
+				console.log('**** goto', `/project/${data}`)
+				id = data
+				goto(`/project/${data}`)
+			}
+			//const record = await pb.collection('projects').create(project)
 			//console.log('record', record)
 			// goto(`/project/${record.id}`)
 			//goto("/projects")
@@ -175,57 +173,64 @@
 		project[event.target.id] = event.target.value || ''
 	}
 	const chooseSite = async (e: any) => {
-        let items = [];
-        for (let i = 0; i < sites.length; i++) {
-            const site = sites[i];
-            items.push({
-                text: site.name,
-                icon: allIonicIcons.globeOutline,
-                handler: async () => {
-                    project_instances[0].id = site.id
-                    project_instances[0].site_name = site.name
-                    project_instances[0].site_domain = site.domain
-                },
-            })
-        }
+		let items = []
+		for (let i = 0; i < sites.length; i++) {
+			const site = sites[i]
+			items.push({
+				text: site.name,
+				icon: allIonicIcons.globeOutline,
+				handler: async () => {
+					project_instances[0].id = site.id
+					project_instances[0].site_name = site.name
+					project_instances[0].site_domain = site.domain
+				},
+			})
+		}
 		const result = await dropdownmenu(e, items)
 		// console.log('result', result)
 	}
 
-
-    const siteChange = async (event: any) => {
+	const siteChange = async (event: any) => {
 		console.log('siteChange', event.target.value)
 		console.log(event)
 		const fieldname = event.target.id.split('_')[0]
 		const index = event.target.id.split('_')[1]
 		project_instances[index][fieldname] = event.target.value || ''
 	}
-    const toggleKey = async (user_keys_id: string, project_instance_id: string) => {
-        console.log('toggleKey', id)
-        // add or remove the key from the project_instance_keys collection
-        const project_instance_key = project_instance_keys.find((project_instance_key) => {
-            return project_instance_key.user_keys_id === user_keys_id
-        })
-        console.log('*** project_instance_key', project_instance_key)
-        if (project_instance_key) {
-            console.log('key was found, remove it, id', project_instance_key.id)
-            // remove it
-            const result = await pb.collection('project_instance_keys').delete(project_instance_key.id);
-        } else {
-            console.log('key was not found, add it')
-            // add it
-            const data = {
-                "project_instance_id": project_instance_id,
-                "user_keys_id": user_keys_id,
-                "user_id": $currentUser.id,
-                "project_id": id,
-            }
-            console.log('data', data)
-            const result = await pb.collection('project_instance_keys').create(data);
-            console.log('toggleKey result', result)
-        }
-        loadProjectInstanceKeys();
-    }
+	const toggleKey = async (user_keys_id: string, project_instance_id: string) => {
+		console.log('toggleKey', id)
+		// add or remove the key from the project_instance_keys collection
+		const project_instance_key = project_instance_keys.find((project_instance_key) => {
+			return project_instance_key.user_keys_id === user_keys_id
+		})
+		console.log('*** project_instance_key', project_instance_key)
+		if (project_instance_key) {
+			console.log('key was found, remove it, id', project_instance_key.id)
+			// remove it
+			const result = await pb.collection('project_instance_keys').delete(project_instance_key.id)
+		} else {
+			console.log('key was not found, add it')
+			// add it
+			const payload = {
+				project_instance_id: project_instance_id,
+				user_keys_id: user_keys_id,
+				user_id: $currentUser.id,
+				project_id: id,
+			}
+			console.log('payload', payload)
+			const result = await pb.collection('project_instance_keys').create(payload)
+			console.log('toggleKey result', result)
+		}
+		const { data, error } = await pb.send(`/create-ssh-keys/${project_instance_id}`, {
+			method: 'GET',
+		})
+		if (error) {
+			toast(error, 'danger')
+		} else {
+			toast('SSH Keys updated for this project', 'success')
+		}
+		loadProjectInstanceKeys()
+	}
 </script>
 
 <IonPage {ionViewWillEnter}>
@@ -317,41 +322,58 @@
 				<!-- code, domain, id, port, site_domain, site_name, type -->
 				<ion-row>
 					<ion-col>
-						<ion-button size="small" fill={project_instance.type==='primary'?'solid':'outline'} expand="block" on:click={() => {}}> primary </ion-button>
+						<ion-button
+							size="small"
+							fill={project_instance.type === 'primary' ? 'solid' : 'outline'}
+							expand="block"
+							on:click={() => {}}
+						>
+							primary
+						</ion-button>
 					</ion-col>
 					<ion-col>
-						<ion-button size="small" fill={project_instance.type==='replica'?'solid':'outline'} expand="block" on:click={() => {}}> replica </ion-button>
+						<ion-button
+							size="small"
+							fill={project_instance.type === 'replica' ? 'solid' : 'outline'}
+							expand="block"
+							on:click={() => {}}
+						>
+							replica
+						</ion-button>
 					</ion-col>
 				</ion-row>
 				<ion-row>
 					<ion-col>
-                        <ion-button size="small" expand="block" on:click={chooseSite}>{project_instance.site_name}</ion-button>
+						<ion-button size="small" expand="block" on:click={chooseSite}
+							>{project_instance.site_name}</ion-button
+						>
 					</ion-col>
 				</ion-row>
 
-                <ion-row>
-                    <ion-col>
-                        <ion-label>SSH Keys</ion-label>
-                    </ion-col>
-                </ion-row>
-                    <!-- code, domain, id, port, site_domain, site_name, type -->
-                    <ion-row>
-                        <ion-col>
-                            {#each keys as key, index}
-                                <ion-chip outline={
-                                    project_instance_keys.find((project_instance_key) => {
-                                        return project_instance_key.user_keys_id === key.id
-                                    }) ? false : true
-                                } on:click={()=>{toggleKey(key.id, project_instance.id)}}>{key.title}</ion-chip>
-                            {/each}
-                        </ion-col>
-                    </ion-row>
-    
-
-            {/each}
+				<ion-row>
+					<ion-col>
+						<ion-label>SSH Keys</ion-label>
+					</ion-col>
+				</ion-row>
+				<!-- code, domain, id, port, site_domain, site_name, type -->
+				<ion-row>
+					<ion-col>
+						{#each keys as key, index}
+							<ion-chip
+								outline={project_instance_keys.find((project_instance_key) => {
+									return project_instance_key.user_keys_id === key.id
+								})
+									? false
+									: true}
+								on:click={() => {
+									toggleKey(key.id, project_instance.id)
+								}}>{key.title}</ion-chip
+							>
+						{/each}
+					</ion-col>
+				</ion-row>
+			{/each}
 		</ion-grid>
-
-
 
 		<!-- project: {JSON.stringify(project)}
         <br />
