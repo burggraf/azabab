@@ -1,12 +1,13 @@
 <script lang="ts">
 	import IonPage from '$ionpage'
 	import { page } from '$app/stores'
-	import { arrowBackOutline, checkmarkOutline } from 'ionicons/icons'
+	import { analyticsOutline, arrowBackOutline, browsersOutline, callOutline, checkmarkOutline, fileTrayFullOutline, listOutline, personOutline, settingsOutline } from 'ionicons/icons'
 	import { currentUser, pb } from '$services/backend.service'
 	import { goto } from '$app/navigation'
 	import { dropdownmenu } from '$components/DropdownMenu'
 	import * as allIonicIcons from 'ionicons/icons'
 	import { toast } from '$services/toast'
+	import Keys from '$components/Keys.svelte'
 
 	export let id = $page.params.id
 	console.log('**** id', id)
@@ -241,7 +242,7 @@
 					<ion-icon slot="icon-only" icon={arrowBackOutline} />
 				</ion-button>
 			</ion-buttons>
-			<ion-title>Project</ion-title>
+			<ion-title>Project: {project?.domain || ''}</ion-title>
 			<ion-buttons slot="end">
 				{#if id === 'new'}
 					<ion-button on:click={save}>
@@ -252,128 +253,177 @@
 		>
 	</ion-header>
 	<ion-content class="ion-padding">
-		<ion-grid class="ion-padding Grid">
-			<ion-row>
-				<ion-col>
-					<ion-label>Project Name</ion-label>
-				</ion-col>
-			</ion-row>
-			<ion-row>
-				<ion-col>
-					<ion-item class="GridItem" lines="none">
-						<ion-input
-							on:ionInput={handleChange}
-							class="loginInputBoxWithIcon"
-							type="text"
-							id="name"
-							placeholder="Project Name"
-							style="--padding-start: 10px;"
-							value={project.name}
-							debounce={500}
-						/>
-						<!-- <ion-icon
-							class="inputIcon"
-							icon={}
-							size="large"
-							color="medium"
-							slot="start"
-						/> -->
-					</ion-item>
-				</ion-col>
-			</ion-row>
+        <ion-tabs>
+            <!-- Tab views -->
+            <ion-tab tab="gui"></ion-tab>
+            <ion-tab tab="cli">
+                <ion-grid class="ion-padding Grid">        
+                        <ion-row>
+                            <ion-col style="width: 100%; border-bottom: 1px solid;">
+                                <ion-label><h1>SSH Keys</h1></ion-label>
+                            </ion-col>
+                        </ion-row>
+                        <!-- code, domain, id, port, site_domain, site_name, type -->
 
-			<ion-row>
-				<ion-col>
-					<ion-label>domain</ion-label>
-				</ion-col>
-			</ion-row>
-			<ion-row>
-				<ion-col>
-					<ion-item class="GridItem" lines="none">
-						<ion-input
-							on:ionInput={handleChange}
-							class="loginInputBoxWithIcon"
-							type="text"
-							id="domain"
-							placeholder="domain"
-							style="--padding-start: 10px;"
-							value={project.domain}
-							debounce={500}
-						/>
-						<!-- <ion-icon
-							class="inputIcon"
-							icon={}
-							size="large"
-							color="medium"
-							slot="start"
-						/> -->
-					</ion-item>
-				</ion-col>
-			</ion-row>
-		</ion-grid>
+                        {#each project_instances as project_instance, index}
 
-		<ion-grid class="ion-padding Grid">
-			<ion-row>
-				<ion-col>
-					<ion-label>Instances</ion-label>
-				</ion-col>
-			</ion-row>
-			{#each project_instances as project_instance, index}
-				<!-- code, domain, id, port, site_domain, site_name, type -->
-				<ion-row>
-					<ion-col>
-						<ion-button
-							size="small"
-							fill={project_instance.type === 'primary' ? 'solid' : 'outline'}
-							expand="block"
-							on:click={() => {}}
-						>
-							primary
-						</ion-button>
-					</ion-col>
-					<ion-col>
-						<ion-button
-							size="small"
-							fill={project_instance.type === 'replica' ? 'solid' : 'outline'}
-							expand="block"
-							on:click={() => {}}
-						>
-							replica
-						</ion-button>
-					</ion-col>
-				</ion-row>
-				<ion-row>
-					<ion-col>
-						<ion-button size="small" expand="block" on:click={chooseSite}
-							>{project_instance.site_name}</ion-button
-						>
-					</ion-col>
-				</ion-row>
+                        <ion-row>
+                            <ion-col>
+                                {project_instance.site_name}
+                            </ion-col>
+                        </ion-row>
+                        <ion-row>
+                            <ion-col>
+                                {#each keys as key, index}
+                                    <ion-chip
+                                        outline={project_instance_keys.find((project_instance_key) => {
+                                            return project_instance_key.user_keys_id === key.id
+                                        })
+                                            ? false
+                                            : true}
+                                        on:click={() => {
+                                            toggleKey(key.id, project_instance.id)
+                                        }}>{key.title}</ion-chip
+                                    >
+                                {/each}
+                            </ion-col>
+                        </ion-row>
+                        <ion-row>
+                            <Keys />
+                        </ion-row>
 
-				<ion-row>
-					<ion-col>
-						<ion-label>SSH Keys</ion-label>
-					</ion-col>
-				</ion-row>
-				<!-- code, domain, id, port, site_domain, site_name, type -->
-				<ion-row>
-					<ion-col>
-						{#each keys as key, index}
-							<ion-chip
-								outline={project_instance_keys.find((project_instance_key) => {
-									return project_instance_key.user_keys_id === key.id
-								})
-									? false
-									: true}
-								on:click={() => {
-									toggleKey(key.id, project_instance.id)
-								}}>{key.title}</ion-chip
-							>
-						{/each}
-					</ion-col>
-				</ion-row>
-			{/each}
-		</ion-grid>
+                    {/each}
+
+
+                </ion-grid>
+            </ion-tab>
+            <ion-tab tab="metrics"></ion-tab>
+            <ion-tab tab="logs"></ion-tab>
+            <ion-tab tab="settings">
+                <ion-grid class="ion-padding Grid">
+                    <ion-row>
+                        <ion-col>
+                            <ion-label>Project Name</ion-label>
+                        </ion-col>
+                    </ion-row>
+                    <ion-row>
+                        <ion-col>
+                            <ion-item class="GridItem" lines="none">
+                                <ion-input
+                                    on:ionInput={handleChange}
+                                    class="loginInputBoxWithIcon"
+                                    type="text"
+                                    id="name"
+                                    placeholder="Project Name"
+                                    style="--padding-start: 10px;"
+                                    value={project.name}
+                                    debounce={500}
+                                />
+                                <!-- <ion-icon
+                                    class="inputIcon"
+                                    icon={}
+                                    size="large"
+                                    color="medium"
+                                    slot="start"
+                                /> -->
+                            </ion-item>
+                        </ion-col>
+                    </ion-row>
+        
+                    <ion-row>
+                        <ion-col>
+                            <ion-label>domain</ion-label>
+                        </ion-col>
+                    </ion-row>
+                    <ion-row>
+                        <ion-col>
+                            <ion-item class="GridItem" lines="none">
+                                <ion-input
+                                    on:ionInput={handleChange}
+                                    class="loginInputBoxWithIcon"
+                                    type="text"
+                                    id="domain"
+                                    placeholder="domain"
+                                    style="--padding-start: 10px;"
+                                    value={project.domain}
+                                    debounce={500}
+                                />
+                                <!-- <ion-icon
+                                    class="inputIcon"
+                                    icon={}
+                                    size="large"
+                                    color="medium"
+                                    slot="start"
+                                /> -->
+                            </ion-item>
+                        </ion-col>
+                    </ion-row>
+                </ion-grid>
+        
+                <ion-grid class="ion-padding Grid">
+                    <ion-row>
+                        <ion-col>
+                            <ion-label>Instances</ion-label>
+                        </ion-col>
+                    </ion-row>
+                    {#each project_instances as project_instance, index}
+                        <!-- code, domain, id, port, site_domain, site_name, type -->
+                        <ion-row>
+                            <ion-col>
+                                <ion-button
+                                    size="small"
+                                    fill={project_instance.type === 'primary' ? 'solid' : 'outline'}
+                                    expand="block"
+                                    on:click={() => {}}
+                                >
+                                    primary
+                                </ion-button>
+                            </ion-col>
+                            <ion-col>
+                                <ion-button
+                                    size="small"
+                                    fill={project_instance.type === 'replica' ? 'solid' : 'outline'}
+                                    expand="block"
+                                    on:click={() => {}}
+                                >
+                                    replica
+                                </ion-button>
+                            </ion-col>
+                        </ion-row>
+                        <ion-row>
+                            <ion-col>
+                                <ion-button size="small" expand="block" on:click={chooseSite}
+                                    >{project_instance.site_name}</ion-button
+                                >
+                            </ion-col>
+                        </ion-row>
+       
+                    {/each}
+                </ion-grid>
+        
+            </ion-tab>
+          
+            <!-- Tab bar -->
+            <ion-tab-bar slot="top">
+              <ion-tab-button tab="gui">
+                <ion-icon icon={browsersOutline}></ion-icon>GUI
+              </ion-tab-button>
+              <ion-tab-button tab="cli">
+                <ion-icon icon={listOutline}></ion-icon>CLI
+              </ion-tab-button>
+              <ion-tab-button tab="metrics">
+                <ion-icon icon={analyticsOutline}></ion-icon>Metrics
+              </ion-tab-button>
+              <ion-tab-button tab="logs">
+                <ion-icon icon={fileTrayFullOutline}></ion-icon>Logs
+              </ion-tab-button>
+              <ion-tab-button tab="settings">
+                <ion-icon icon={settingsOutline}></ion-icon>Settings
+              </ion-tab-button>
+            </ion-tab-bar>
+          </ion-tabs>
+
+
 
 		<!-- project: {JSON.stringify(project)}
         <br />
