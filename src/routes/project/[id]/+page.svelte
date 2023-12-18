@@ -283,12 +283,18 @@
                         {#each project_instances as project_instance, index}
 
                         <ion-row>
-                            <ion-col>
-                                {project_instance.site_name}
+                            <ion-col class="ion-text-center">
+                                <ion-label>Instance #{index + 1}</ion-label>
                             </ion-col>
                         </ion-row>
                         <ion-row>
-                            <ion-col>
+                            <ion-col class="ion-text-center">
+                               <ion-label>{project_instance.site_name}</ion-label>
+                            </ion-col>
+                        </ion-row>
+                        <ion-row>
+                            <ion-col class="ion-text-center" style="border: 1px solid;">
+                                <ion-label>installed keys:</ion-label><br/>
                                 {#each keys as key, index}
                                     <ion-chip
                                         outline={project_instance_keys.find((project_instance_key) => {
