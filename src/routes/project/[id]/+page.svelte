@@ -8,6 +8,7 @@
 	import * as allIonicIcons from 'ionicons/icons'
 	import { toast } from '$services/toast'
 	import Keys from '$components/Keys.svelte'
+	import { onMount } from 'svelte'
 
 	export let id = $page.params.id
 	console.log('**** id', id)
@@ -74,6 +75,13 @@
 			type: 'primary',
 		},
 	]
+    onMount(async () => {
+        const tb: any = document.getElementById('ion-tabs')
+        setTimeout(() => {
+            if (tb)
+                tb.select('settings')
+        }, 250)
+    })
 	const ionViewWillEnter = async () => {
 		console.log('ionViewWillEnter')
 		if (id !== 'new') {
@@ -112,6 +120,10 @@
 	}
 	const save = async () => {
 		console.log('save')
+        if (project_instances[0].site_name !== 'US West 2') {
+            toast('Only US West 2 is supported at the moment', 'danger')
+            return
+        }
 		/*
         to create a new project, we need to send:
 
@@ -232,9 +244,12 @@
 		}
 		loadProjectInstanceKeys()
 	}
+    const ionViewDidEnter = async () => {
+        // select the settings tab
+    }
 </script>
 
-<IonPage {ionViewWillEnter}>
+<IonPage {ionViewWillEnter} {ionViewDidEnter}>
 	<ion-header>
 		<ion-toolbar>
 			<ion-buttons slot="start">
@@ -253,7 +268,7 @@
 		>
 	</ion-header>
 	<ion-content class="ion-padding">
-        <ion-tabs>
+        <ion-tabs id="ion-tabs" on:ionTabsDidChange={()=>{console.log("CHANGE")}}>
             <!-- Tab views -->
             <ion-tab tab="gui"></ion-tab>
             <ion-tab tab="cli">
@@ -358,16 +373,28 @@
                             </ion-item>
                         </ion-col>
                     </ion-row>
-                </ion-grid>
+                <!-- </ion-grid>
         
-                <ion-grid class="ion-padding Grid">
-                    <ion-row>
-                        <ion-col>
-                            <ion-label>Instances</ion-label>
+                <ion-grid class="ion-padding Grid"> -->
+                    <ion-row style="padding-top: 20px;">
+                        <ion-col class="ion-text-center" style="width: 100%;border: 1px solid;background-color: var(--ion-color-dark);">
+                            <ion-label color="light"><b>Instances</b></ion-label>
                         </ion-col>
                     </ion-row>
                     {#each project_instances as project_instance, index}
                         <!-- code, domain, id, port, site_domain, site_name, type -->
+                        <ion-row>
+                            <ion-col class="ion-text-center">
+                                <ion-label>Instance {index + 1}</ion-label>
+                            </ion-col>
+                        </ion-row>
+                        <ion-row>
+                            <ion-col>
+                                <ion-button size="small" expand="block" on:click={chooseSite}
+                                    >{project_instance.site_name}</ion-button
+                                >
+                            </ion-col>
+                        </ion-row>
                         <ion-row>
                             <ion-col>
                                 <ion-button
@@ -390,13 +417,7 @@
                                 </ion-button>
                             </ion-col>
                         </ion-row>
-                        <ion-row>
-                            <ion-col>
-                                <ion-button size="small" expand="block" on:click={chooseSite}
-                                    >{project_instance.site_name}</ion-button
-                                >
-                            </ion-col>
-                        </ion-row>
+                        <ion-row><ion-col style="width: 100%;border-top: 1px solid;">&nbsp;</ion-col></ion-row>
        
                     {/each}
                 </ion-grid>
@@ -404,7 +425,7 @@
             </ion-tab>
           
             <!-- Tab bar -->
-            <ion-tab-bar slot="top">
+            <ion-tab-bar id="tab-bar" slot="top">
               <ion-tab-button tab="gui">
                 <ion-icon icon={browsersOutline}></ion-icon>GUI
               </ion-tab-button>
@@ -450,7 +471,8 @@
 		max-height: 100%;
 	}
 	.Grid {
-		max-width: 500px;
+		max-width: 350px;
+        width: 350px;
 	}
 	.ProvidersGrid {
 		max-width: 375px;
