@@ -308,13 +308,39 @@
                                     >
                                 {/each}
                             </ion-col>
-                        </ion-row>
+                        </ion-row>                        
                         <ion-row>
-                            <Keys />
+                            <ion-col>
+                                {#if project_instance_keys.length > 0}
+                                <ion-label>Example <b>scp</b> copy commands:</ion-label>
+                                <pre>
+scp -P 2222 -r pb_public/* \
+   {project_instance.domain}@{project_instance.site_domain}:/pb_public
+scp -P 2222 -r pb_hooks/* \
+   {project_instance.domain}@{project_instance.site_domain}:/pb_hooks
+scp -P 2222 -r pb_migrations/* \
+   {project_instance.domain}@{project_instance.site_domain}:/pb_migrations</pre>
+   <ion-label>To connect via <b>sftp</b>:</ion-label><pre>
+sftp -P 2222 {project_instance.domain}@{project_instance.site_domain}
+   </pre>
+                                {:else}
+                                <ion-label>
+                                    In order to use <b>scp</b> or <b>sftp</b> to copy files to your project:<br/>
+                                    <ul>   
+                                        <li>
+                                            Add at least one SSH Public Key
+                                        </li>
+                                        <li>
+                                            Select at least one SSH Public Key above (this installs the SSH Public Key to your server instance automatically)
+                                        </li>
+                                    </ul>
+                                </ion-label>
+                                {/if}
+                            </ion-col>
                         </ion-row>
-
                     {/each}
-
+                    <Keys />
+ 
 
                 </ion-grid>
             </ion-tab>
@@ -477,8 +503,10 @@
 		max-height: 100%;
 	}
 	.Grid {
-		max-width: 350px;
-        width: 350px;
+		/* max-width: 350px;
+        width: 350px; */
+        max-width: 500px;
+        width: 100%;
 	}
 	.ProvidersGrid {
 		max-width: 375px;
