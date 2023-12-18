@@ -1,6 +1,5 @@
 use warp::{http::StatusCode, Filter};
 use std::fs;
-//use std::env;
 use std::path::Path;
 use serde::{Deserialize, Serialize};
 
@@ -20,8 +19,6 @@ async fn main() {
 
     warp::serve(routes).run(([0, 0, 0, 0], 3030)).await;
 }
-
-// ... [previous code] ...
 
 async fn handle_get_file(auth: String) -> Result<Box<dyn warp::Reply>, warp::Rejection> {
     if !authorize(&auth) {
@@ -48,13 +45,13 @@ async fn handle_delete_file(filename: String, auth: String) -> Result<Box<dyn wa
     let path = Path::new("/home/ubuntu/stats").join(&filename);
     // println!("Checking if file exists: {:?}", path);
     if path.exists() {
-        println!("File exists. Deleting file: {:?}", path);
+        // println!("File exists. Deleting file: {:?}", path);
         match fs::remove_file(&path) {
             Ok(_) => {
                 // println!("File successfully deleted.");
                 Ok(Box::new(warp::reply::with_status("File deleted", StatusCode::OK)))
             },
-            Err(e) => {
+            Err(_e) => {
                 // println!("Error deleting file: {:?}", e);
                 Ok(Box::new(warp::reply::with_status("Error deleting file", StatusCode::INTERNAL_SERVER_ERROR)))
             }
@@ -63,20 +60,7 @@ async fn handle_delete_file(filename: String, auth: String) -> Result<Box<dyn wa
         // println!("File not found: {:?}", path);
         Ok(Box::new(warp::reply::with_status("File not found", StatusCode::NOT_FOUND)))
     }
-
-
-
-    // let path = Path::new("/home/ubuntu/stats").join(filename);
-    // if path.exists() {
-    //     fs::remove_file(path).unwrap();
-    //     Ok(Box::new(warp::reply::with_status("File deleted", StatusCode::OK)))
-    // } else {
-    //     Ok(Box::new(warp::reply::with_status("File not found", StatusCode::NOT_FOUND)))
-    // }
 }
-
-// ... [rest of the code] ...
-
 
 fn authorize(token: &str) -> bool {
     token == "YourSecretToken"
