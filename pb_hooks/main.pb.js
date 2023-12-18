@@ -126,7 +126,7 @@ routerAdd('POST', '/createproject', async (c) => {
 	}
 })
 
-routerAdd('GET', '/getfile', async (c) => {
+routerAdd('GET', '/importstats', async (c) => {
 	const convertUnits = (str) => {
 		console.log('convertUnits', str)
 		// sample: 5.75kB
@@ -163,11 +163,6 @@ routerAdd('GET', '/getfile', async (c) => {
 			return 0
 		}
 	}
-	// if (res.json?.error) {
-	// 	return c.json(200, { data: null, error: res.json.error })
-	// } else {
-	// 	return c.json(200, { data: `SUCCESS: ${records_inserted} records inserted`, error: null })
-	// }
 
 	try {
 		let counter = 0
@@ -175,8 +170,6 @@ routerAdd('GET', '/getfile', async (c) => {
 		while (counter < 1000) {
 			// read the body via the cached request object
 			// (this method is commonly used in hook handlers because it allows reading the body more than once)
-			console.log('** getfile', counter);
-			console.log('calling getfile')
 			const res = await $http.send({
 				url: 'http://west-2.azabab.com:3030/getfile',
 				method: 'GET',
@@ -190,7 +183,6 @@ routerAdd('GET', '/getfile', async (c) => {
 			if (res.statusCode !== 200) {
 				if (res.statusCode === 404 && res.raw === 'No file found') {
 					// break out of loop here -- no more files to process
-					console.log('no more files to process')
 					break
 				} else {
 					console.log('getfile error:')
@@ -198,19 +190,16 @@ routerAdd('GET', '/getfile', async (c) => {
 					return c.json(res.statusCode, { data: null, error: res.json?.error || res.raw })	
 				}
 			}
-			console.log('getfile response', JSON.stringify(res, null, 2))
 			// console.log('getfile response', JSON.stringify(res, null, 2))
 			const contents = res.json?.contents
 			const filename = res.json?.name
 			const f = filename.split('/')[filename.split('/').length - 1]
-			console.log('got file ', f)
 			const arr = contents.split('\n')
 			for (let i = 0; i < arr.length; i++) {
 				if (arr[i].length < 1) {
-					continue
+					continue // empty line
 				}
 				const record = arr[i].split('\t')
-				console.log('record', record)
 				if (record.length < 10) {
 					console.log(`file ${f} line ${i + 1} skipping record.length < 10`, record.length)
 					continue
@@ -245,7 +234,6 @@ routerAdd('GET', '/getfile', async (c) => {
 				}
 			}
 			// delete file
-			console.log(`http://west-2.azabab.com:3030/deletefile/${f}`)
 			const delete_res = await $http.send({
 				url: `http://west-2.azabab.com:3030/deletefile/${f}`,
 				method: 'GET',
@@ -257,14 +245,11 @@ routerAdd('GET', '/getfile', async (c) => {
 				timeout: 120, // in seconds
 			})
 			if (delete_res.statusCode !== 200) {
-				console.log('delete error:')
-				console.log('delete_res', JSON.stringify(delete_res, null, 2))
+				console.log(`${filename} delete file error`, JSON.stringify(delete_res, null, 2))
 				return c.json(delete_res.statusCode, { data: null, error: delete_res.json.error })
 			}
 			counter++;
-			console.log('counter', counter);
 		}
-		console.log(`SUCCESS: ${counter} files processed, ${records_inserted} records inserted.`)
 		return c.json(200, { data: `SUCCESS: ${counter} files processed, ${records_inserted} records inserted.`, error: null })
 	} catch (err) {
 		return c.json(200, { ERROR: JSON.stringify(err) })
