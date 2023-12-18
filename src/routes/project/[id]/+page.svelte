@@ -364,7 +364,6 @@ sftp -P 2222 {project_instance.domain}@{project_instance.site_domain}
                 </ion-grid>
             </ion-tab>
             <ion-tab tab="metrics"></ion-tab>
-            <ion-tab tab="logs"></ion-tab>
             <ion-tab tab="settings">
                 <ion-grid class="ion-padding Grid">
                     <ion-row>
@@ -485,9 +484,6 @@ sftp -P 2222 {project_instance.domain}@{project_instance.site_domain}
               </ion-tab-button>
               <ion-tab-button tab="metrics">
                 <ion-icon icon={analyticsOutline}></ion-icon>Metrics
-              </ion-tab-button>
-              <ion-tab-button tab="logs">
-                <ion-icon icon={fileTrayFullOutline}></ion-icon>Logs
               </ion-tab-button>
               <ion-tab-button tab="settings">
                 <ion-icon icon={settingsOutline}></ion-icon>Settings
