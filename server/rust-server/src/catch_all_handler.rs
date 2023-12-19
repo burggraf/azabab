@@ -1,6 +1,6 @@
 // use hyper::{Request, Response, Body, StatusCode, client::Client};
 // use std::process::Command;
-use hyper::{Body, Client, Request, Response, Uri};
+use hyper::{Body, Client, Request, Response, Uri, body::to_bytes};
 
 //use shiplift::{ContainerOptions, Docker, PullOptions, builder::VolumeBind};
 // use tokio::time::{sleep, Duration};
@@ -8,6 +8,9 @@ use hyper::{Body, Client, Request, Response, Uri};
 use shiplift::{ContainerOptions, Docker};
 use tokio::time::{interval, Duration};
 //use shiplift::rep::ContainerDetails;
+
+use serde_json::Value; // Add serde_json to your Cargo.toml dependencies
+
 
 pub async fn handle_catch_all(mut req: Request<Body>) -> Result<Response<Body>, hyper::Error> {
             // Clone header values before mutating `req`                
@@ -43,28 +46,40 @@ pub async fn handle_catch_all(mut req: Request<Body>) -> Result<Response<Body>, 
     // e.g., sleep(Duration::from_millis(500)).await;
 
     //let server_uri = format!("http://localhost:8090/invalid-page");
-    let server_uri = format!("http://localhost:{}/invalid-page", original_port);
-
+    let server_uri = format!("http://localhost:{}/api/health", original_port);
+    /*
+    {
+        "code": 200,
+        "message": "API is healthy.",
+        "data": {
+            "canBackup": false
+        }
+    }
+     */
     let client = Client::new();
     let mut interval = interval(Duration::from_millis(50));
     let mut server_ready = false;
     
-    for _ in 0..200 { // attempts 20 times at a 500ms interval
+    for _attempt in 0..200 { // attempts 200 times at a 50ms interval
         interval.tick().await;
-        match client.get(Uri::try_from(server_uri.as_str()).unwrap()).await {
+        match client.get(Uri::try_from(&server_uri).unwrap()).await {
             Ok(response) => {
-                if response.status() == hyper::StatusCode::NOT_FOUND {
-                    // Server is up and responding with 404 for the invalid page
-                    server_ready = true;
-                    break;
+                let body = to_bytes(response.into_body()).await.unwrap();
+                if let Ok(json) = serde_json::from_slice::<Value>(&body) {
+                    if json["code"] == 200 && json["message"] == "API is healthy." {
+                        // println!("Server is healthy.");
+                        server_ready = true;
+                        break;
+                    }
                 }
             }
             Err(_e) => {
                 // Handle connection errors (e.g., server not ready yet)
-                //eprintln!("Error connecting to server: {}", e);
+                // println!("Attempt {}: server not ready yet", attempt);
             }
         }
-    }
+    }    
+    // println!("ready ===========================");
     
     if !server_ready {
         eprintln!("Server did not start in expected time");
