@@ -87,7 +87,7 @@ routerAdd('POST', '/createproject', async (c) => {
 		const output = String.fromCharCode(...cmd.output())
         */
 		const res = $http.send({
-			url: 'http://west-2.azabab.com:5000/createproject',
+			url: `http://${data?.project_instances[0]?.site_domain}:5000/createproject`,
 			method: 'POST',
 			body: JSON.stringify({
 				domain: data?.project?.domain + '.' + data?.site?.domain,

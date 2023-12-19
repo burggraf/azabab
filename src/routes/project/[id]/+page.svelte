@@ -89,8 +89,10 @@
 	}
 	const save = async () => {
 		console.log('save')
-		if (project_instances[0].site_name !== 'US West 2') {
-			toast('Only US West 2 is supported at the moment', 'danger')
+		if (project_instances[0].site_name !== 'US West 2' && 
+			project_instances[0].site_name !== 'US West 3' &&
+			project_instances[0].site_name !== 'US West 4') {
+			toast('Only US West 2-4 is supported at the moment', 'danger')
 			return
 		}
 		/*
@@ -109,6 +111,7 @@
 		const site = sites.find((site) => site.id === project_instances[0].id)
 		if (id === 'new') {
 			console.log('creating new project')
+			console.log('project_instances', project_instances);
 			console.log('sending', {
 				project,
 				project_instances,

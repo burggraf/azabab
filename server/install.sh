@@ -20,11 +20,14 @@ echo "*** Install Docker ***"
 echo ""
 
 ssh ubuntu@$1 "sudo apt update"
+# ssh ubuntu@$1 "sudo apt-get update && sudo apt-get -y upgrade && sudo apt-get -y dist-upgrade && sudo apt-get -y autoremove"
 ssh ubuntu@$1 "sudo apt install -y apt-transport-https ca-certificates curl software-properties-common"
 # (MAY NEED THIS) sudo apt-get install pkg-config libssl-dev
+ssh ubuntu@$1 "sudo apt-get install -y pkg-config libssl-dev"
 ssh ubuntu@$1 "curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -"
 ssh ubuntu@$1 "sudo add-apt-repository \"deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable\""
 ssh ubuntu@$1 "apt-cache policy docker-ce"
+ssh ubuntu@$1 "sudo apt update"
 ssh ubuntu@$1 "sudo apt install -y docker-ce"
 ssh ubuntu@$1 "sudo systemctl status docker"
 
