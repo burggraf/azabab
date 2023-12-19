@@ -1,5 +1,9 @@
 <script lang="ts">
-    import './styles.css'
+	import TabCLI from './TabCLI.svelte';
+	import TabGUI from './TabGUI.svelte'
+	import TabMetrics from './TabMetrics.svelte'
+	import TabSettings from './TabSettings.svelte'
+	import './styles.css'
 	import IonPage from '$ionpage'
 	import { page } from '$app/stores'
 	import {
@@ -12,20 +16,13 @@
 	} from 'ionicons/icons'
 	import { currentUser, pb } from '$services/backend.service'
 	import { goto } from '$app/navigation'
-	import { dropdownmenu } from '$components/DropdownMenu'
-	import * as allIonicIcons from 'ionicons/icons'
 	import { toast } from '$services/toast'
-	import Keys from '$components/Keys.svelte'
 	import { onMount } from 'svelte'
-    import moment from 'moment';
-
-    const formatDate = (timestamp: number) => moment(timestamp * 1000).format('MM/DD/YY HH:mm:ss');
 
 	export let id = $page.params.id
 	console.log('**** id', id)
 
-    import type {Project,ProjectInstance,Site,Key,ProjectInstanceKey} 
-		from './interfaces'
+	import type { Project, ProjectInstance, Site, Key, ProjectInstanceKey } from './interfaces'
 
 	let keys: Key[] = []
 	let project_instance_keys: ProjectInstanceKey[] = []
@@ -52,12 +49,12 @@
 	]
 	onMount(async () => {
 		const tb: any = document.getElementById('ion-tabs')
-        let initTab: string;
-        if (id === 'new') {
-            initTab = 'settings'
-        } else {
-            initTab = localStorage.getItem('project.tab') || 'settings';
-        }
+		let initTab: string
+		if (id === 'new') {
+			initTab = 'settings'
+		} else {
+			initTab = localStorage.getItem('project.tab') || 'settings'
+		}
 		setTimeout(() => {
 			if (tb) tb.select(initTab || 'settings')
 		}, 10)
@@ -89,14 +86,6 @@
 			sort: 'sort_key',
 		})
 		console.log('keys', keys)
-		loadProjectInstanceKeys()
-	}
-	const loadProjectInstanceKeys = async () => {
-		project_instance_keys = await pb.collection('project_instance_keys').getFullList({
-			filter: `project_id = "${id}"`,
-			fields: 'id,project_instance_id,user_keys_id',
-		})
-		console.log('project_instance_keys', project_instance_keys)
 	}
 	const save = async () => {
 		console.log('save')
@@ -151,80 +140,9 @@
 	const back = async () => {
 		goto('/projects')
 	}
-	const handleChange = async (event: any) => {
-		console.log('id', event.target.id)
-		console.log('handleChange', event.target.value)
-		console.log(event)
-		project[event.target.id] = event.target.value || ''
-	}
-	const chooseSite = async (e: any) => {
-		let items = []
-		for (let i = 0; i < sites.length; i++) {
-			const site = sites[i]
-			items.push({
-				text: site.name,
-				icon: allIonicIcons.globeOutline,
-				handler: async () => {
-					project_instances[0].id = site.id
-					project_instances[0].site_name = site.name
-					project_instances[0].site_domain = site.domain
-				},
-			})
-		}
-		const result = await dropdownmenu(e, items)
-	}
 
-	const toggleKey = async (user_keys_id: string, project_instance_id: string) => {
-		console.log('toggleKey', id)
-		// add or remove the key from the project_instance_keys collection
-		const project_instance_key = project_instance_keys.find((project_instance_key) => {
-			return project_instance_key.user_keys_id === user_keys_id
-		})
-		console.log('*** project_instance_key', project_instance_key)
-		if (project_instance_key) {
-			console.log('key was found, remove it, id', project_instance_key.id)
-			// remove it
-			const result = await pb.collection('project_instance_keys').delete(project_instance_key.id)
-		} else {
-			console.log('key was not found, add it')
-			// add it
-			const payload = {
-				project_instance_id: project_instance_id,
-				user_keys_id: user_keys_id,
-				user_id: $currentUser.id,
-				project_id: id,
-			}
-			console.log('payload', payload)
-			const result = await pb.collection('project_instance_keys').create(payload)
-			console.log('toggleKey result', result)
-		}
-		const { data, error } = await pb.send(`/create-ssh-keys/${project_instance_id}`, {
-			method: 'GET',
-		})
-		if (error) {
-			toast(error, 'danger')
-		} else {
-			toast('SSH Keys updated for this project', 'success')
-		}
-		loadProjectInstanceKeys()
-	}
-    let stats: any = []
-    const changeMetrics = async (e: any) => {
-        if (e !== "info") {
-            // fetch a paginated records list
-            try {
-                const resultList = await pb.collection('stats_view').getList(1, 50, {
-                    filter: `instance_id = "${e.detail.value}"`,
-                    columns: `ts, event, cpu_usage, mem_usage, disk_read, disk_write, net_in, net_out`,
-                    sort: '-ts'
-                });
-                stats = resultList.items
-            } catch (error) {
-                console.log('changeMetrics error', error)
-            }
-        }
-    }
 </script>
+
 <IonPage {ionViewWillEnter}>
 	<ion-header>
 		<ion-toolbar>
@@ -247,251 +165,22 @@
 		<ion-tabs
 			id="ion-tabs"
 			on:ionTabsDidChange={(e) => {
-				console.log('CHANGE',e.detail.tab)
-                localStorage.setItem('project.tab', e.detail.tab)
+				console.log('CHANGE', e.detail.tab)
+				localStorage.setItem('project.tab', e.detail.tab)
 			}}
 		>
 			<ion-tab tab="gui">
-				<ion-grid style="height: 100%; width: 100%;">
-					<ion-row style="height: 50%;">
-						<ion-col size-md="6" size-xs="12" class="ion-padding" style="border:1px solid;">
-							<div
-								class="box"
-								style="width: 100%;padding: 5px;color: var(--ion-color-light);background-color: var(--ion-color-primary)"
-							>
-								<b>Database (/pb_data)</b>
-							</div>
-						</ion-col>
-						<ion-col size-md="6" size-xs="12" class="ion-padding" style="border:1px solid;">
-							<div
-								class="box"
-								style="width: 100%;padding: 5px;color: var(--ion-color-light);background-color: var(--ion-color-primary)"
-							>
-								<b>Hooks (/pb_hooks)</b>
-							</div>
-						</ion-col>
-					</ion-row>
-					<ion-row style="height: 50%;">
-						<ion-col size-md="6" size-xs="12" class="ion-padding" style="border:1px solid;">
-							<div
-								class="box"
-								style="width: 100%;padding: 5px;color: var(--ion-color-light);background-color: var(--ion-color-primary)"
-							>
-								<b>Migration (/pb_migrations)</b>
-							</div>
-						</ion-col>
-						<ion-col size-md="6" size-xs="12" class="ion-padding" style="border:1px solid;">
-							<div
-								class="box"
-								style="width: 100%;padding: 5px;color: var(--ion-color-light);background-color: var(--ion-color-primary)"
-							>
-								<b>Public (/pb_public)</b>
-							</div>
-						</ion-col>
-					</ion-row>
-				</ion-grid>
+				<TabGUI/>
 			</ion-tab>
 			<ion-tab tab="cli">
-				<ion-grid class="ion-padding Grid">
-					<ion-row>
-						<ion-col style="width: 100%; border-bottom: 1px solid;">
-							<ion-label><h1>SSH Keys</h1></ion-label>
-						</ion-col>
-					</ion-row>
-					<!-- code, domain, id, port, site_domain, site_name, type -->
-
-					{#each project_instances as project_instance, index}
-						<ion-row>
-							<ion-col class="ion-text-center">
-								<ion-label>Instance #{index + 1}</ion-label>
-							</ion-col>
-						</ion-row>
-						<ion-row>
-							<ion-col class="ion-text-center">
-								<ion-label>{project_instance.site_name}</ion-label>
-							</ion-col>
-						</ion-row>
-						<ion-row>
-							<ion-col class="ion-text-center" style="border: 1px solid;">
-								<ion-label>installed keys:</ion-label><br />
-								{#each keys as key, index}
-									<ion-chip
-										outline={project_instance_keys.find((project_instance_key) => {
-											return project_instance_key.user_keys_id === key.id
-										})
-											? false
-											: true}
-										on:click={() => {
-											toggleKey(key.id, project_instance.id)
-										}}>{key.title}</ion-chip
-									>
-								{/each}
-							</ion-col>
-						</ion-row>
-						<ion-row>
-							<ion-col>
-								{#if project_instance_keys.length > 0}
-									<ion-label>Example <b>scp</b> copy commands:</ion-label>
-									<pre>
-scp -P 2222 -r pb_public/* \
-   {project_instance.domain}@{project_instance.site_domain}:/pb_public
-scp -P 2222 -r pb_hooks/* \
-   {project_instance.domain}@{project_instance.site_domain}:/pb_hooks
-scp -P 2222 -r pb_migrations/* \
-   {project_instance.domain}@{project_instance.site_domain}:/pb_migrations</pre>
-									<ion-label>To connect via <b>sftp</b>:</ion-label>
-									<pre>
-sftp -P 2222 {project_instance.domain}@{project_instance.site_domain}
-   </pre>
-								{:else}
-									<ion-label>
-										In order to use <b>scp</b> or <b>sftp</b> to copy files to your project:<br />
-										<ul>
-											<li>Add at least one SSH Public Key</li>
-											<li>
-												Select at least one SSH Public Key above (this installs the SSH Public Key
-												to your server instance automatically)
-											</li>
-										</ul>
-									</ion-label>
-								{/if}
-							</ion-col>
-						</ion-row>
-					{/each}
-					<Keys />
-				</ion-grid>
+				<TabCLI {keys} {project_instance_keys} {project_instances} {id}/>
 			</ion-tab>
 			<ion-tab tab="metrics">
-                <div class="ion-padding" style="overflow: scroll;height: 100%">
-                    <ion-segment on:ionChange={changeMetrics} id="metrics" value="info">
-                        <ion-segment-button value="info">
-                            <ion-label>Info</ion-label>
-                        </ion-segment-button>
-                        {#each project_instances as project_instance, index}
-                            <ion-segment-button value={project_instance.id}>
-                                <ion-label>{project_instance.site_name}</ion-label>
-                            </ion-segment-button>
-                        {/each}
-                    </ion-segment>    
-                        <ion-grid class="ion-padding" id="statGrid" style="width: 100%">
-                            <ion-row style="color:var(--ion-color-light);background-color:var(--ion-color-medium)">
-                                <ion-col>Date</ion-col>
-                                <ion-col>Event</ion-col>
-                                <ion-col>CPU%</ion-col>
-                                <ion-col>Mem(mb)</ion-col>
-                                <ion-col>Disk Read</ion-col>
-                                <ion-col>Disk Write</ion-col>
-                                <ion-col>Net In</ion-col>
-                                <ion-col>Net Out</ion-col>
-                            </ion-row>
-                            {#each stats as stat, index}
-                            <ion-row>
-                                <ion-col>{formatDate(stat.ts)}</ion-col>
-                                <ion-col>{stat.event}</ion-col>
-                                <ion-col>{stat.cpu_usage}</ion-col>
-                                <ion-col>{stat.mem_usage}</ion-col>
-                                <ion-col>{stat.disk_read}</ion-col>
-                                <ion-col>{stat.disk_write}</ion-col>
-                                <ion-col>{stat.net_in}</ion-col>
-                                <ion-col>{stat.net_out}</ion-col>
-                        </ion-row>
-                            {/each}
-                        </ion-grid>
-                </div>
+				<TabMetrics {project_instances} />
 			</ion-tab>
 			<ion-tab tab="settings">
-				<ion-grid class="ion-padding Grid">
-					<ion-row>
-						<ion-col>
-							<ion-label>Project Name</ion-label>
-						</ion-col>
-					</ion-row>
-					<ion-row>
-						<ion-col>
-							<ion-item class="GridItem" lines="none">
-								<ion-input
-									on:ionInput={handleChange}
-									class="loginInputBoxWithIcon"
-									type="text"
-									id="name"
-									placeholder="Project Name"
-									style="--padding-start: 10px;"
-									value={project.name}
-									debounce={500}
-								/>
-							</ion-item>
-						</ion-col>
-					</ion-row>
-
-					<ion-row>
-						<ion-col>
-							<ion-label>domain</ion-label>
-						</ion-col>
-					</ion-row>
-					<ion-row>
-						<ion-col>
-							<ion-item class="GridItem" lines="none">
-								<ion-input
-									on:ionInput={handleChange}
-									class="loginInputBoxWithIcon"
-									type="text"
-									id="domain"
-									placeholder="domain"
-									style="--padding-start: 10px;"
-									value={project.domain}
-									debounce={500}
-								/>
-							</ion-item>
-						</ion-col>
-					</ion-row>
-					<ion-row style="padding-top: 20px;">
-						<ion-col
-							class="ion-text-center"
-							style="width: 100%;border: 1px solid;background-color: var(--ion-color-dark);"
-						>
-							<ion-label color="light"><b>Instances</b></ion-label>
-						</ion-col>
-					</ion-row>
-					{#each project_instances as project_instance, index}
-						<ion-row>
-							<ion-col class="ion-text-center">
-								<ion-label>Instance {index + 1}</ion-label>
-							</ion-col>
-						</ion-row>
-						<ion-row>
-							<ion-col>
-								<ion-button size="small" expand="block" on:click={chooseSite}
-									>{project_instance.site_name}</ion-button
-								>
-							</ion-col>
-						</ion-row>
-						<ion-row>
-							<ion-col>
-								<ion-button
-									size="small"
-									fill={project_instance.type === 'primary' ? 'solid' : 'outline'}
-									expand="block"
-									on:click={() => {}}
-								>
-									primary
-								</ion-button>
-							</ion-col>
-							<ion-col>
-								<ion-button
-									size="small"
-									fill={project_instance.type === 'replica' ? 'solid' : 'outline'}
-									expand="block"
-									on:click={() => {}}
-								>
-									replica
-								</ion-button>
-							</ion-col>
-						</ion-row>
-						<ion-row><ion-col style="width: 100%;border-top: 1px solid;">&nbsp;</ion-col></ion-row>
-					{/each}
-				</ion-grid>
+				<TabSettings {project} {project_instances} {sites}/>
 			</ion-tab>
-
 			<ion-tab-bar id="tab-bar" slot="top">
 				<ion-tab-button tab="gui">
 					<ion-icon icon={browsersOutline} />GUI
@@ -509,4 +198,3 @@ sftp -P 2222 {project_instance.domain}@{project_instance.site_domain}
 		</ion-tabs>
 	</ion-content>
 </IonPage>
-
