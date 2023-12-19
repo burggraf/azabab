@@ -9,8 +9,7 @@ routerAdd('GET', '/create-ssh-keys/:project_instance_id', (c) => {
 	const admin = info.admin // empty if not authenticated as admin
 	let user = info.authRecord // empty if not authenticated as regular auth record
 	if (!user) {
-		//return c.json(200, { data: null, error: 'not logged in' })
-		user = {id: 'e70ftyk6ne8j19h'}
+		return c.json(200, { data: null, error: 'not logged in' })
 	}
 
 	const keys = arrayOf(
@@ -69,7 +68,7 @@ routerAdd('GET', '/create-ssh-keys/:project_instance_id', (c) => {
 		let res;
 		try {
 			res = $http.send({
-				url:     "http://west-2.azabab.com:5000/createuser",
+				url:     `http://${keys[0].site}:5000/createuser`,
 				method:  "POST",
 				body:    JSON.stringify({
 					"username": keys[0].username, 
