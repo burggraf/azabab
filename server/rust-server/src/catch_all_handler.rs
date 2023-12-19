@@ -4,7 +4,7 @@ use hyper::{Body, Client, Request, Response, Uri};
 
 //use shiplift::{ContainerOptions, Docker, PullOptions, builder::VolumeBind};
 // use tokio::time::{sleep, Duration};
-use std::env;
+//use std::env;
 use shiplift::{ContainerOptions, Docker};
 use tokio::time::{interval, Duration};
 //use shiplift::rep::ContainerDetails;
@@ -19,12 +19,13 @@ pub async fn handle_catch_all(mut req: Request<Body>) -> Result<Response<Body>, 
 
                 // Docker interaction
     let docker = Docker::new();
-    let current_dir = env::current_dir().unwrap();
+    //let current_dir = env::current_dir().unwrap();
+    let base_path = "/home/ubuntu";
     let volume_mounts = vec![
-        format!("{}:/home/pocketbase/pb_data", current_dir.join(format!("data/{}/pb_data", original_port)).display()),
-        format!("{}:/home/pocketbase/pb_public", current_dir.join(format!("data/{}/pb_public", original_port)).display()),
-        format!("{}:/home/pocketbase/pb_migrations", current_dir.join(format!("data/{}/pb_migrations", original_port)).display()),
-        format!("{}:/home/pocketbase/pb_hooks", current_dir.join(format!("data/{}/pb_hooks", original_port)).display()),
+        format!("{}/data/{}/pb_data:/home/pocketbase/pb_data", base_path, original_port),
+        format!("{}/data/{}/pb_public:/home/pocketbase/pb_public", base_path, original_port),
+        format!("{}/data/{}/pb_migrations:/home/pocketbase/pb_migrations", base_path, original_port),
+        format!("{}/data/{}/pb_hooks:/home/pocketbase/pb_hooks", base_path, original_port),
     ];
     let container_options = ContainerOptions::builder("pbdocker")
     .name(&original_port)
