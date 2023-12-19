@@ -5,7 +5,7 @@
 INACTIVITY_THRESHOLD=300
 
 # List all running containers
-containers=$(docker ps --format '{{.Names}}')
+containers=$(sudo docker ps --format '{{.Names}}')
 
 # Check each container for inactivity
 for container in $containers; do
@@ -26,7 +26,7 @@ for container in $containers; do
             /home/ubuntu/stats.sh $container stop
             sudo docker stop -t 0 $container
             echo "Stopped container $container ($file_age seconds inactive) `date`" >> /home/ubuntu/stop_inactive_containers.log
-        else
+        # else
             # echo "The file for container $container is not older than $INACTIVITY_THRESHOLD seconds. ($file_age)"
         fi
     fi
