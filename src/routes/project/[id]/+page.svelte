@@ -91,9 +91,15 @@
 	]
 	onMount(async () => {
 		const tb: any = document.getElementById('ion-tabs')
+        let initTab: string;
+        if (id === 'new') {
+            initTab = 'settings'
+        } else {
+            initTab = localStorage.getItem('project.tab') || 'settings';
+        }
 		setTimeout(() => {
-			if (tb) tb.select('settings')
-		}, 250)
+			if (tb) tb.select(initTab || 'settings')
+		}, 10)
 	})
 	const ionViewWillEnter = async () => {
 		console.log('ionViewWillEnter')
@@ -303,8 +309,9 @@
 	<ion-content class="ion-padding">
 		<ion-tabs
 			id="ion-tabs"
-			on:ionTabsDidChange={() => {
-				console.log('CHANGE')
+			on:ionTabsDidChange={(e) => {
+				console.log('CHANGE',e.detail.tab)
+                localStorage.setItem('project.tab', e.detail.tab)
 			}}
 		>
 			<!-- Tab views -->
