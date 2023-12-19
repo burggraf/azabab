@@ -1,16 +1,13 @@
 <script lang="ts">
+    import './styles.css'
 	import IonPage from '$ionpage'
 	import { page } from '$app/stores'
 	import {
 		analyticsOutline,
 		arrowBackOutline,
 		browsersOutline,
-		callOutline,
 		checkmarkOutline,
-		fileTrayFullOutline,
-		informationOutline,
 		listOutline,
-		personOutline,
 		settingsOutline,
 	} from 'ionicons/icons'
 	import { currentUser, pb } from '$services/backend.service'
@@ -26,45 +23,9 @@
 
 	export let id = $page.params.id
 	console.log('**** id', id)
-	interface IObjectKeys {
-		[key: string]: string | number
-	}
 
-	interface Project extends IObjectKeys {
-		id: string
-		domain: string
-		name: string
-		owner: string
-		ownertype: string
-	}
-	interface ProjectInstance extends IObjectKeys {
-		code: string
-		domain: string
-		id: string
-		port: number
-		site_domain: string
-		site_name: string
-		site_id: string
-		type: string
-	}
-	interface Site {
-		id: string
-		name: string
-		code: string
-		domain: string
-	}
-
-	interface Key {
-		id: string
-		title: string
-		sort_key: number
-	}
-	interface ProjectInstanceKey {
-		id: string
-		project_instance_id: string
-		user_keys_id: string
-		project_id: string
-	}
+    import type {Project,ProjectInstance,Site,Key,ProjectInstanceKey} 
+		from './interfaces'
 
 	let keys: Key[] = []
 	let project_instance_keys: ProjectInstanceKey[] = []
@@ -185,14 +146,6 @@
 				id = data
 				goto(`/project/${data}`)
 			}
-			//const record = await pb.collection('projects').create(project)
-			//console.log('record', record)
-			// goto(`/project/${record.id}`)
-			//goto("/projects")
-		} else {
-			//const result = await pb.collection('projects').update(id, project)
-			//console.log('result', result)
-			//goto("/projects")
 		}
 	}
 	const back = async () => {
@@ -219,16 +172,8 @@
 			})
 		}
 		const result = await dropdownmenu(e, items)
-		// console.log('result', result)
 	}
 
-	const siteChange = async (event: any) => {
-		console.log('siteChange', event.target.value)
-		console.log(event)
-		const fieldname = event.target.id.split('_')[0]
-		const index = event.target.id.split('_')[1]
-		project_instances[index][fieldname] = event.target.value || ''
-	}
 	const toggleKey = async (user_keys_id: string, project_instance_id: string) => {
 		console.log('toggleKey', id)
 		// add or remove the key from the project_instance_keys collection
@@ -263,32 +208,24 @@
 		}
 		loadProjectInstanceKeys()
 	}
-	const ionViewDidEnter = async () => {
-		// select the settings tab
-	}
     let stats: any = []
     const changeMetrics = async (e: any) => {
-        console.log('changeMetrics', e, typeof e)
         if (e !== "info") {
             // fetch a paginated records list
             try {
-                console.log(`instance_id = "${e.detail.value}"`);
                 const resultList = await pb.collection('stats_view').getList(1, 50, {
                     filter: `instance_id = "${e.detail.value}"`,
                     columns: `ts, event, cpu_usage, mem_usage, disk_read, disk_write, net_in, net_out`,
                     sort: '-ts'
                 });
-                console.log('resultList', resultList)
                 stats = resultList.items
-                console.log('items', stats)
             } catch (error) {
-                console.log('error', error)
+                console.log('changeMetrics error', error)
             }
         }
     }
 </script>
-
-<IonPage {ionViewWillEnter} {ionViewDidEnter}>
+<IonPage {ionViewWillEnter}>
 	<ion-header>
 		<ion-toolbar>
 			<ion-buttons slot="start">
@@ -314,7 +251,6 @@
                 localStorage.setItem('project.tab', e.detail.tab)
 			}}
 		>
-			<!-- Tab views -->
 			<ion-tab tab="gui">
 				<ion-grid style="height: 100%; width: 100%;">
 					<ion-row style="height: 50%;">
@@ -462,8 +398,6 @@ sftp -P 2222 {project_instance.domain}@{project_instance.site_domain}
                             {/each}
                         </ion-grid>
                 </div>
-
-				<!-- Tab bar -->
 			</ion-tab>
 			<ion-tab tab="settings">
 				<ion-grid class="ion-padding Grid">
@@ -485,13 +419,6 @@ sftp -P 2222 {project_instance.domain}@{project_instance.site_domain}
 									value={project.name}
 									debounce={500}
 								/>
-								<!-- <ion-icon
-                                    class="inputIcon"
-                                    icon={}
-                                    size="large"
-                                    color="medium"
-                                    slot="start"
-                                /> -->
 							</ion-item>
 						</ion-col>
 					</ion-row>
@@ -514,19 +441,9 @@ sftp -P 2222 {project_instance.domain}@{project_instance.site_domain}
 									value={project.domain}
 									debounce={500}
 								/>
-								<!-- <ion-icon
-                                    class="inputIcon"
-                                    icon={}
-                                    size="large"
-                                    color="medium"
-                                    slot="start"
-                                /> -->
 							</ion-item>
 						</ion-col>
 					</ion-row>
-					<!-- </ion-grid>
-        
-                <ion-grid class="ion-padding Grid"> -->
 					<ion-row style="padding-top: 20px;">
 						<ion-col
 							class="ion-text-center"
@@ -536,7 +453,6 @@ sftp -P 2222 {project_instance.domain}@{project_instance.site_domain}
 						</ion-col>
 					</ion-row>
 					{#each project_instances as project_instance, index}
-						<!-- code, domain, id, port, site_domain, site_name, type -->
 						<ion-row>
 							<ion-col class="ion-text-center">
 								<ion-label>Instance {index + 1}</ion-label>
@@ -576,7 +492,6 @@ sftp -P 2222 {project_instance.domain}@{project_instance.site_domain}
 				</ion-grid>
 			</ion-tab>
 
-			<!-- Tab bar -->
 			<ion-tab-bar id="tab-bar" slot="top">
 				<ion-tab-button tab="gui">
 					<ion-icon icon={browsersOutline} />GUI
@@ -592,77 +507,6 @@ sftp -P 2222 {project_instance.domain}@{project_instance.site_domain}
 				</ion-tab-button>
 			</ion-tab-bar>
 		</ion-tabs>
-
-		<!-- project: {JSON.stringify(project)}
-        <br />
-        project_instances: {JSON.stringify(project_instances)} -->
 	</ion-content>
 </IonPage>
 
-<style>
-	.title {
-		padding-left: 10px;
-	}
-	.container {
-		width: 150px;
-		height: 150px;
-		border: 1px solid; /* Optional, just for visibility */
-		border-color: var(--ion-color-medium);
-		display: flex;
-		justify-content: center;
-		align-items: center;
-	}
-
-	.container ion-img {
-		max-width: 100%;
-		max-height: 100%;
-	}
-	.Grid {
-		/* max-width: 350px;
-        width: 350px; */
-		max-width: 500px;
-		width: 100%;
-	}
-	.ProvidersGrid {
-		max-width: 375px;
-	}
-	input:-webkit-autofill {
-		-webkit-text-fill-color: var(--ion-color-FORCEDARK);
-		font-weight: 500px;
-	}
-
-	input:-webkit-autofill:focus {
-		-webkit-text-fill-color: var(--ion-color-FORCEDARK);
-		font-weight: 500px;
-	}
-
-	.inputIcon {
-		margin-left: 10px;
-		margin-right: 10px;
-	}
-
-	.GridItem {
-		--padding-start: 0px;
-		--padding-end: 0px;
-		--inner-padding-end: 0px;
-	}
-	.loginInputBoxWithIcon {
-		height: 50px;
-		border: 1px solid;
-		border-color: var(--ion-color-medium);
-		background-color: var(--ion-background-color) !important;
-		border-radius: 5px;
-	}
-	.toast {
-		font-weight: bold;
-	}
-	.flex-container {
-		display: flex;
-		display: -webkit-flex;
-		display: -moz-flex;
-		flex-flow: row wrap;
-		-webkit-flex-flow: row wrap;
-		-moz-flex-flow: row wrap;
-		justify-content: center;
-	}
-</style>
