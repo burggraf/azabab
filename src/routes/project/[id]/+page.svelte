@@ -147,12 +147,15 @@
 	const gotoAdminPage = async () => {
 		window.open(`https://${project_instances[0].domain}.${project_instances[0].site_domain}/_/`, '_blank')
 	}
+	const gotoSite = async () => {
+		window.open(`https://${project_instances[0].domain}.${project_instances[0].site_domain}/`, '_blank')
+	}
 
 </script>
 
 <IonPage {ionViewWillEnter}>
 	<ion-header>
-		<ion-toolbar>
+		<ion-toolbar color="secondary">
 			<ion-buttons slot="start">
 				<ion-button on:click={back}>
 					<ion-icon slot="icon-only" icon={arrowBackOutline} />
@@ -165,8 +168,11 @@
 						<ion-icon slot="icon-only" icon={checkmarkOutline} />
 					</ion-button>
 				{:else}
+					<ion-button on:click={gotoSite}>
+						<ion-icon slot="icon-only" src="/launch.svg" />
+					</ion-button>
 					<ion-button on:click={gotoAdminPage}>
-						<ion-icon slot="icon-only" src="/pb.svg" />
+							<ion-icon slot="icon-only" src="/pb.svg" />
 					</ion-button>
 				{/if}
 			</ion-buttons></ion-toolbar

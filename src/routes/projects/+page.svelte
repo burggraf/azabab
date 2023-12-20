@@ -28,7 +28,7 @@
 
 <IonPage {ionViewWillEnter}>
 	<ion-header>
-		<ion-toolbar>
+		<ion-toolbar color="primary">
 			<ion-buttons slot="start">
 				<ion-menu-button />
 			</ion-buttons>
@@ -49,40 +49,59 @@
 							<ion-card-title>{project.name}</ion-card-title>
 							<ion-card-subtitle>{project.domain}</ion-card-subtitle>
 						</ion-card-header>
-						
+
 						<ion-card-content>
 							<ion-list>
 								{#each getInstancesForProject(project.id) as instance}
-								<ion-item
-									style="cursor:pointer;--padding-start:0px;--inner-padding-end: 0px;"
-									lines="none"
-									on:click={() => {
-										goto(`/project/${instance.project_id}`)
-									}}>
-									{instance.site_name} {instance.type}<br/>
-									{instance.domain}.{instance.site_domain}
-									<ion-button
-												slot="end"
-												size="small"
-												fill="clear"
-												on:click|stopPropagation={() => {
-													// launch in another windows
-													window.open(
-														`https://${instance.domain}.${instance.site_domain}/_/`,
-														'_blank'
-													)
-												}}
-											>
-											<ion-icon slot="icon-only" src="/pb.svg" />
+									<ion-item
+										style="cursor:pointer;--padding-start:0px;--inner-padding-end: 0px;"
+										lines="none"
+										on:click={() => {
+											goto(`/project/${instance.project_id}`)
+										}}
+									>
+										{instance.site_name}
+										{instance.type}<br />
+										{instance.domain}.{instance.site_domain}
+
+										<ion-button
+										slot="end"
+										size="small"
+										fill="clear"
+										on:click|stopPropagation={() => {
+											// launch in another windows
+											window.open(
+												`https://${instance.domain}.${instance.site_domain}/`,
+												'_blank'
+											)
+										}}
+									>
+										<ion-icon slot="icon-only" src="/launch.svg" />
 									</ion-button>
-								</ion-item>
-								{/each}	
+
+
+										<ion-button
+											slot="end"
+											size="small"
+											fill="clear"
+											on:click|stopPropagation={() => {
+												// launch in another windows
+												window.open(
+													`https://${instance.domain}.${instance.site_domain}/_/`,
+													'_blank'
+												)
+											}}
+										>
+											<ion-icon slot="icon-only" src="/pb.svg" />
+										</ion-button>
+									</ion-item>
+								{/each}
 							</ion-list>
 						</ion-card-content>
 					</ion-card>
 				{/each}
 			</div>
-			
+
 			{#each projects as project}
 				<ion-item-divider>
 					<ion-label>{project.name}</ion-label><br />
@@ -91,7 +110,7 @@
 				{#each getInstancesForProject(project.id) as instance}
 					<ion-item
 						lines="full"
-						on:click={() => {							
+						on:click={() => {
 							goto(`/project/${instance.project_id}`)
 						}}
 					>
@@ -155,16 +174,19 @@
 		</ion-list>
 	</ion-content>
 </IonPage>
+
 <style>
-.grid-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr)); /* Creates as many columns of at least 250px wide as can fit */
-    /*grid-gap: 0px;  Adjust the gap between the cards */
-    /*padding: 0px;  Optional padding around the grid */
-}
+	.grid-container {
+		display: grid;
+		grid-template-columns: repeat(
+			auto-fill,
+			minmax(400px, 1fr)
+		); /* Creates as many columns of at least 250px wide as can fit */
+		/*grid-gap: 0px;  Adjust the gap between the cards */
+		/*padding: 0px;  Optional padding around the grid */
+	}
 
-ion-card {
-    max-width: 100%; /* Override the inline style to make the card responsive */
-}
-
+	ion-card {
+		max-width: 100%; /* Override the inline style to make the card responsive */
+	}
 </style>
