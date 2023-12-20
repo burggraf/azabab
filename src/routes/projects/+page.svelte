@@ -189,4 +189,8 @@
 	ion-card {
 		max-width: 100%; /* Override the inline style to make the card responsive */
 	}
+	ion-card-subtitle {
+		/* font-family: monospace; */
+		text-transform: lowercase;	
+	}
 </style>

@@ -133,7 +133,7 @@
 				else toast(error, 'danger')
 			} else {
 				// open the project in a new windows
-				window.open(`https://${project_instances[0].domain}.${project_instances[0].site_domain}/_/`, '_blank')
+				window.open(`https://${project.domain}.${project_instances[0].site_domain}/_/`, '_blank')
 
 				console.log('**** goto', `/project/${data}`)
 				id = data
