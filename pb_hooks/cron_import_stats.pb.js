@@ -1,7 +1,7 @@
 /// <reference path="../pb_data/types.d.ts" />
 
 cronAdd("import_stats", "* * * * *", () => {
-    const IMPORT_STATS_ACTIVE = false;
+    const IMPORT_STATS_ACTIVE = true;
     console.log('import_stats cron fired')
     const import_stats = async () => {
         console.log('import_stats function starting...')
@@ -16,21 +16,21 @@ cronAdd("import_stats", "* * * * *", () => {
             if (unit === 'B') {
                 return num
             } else if (unit === 'kB') {
-                return num * 1000
+                return Math.round(num * 1000)
             } else if (unit === 'MB') {
-                return num * 1000000
+                return Math.round(num * 1000000)
             } else if (unit === 'GB') {
-                return num * 1000000000
+                return Math.round(num * 1000000000)
             } else if (unit === 'TB') {
-                return num * 1000000000000
+                return Math.round(num * 1000000000000)
             } else if (unit === 'KiB') {
-                return num * 1024
+                return Math.round(num * 1024)
             } else if (unit === 'MiB') {
-                return num * 1048576
+                return Math.round(num * 1048576)
             } else if (unit === 'GiB') {
-                return num * 1073741824
+                return Math.round(num * 1073741824)
             } else if (unit === 'TiB') {
-                return num * 1099511627776
+                return Math.round(num * 1099511627776)
             } else {
                 return 0
             }
@@ -95,7 +95,7 @@ cronAdd("import_stats", "* * * * *", () => {
                             console.log('record: ', JSON.stringify(record))
                             // contents
                             // f
-                            os.WriteFile(`./${site.domain}-${f}-line${i+1}.txt`, contents, 777);
+                            $os.writeFile(`./${site.domain}-${f}-line${i+1}.txt`, contents, 777);
                             continue
                         } else {
                             const rec = {}
