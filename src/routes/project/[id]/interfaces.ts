@@ -24,6 +24,7 @@ export interface Site {
     name: string
     code: string
     domain: string
+    active: boolean
 }
 
 export interface Key {

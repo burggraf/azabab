@@ -77,7 +77,7 @@
 			console.log('project_instances', project_instances)
 		}
 		sites = await pb.collection('sites').getFullList({
-			fields: 'id, name, code, domain',
+			fields: 'id, name, code, domain, active',
 		})
 		if (id === 'new') {
 			project_instances[0].id = sites[0].id
@@ -90,10 +90,10 @@
 	}
 	const save = async () => {
 		console.log('save')
-		if (project_instances[0].site_name !== 'US West 2' && 
-			project_instances[0].site_name !== 'US West 3' &&
-			project_instances[0].site_name !== 'US West 4') {
-			toast('Only US West 2-4 is supported at the moment', 'danger')
+		// look up the site to see if it's active
+		const active = sites.find((site) => site.id === project_instances[0].id)?.active;
+		if (!active) {
+			toast('The site you selected is not currently active', 'danger')
 			return
 		}
 		/*

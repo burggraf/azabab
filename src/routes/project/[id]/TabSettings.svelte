@@ -39,6 +39,8 @@
 			items.push({
 				text: site.name,
 				icon: allIonicIcons.globeOutline,
+                color: site.active ? 'primary' : 'medium',
+                textcolor: site.active ? 'primary' : 'medium',
 				handler: async () => {
 					project_instances[0].id = site.id
 					project_instances[0].site_name = site.name
