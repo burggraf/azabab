@@ -19,6 +19,7 @@
 	import { goto } from '$app/navigation'
 	import { toast } from '$services/toast'
 	import { onMount } from 'svelte'
+    import { checkDomainAvailability } from './project-utils'
 
 	export let id = $page.params.id
 	console.log('**** id', id)
@@ -66,6 +67,7 @@
 			console.log('looking for projects with id', id)
 			const record = await pb.collection('projects').getOne(id)
 			console.log('project record', record)
+			project.id = record.id
 			project.domain = record.domain
 			project.name = record.name
 			project.owner = record.owner
@@ -90,6 +92,19 @@
 	}
 	const save = async () => {
 		console.log('save')
+		const domainAvailable = await checkDomainAvailability(project)
+		if (project.name.trim().length === 0) {
+			toast('Project name is required', 'danger')
+			return
+		}
+		if (!project.domain) {
+			toast('Project domain is required', 'danger')
+			return
+		}
+		if (!domainAvailable) {
+			toast('Domain is not available', 'danger')
+			return
+		}
 		// look up the site to see if it's active
 		const active = sites.find((site) => site.id === project_instances[0].id)?.active;
 		if (!active) {

@@ -3,7 +3,8 @@
     import { currentUser, pb } from '$services/backend.service'
     import { dropdownmenu } from '$components/DropdownMenu'
 	import * as allIonicIcons from 'ionicons/icons'
-
+	import { checkmarkCircleOutline, closeCircleOutline } from 'ionicons/icons'
+    import { checkDomainAvailability } from './project-utils'
     export let project: Project = {
 		id: '',
 		domain: '',
@@ -24,13 +25,21 @@
 		},
 	]
     export let sites: Site[] = []
-
+    $: domainAvailable = false
 
 	const handleChange = async (event: any) => {
-		console.log('id', event.target.id)
-		console.log('handleChange', event.target.value)
-		console.log(event)
-		project[event.target.id] = event.target.value || ''
+		// console.log('id', event.target.id)
+		// console.log('handleChange', event.target.value)
+		// console.log(event)
+        const field = event.target.id
+        const value = event.target.value || ''
+        // if field is domain, strip out anything other than a-z 0-9 and -
+        if (field === 'domain') {
+            project[field] = value.toLowerCase().replace(/[^a-z0-9-]/g, '')
+            domainAvailable = await checkDomainAvailability(project);
+        } else {
+            project[field] = value
+        }
 	}
     const chooseSite = async (e: any) => {
 		let items = []
@@ -50,7 +59,6 @@
 		}
 		const result = await dropdownmenu(e, items)
 	}
-
 
 </script>
 <ion-grid class="ion-padding Grid">
@@ -75,7 +83,6 @@
             </ion-item>
         </ion-col>
     </ion-row>
-
     <ion-row>
         <ion-col>
             <ion-label>domain</ion-label>
@@ -97,6 +104,21 @@
             </ion-item>
         </ion-col>
     </ion-row>
+    {#if project?.id === '' && project?.domain.trim().length > 0}
+        <ion-row>
+            <ion-col>
+                <ion-label 
+                    color={domainAvailable ? "success" : "danger"} 
+                    style="padding-left: 20px;">
+                    {domainAvailable ? "Domain is available" : "Domain is not available"}
+                    <ion-icon 
+                        color={domainAvailable ? "success" : "danger"} 
+                        icon={domainAvailable ? checkmarkCircleOutline : closeCircleOutline} 
+                        style="" />
+                </ion-label>
+            </ion-col>
+        </ion-row>
+    {/if}
     <ion-row style="padding-top: 20px;">
         <ion-col
             class="ion-text-center"
