@@ -10,6 +10,7 @@
 		analyticsOutline,
 		arrowBackOutline,
 		browsersOutline,
+		buildOutline,
 		checkmarkOutline,
 		listOutline,
 		settingsOutline,
@@ -132,7 +133,7 @@
 				else toast(error, 'danger')
 			} else {
 				// open the project in a new windows
-				window.open(`https://${project.domain}.${site.domain}/_/`, '_blank')
+				window.open(`https://${project_instances[0].domain}.${project_instances[0].site_domain}/_/`, '_blank')
 
 				console.log('**** goto', `/project/${data}`)
 				id = data
@@ -142,6 +143,9 @@
 	}
 	const back = async () => {
 		goto('/projects')
+	}
+	const gotoAdminPage = async () => {
+		window.open(`https://${project_instances[0].domain}.${project_instances[0].site_domain}/_/`, '_blank')
 	}
 
 </script>
@@ -159,6 +163,10 @@
 				{#if id === 'new'}
 					<ion-button on:click={save}>
 						<ion-icon slot="icon-only" icon={checkmarkOutline} />
+					</ion-button>
+				{:else}
+					<ion-button on:click={gotoAdminPage}>
+						<ion-icon slot="icon-only" src="/pb.svg" />
 					</ion-button>
 				{/if}
 			</ion-buttons></ion-toolbar

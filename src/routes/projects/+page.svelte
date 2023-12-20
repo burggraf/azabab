@@ -40,8 +40,49 @@
 			</ion-buttons></ion-toolbar
 		>
 	</ion-header>
-	<ion-content class="ion-padding">
+	<ion-content>
 		<ion-list>
+			<div class="grid-container">
+				{#each projects as project}
+					<ion-card style="max-width: 400px;">
+						<ion-card-header>
+							<ion-card-title>{project.name}</ion-card-title>
+							<ion-card-subtitle>{project.domain}</ion-card-subtitle>
+						</ion-card-header>
+						
+						<ion-card-content>
+							<ion-list>
+								{#each getInstancesForProject(project.id) as instance}
+								<ion-item
+									style="cursor:pointer;"
+									lines="none"
+									detail={true}
+									on:click={() => {
+										goto(`/project/${instance.project_id}`)
+									}}>
+									{instance.site_name} {instance.type}<br/>
+									{instance.domain}.{instance.site_domain}
+									<!-- <ion-button
+												slot="end"
+												size="small"
+												on:click|stopPropagation={() => {
+													// launch in another windows
+													window.open(
+														`https://${instance.domain}.${instance.site_domain}/_/`,
+														'_blank'
+													)
+												}}
+											>
+											<ion-icon slot="icon-only" icon={constructOutline} />
+									</ion-button> -->
+								</ion-item>
+								{/each}	
+							</ion-list>
+						</ion-card-content>
+					</ion-card>
+				{/each}
+			</div>
+			
 			{#each projects as project}
 				<ion-item-divider>
 					<ion-label>{project.name}</ion-label><br />
@@ -50,7 +91,7 @@
 				{#each getInstancesForProject(project.id) as instance}
 					<ion-item
 						lines="full"
-						on:click={() => {
+						on:click={() => {							
 							goto(`/project/${instance.project_id}`)
 						}}
 					>
@@ -63,18 +104,18 @@
 									</ion-col>
 								</ion-row>
 								<ion-row>
-										<ion-col>Location:</ion-col>
-										<ion-col>
-											{instance.site_name}
-										</ion-col>
+									<ion-col>Location:</ion-col>
+									<ion-col>
+										{instance.site_name}
+									</ion-col>
 								</ion-row>
 								<ion-row>
-										<ion-col>Type:</ion-col>
-										<ion-col>
-											{instance.type}
-										</ion-col>
+									<ion-col>Type:</ion-col>
+									<ion-col>
+										{instance.type}
+									</ion-col>
 								</ion-row>
-                                <ion-row>
+								<ion-row>
 									<ion-col>
 										<ion-button
 											expand="block"
@@ -111,33 +152,19 @@
 					</ion-item>
 				{/each}
 			{/each}
-			<!-- {#each project_instances as instance}
-                <ion-item
-                    lines="full"
-                    on:click={() => {
-                        goto(`/project/${instance.project_id}`)
-                    }}
-                >
-                    <ion-label>
-                        <h2>{instance.name}</h2>
-                        <h3>domain: {instance.domain}.{instance.site_domain}<br/>
-                           location: {instance.site_name}<br/>
-                           type: {instance.type}</h3>
-                    </ion-label>
-                    <ion-button size="default" slot="end" fill="outline" on:click|stopPropagation={() => {
-                        // launch in another windows
-                        window.open(`https://${instance.domain}.${instance.site_domain}`,'_blank')
-                        }}>
-                        <ion-icon slot="icon-only" icon={eyeOutline} />
-                        </ion-button>
-                    <ion-button size="default" slot="end"  on:click|stopPropagation={() => {
-                        // launch in another windows
-                        window.open(`https://${instance.domain}.${instance.site_domain}/_/`,'_blank')
-                        }}>
-                        <ion-icon slot="icon-only" icon={constructOutline} />
-                        </ion-button>
-                </ion-item>
-            {/each} -->
-		</ion-list></ion-content
-	>
+		</ion-list>
+	</ion-content>
 </IonPage>
+<style>
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr)); /* Creates as many columns of at least 250px wide as can fit */
+    /*grid-gap: 0px;  Adjust the gap between the cards */
+    /*padding: 0px;  Optional padding around the grid */
+}
+
+ion-card {
+    max-width: 100%; /* Override the inline style to make the card responsive */
+}
+
+</style>
