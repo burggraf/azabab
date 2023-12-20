@@ -54,17 +54,17 @@
 							<ion-list>
 								{#each getInstancesForProject(project.id) as instance}
 								<ion-item
-									style="cursor:pointer;"
+									style="cursor:pointer;--padding-start:0px;--inner-padding-end: 0px;"
 									lines="none"
-									detail={true}
 									on:click={() => {
 										goto(`/project/${instance.project_id}`)
 									}}>
 									{instance.site_name} {instance.type}<br/>
 									{instance.domain}.{instance.site_domain}
-									<!-- <ion-button
+									<ion-button
 												slot="end"
 												size="small"
+												fill="clear"
 												on:click|stopPropagation={() => {
 													// launch in another windows
 													window.open(
@@ -73,8 +73,8 @@
 													)
 												}}
 											>
-											<ion-icon slot="icon-only" icon={constructOutline} />
-									</ion-button> -->
+											<ion-icon slot="icon-only" src="/pb.svg" />
+									</ion-button>
 								</ion-item>
 								{/each}	
 							</ion-list>
