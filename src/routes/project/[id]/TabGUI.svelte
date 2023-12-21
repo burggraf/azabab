@@ -1,4 +1,5 @@
 <script lang="ts">
+    import TreeView from './TreeView.svelte'
 	import { pb } from '$services/backend.service'
 	import { onMount } from 'svelte'
     import AccordionWrapper from './AccordionWrapper.svelte';
@@ -24,8 +25,9 @@ const getDir = async () => {
     if (index3 > -1) {
         dir.splice(index3, 1);
     }
-
-    tree = buildTree(dir);
+    // console.log(dir)
+    tree = buildTree(dir)[0];
+    // console.log('tree', tree);
 }
 
 getDir();
@@ -37,8 +39,9 @@ getDir();
 // })  
 
 interface TreeNode {
-    title: string;
+    label: string;
     children?: TreeNode[];
+    fullpath?: string;
 }
 
 function buildTree(paths: string[]): TreeNode[] {
@@ -49,10 +52,10 @@ function buildTree(paths: string[]): TreeNode[] {
         let currentLevel = root;
 
         segments.forEach((segment, index) => {
-            let node = currentLevel.find(n => n.title === segment);
+            let node = currentLevel.find(n => n.label === segment);
 
             if (!node) {
-                node = { title: segment };
+                node = { label: segment, fullpath: path };
                 currentLevel.push(node);
             }
 
@@ -63,7 +66,7 @@ function buildTree(paths: string[]): TreeNode[] {
         });
     });
 
-    return root;
+    return [{"label":"root", children: root}];
 }
 
 
@@ -76,8 +79,10 @@ const clickHandler = async (e: any) => {
 </script>
 
 <ion-content class="ion-padding">
-
-    <ion-accordion-group>
+    {#if tree}
+    <TreeView {tree} />
+    {/if}
+    <!-- <ion-accordion-group>
         {#if tree}
             {#each tree as node}
             <AccordionWrapper {node} />
@@ -85,7 +90,7 @@ const clickHandler = async (e: any) => {
         {:else}
             <p>loading...</p>
         {/if}
-      </ion-accordion-group>
+      </ion-accordion-group> -->
 </ion-content>
 
 <style>
