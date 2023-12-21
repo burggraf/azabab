@@ -143,7 +143,11 @@
 			<ion-accordion value={menu.title}>
 				<ion-item slot="header" id={menu.url}>
 					<ion-label><strong>{menu.title}</strong></ion-label>
-					<ion-icon slot="start" icon={allIonicIcons[menu.icon]} />
+					{#if menu.icon.indexOf('/') > -1}
+						<ion-icon slot="start" src={menu.icon} />
+					{:else}
+						<ion-icon slot="start" icon={allIonicIcons[menu.icon]} />
+					{/if}
 				</ion-item>
 				<ion-list slot="content" class="appPageChildList">
 					{#each menu.children as child (child.index)}
