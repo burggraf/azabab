@@ -150,11 +150,11 @@
 ./pb_data/types.d.ts
 ./pb_data/trivia.txt`.split('\n')
 
-// const ffiles: AppPage[] = [];
-//     ffiles.push({title: 'pb_data', url: 'pb_data', children: []})
-//     ffiles.push({title: 'pb_hooks', url: 'pb_hooks', children: []})
-//     ffiles.push({title: 'pb_migrations', url: 'pb_migrations', children: []})
-//     ffiles.push({title: 'pb_public', url: 'pb_public', children: []})
+	// const ffiles: AppPage[] = [];
+	//     ffiles.push({title: 'pb_data', url: 'pb_data', children: []})
+	//     ffiles.push({title: 'pb_hooks', url: 'pb_hooks', children: []})
+	//     ffiles.push({title: 'pb_migrations', url: 'pb_migrations', children: []})
+	//     ffiles.push({title: 'pb_public', url: 'pb_public', children: []})
 
 	// turn dir into a tree
 
@@ -173,55 +173,118 @@
 		disabled?: boolean
 	}
 
-
-	const files: AppPage[] = [
+	const fffiles: AppPage[] = [
 		{
 			title: 'pb_data',
-			url: 'dashboardMenu',
+			url: 'pb_data',
 			icon: 'serverOutline',
-			children: [
-				{ title: 'Welcome', url: 'welcome', icon: 'map', disabled: false },
-				{ title: 'Projects', url: 'projects', icon: 'map', disabled: false },
-			],
+			children: [{ title: 'filename', url: 'full_path' }],
 		},
 		{
 			title: 'pb_hooks',
-			url: 'informationMenu',
+			url: 'pb_hooks',
 			icon: './hook.svg',
-			children: [
-				{ title: 'About...', url: 'about', icon: 'map', disabled: false },
-				{ title: 'Terms of Use', url: 'terms', icon: 'map', disabled: false },
-				{ title: 'Privacy Policy', url: 'privacy', icon: 'map', disabled: false },
-				{ title: 'Support', url: 'support', icon: 'map', disabled: false },
-			],
+			children: [{ title: 'filename', url: 'full_path' }],
 		},
 		{
 			title: 'pb_migrations',
-			url: 'settingsMenu',
+			url: 'pb_migrations',
 			icon: 'trendingUpOutline',
-			children: [
-				{ title: 'Account', url: 'account', icon: 'settings', disabled: false },
-				{ title: 'Settings', url: 'settings', icon: 'settings', disabled: false },
-			],
+			children: [{ title: 'filename', url: 'full_path' }],
 		},
 		{
 			title: 'pb_public',
-			url: 'adminMenu',
+			url: 'pb_public',
 			icon: 'browsersOutline',
-			children: [
-                { title: 'Users', url: 'adm-users', icon: 'map', disabled: false }],
-		}
+			children: [{ title: 'filename', url: 'full_path' }],
+		},
 	]
-	let tree: any = {}
-	for (let i = 0; i < dir.length; i++) {
-        const path: any = dir[i].split('/')
-        if (path.length > 2) {
-            console.log('path', path)
-        }
+
+	const getIconForDirectory = (directory: string): string => {
+		const icons: { [key: string]: string } = {
+			pb_data: 'serverOutline',
+			pb_hooks: './hook.svg',
+			pb_migrations: 'trendingUpOutline',
+			pb_public: 'browsersOutline',
+		}
+
+		return icons[directory] || 'defaultIcon'
 	}
 
-	// console.log('tree', JSON.stringify(tree, null, 2))
+	// const parseDirectory = (dir: string[]): AppPage[] => {
+	// 	const rootNode: { [key: string]: AppPage } = {}
 
+	// 	dir.forEach((path) => {
+	// 		const parts = path.split('/').filter((part) => part.length > 0)
+	// 		let currentNode = rootNode
+
+	// 		parts.forEach((part, index) => {
+	// 			if (!currentNode[part]) {
+	// 				currentNode[part] = {
+	// 					title: part,
+	// 					url: parts.slice(0, index + 1).join('/'),
+	// 					icon: index === 0 ? getIconForDirectory(part) : 'fileIcon', // Assign icon only for root directories
+	// 					children: {},
+	// 				}
+	// 			}
+
+	// 			if (index < parts.length - 1) {
+	// 				currentNode = currentNode[part].children!
+	// 			}
+	// 		})
+	// 	})
+
+	// 	const convertToAppPageArray = (node: { [key: string]: AppPage }): AppPage[] => {
+	// 		return Object.values(node).map((child) => ({
+	// 			title: child.title,
+	// 			url: child.url,
+	// 			icon: child.icon,
+	// 			children:
+	// 				child.children && Object.keys(child.children).length > 0
+	// 					? convertToAppPageArray(child.children)
+	// 					: undefined,
+	// 		}))
+	// 	}
+
+	// 	return convertToAppPageArray(rootNode)
+	// }
+	//const files: any /*AppPage[]*/ = parseDirectory(dir)[0].children
+
+const buildAppPages = (paths: string[], basePath: string = '', level: number = 0): AppPage[] => {
+    const result: AppPage[] = [];
+    const children = paths
+        .filter(path => path.startsWith(basePath))
+        .map(path => path.substring(basePath.length).split('/')[0])
+        .filter((value, index, self) => self.indexOf(value) === index);
+
+    children.forEach(child => {
+        const fullPath = `${basePath}${child}`;
+        const isFile = !paths.some(path => path.startsWith(fullPath + '/'));
+        const appPage: AppPage = {
+            title: child,
+            url: fullPath,
+            icon: level === 0 ? getIconForDirectory(child) : 'fileIcon'
+        };
+
+        if (!isFile) {
+            appPage.children = buildAppPages(paths, `${fullPath}/`, level + 1);
+        }
+
+        result.push(appPage);
+    });
+
+    return result;
+};
+
+// Example usage
+// const dir = `./pb_hooks
+// // ... (your directory structure)
+// ./pb_data/trivia.txt`.split('\n').map(path => path.substring(2)); // remove './' from each path
+
+const files: AppPage[] = buildAppPages(dir.map(path => path.substring(2)));
+    
+
+	console.log("files", files)
 </script>
 
 <ion-content class="ion-padding">
