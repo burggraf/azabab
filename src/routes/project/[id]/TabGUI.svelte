@@ -1,5 +1,5 @@
 <script lang="ts">
-	import AccordionMenu from '$lib/components/AccordionMenu.svelte'
+    import AccordionWrapper from './AccordionWrapper.svelte';
 	const dir = `./pb_hooks
 ./pb_hooks/main.pb.js
 ./pb_public
@@ -148,174 +148,58 @@
 ./pb_data/data.db
 ./pb_data/logs.db
 ./pb_data/types.d.ts
-./pb_data/trivia.txt`.split('\n')
+./pb_data/trivia.txt`.split('\n').sort();
+console.log('dir', JSON.stringify(dir,null,2));
 
-	// const ffiles: AppPage[] = [];
-	//     ffiles.push({title: 'pb_data', url: 'pb_data', children: []})
-	//     ffiles.push({title: 'pb_hooks', url: 'pb_hooks', children: []})
-	//     ffiles.push({title: 'pb_migrations', url: 'pb_migrations', children: []})
-	//     ffiles.push({title: 'pb_public', url: 'pb_public', children: []})
 
-	// turn dir into a tree
+interface TreeNode {
+    title: string;
+    children?: TreeNode[];
+}
 
-	interface AppPage {
-		title: string
-		url: string
-		icon?: string
-		iosIcon?: string
-		mdIcon?: string
-		children?: AppChild[] | any
-	}
-	interface AppChild {
-		title: string
-		url: string
-		icon: string
-		disabled?: boolean
-	}
+function buildTree(paths: string[]): TreeNode[] {
+    const root: TreeNode[] = [];
 
-	const fffiles: AppPage[] = [
-		{
-			title: 'pb_data',
-			url: 'pb_data',
-			icon: 'serverOutline',
-			children: [{ title: 'filename', url: 'full_path' }],
-		},
-		{
-			title: 'pb_hooks',
-			url: 'pb_hooks',
-			icon: './hook.svg',
-			children: [{ title: 'filename', url: 'full_path' }],
-		},
-		{
-			title: 'pb_migrations',
-			url: 'pb_migrations',
-			icon: 'trendingUpOutline',
-			children: [{ title: 'filename', url: 'full_path' }],
-		},
-		{
-			title: 'pb_public',
-			url: 'pb_public',
-			icon: 'browsersOutline',
-			children: [{ title: 'filename', url: 'full_path' }],
-		},
-	]
+    paths.forEach(path => {
+        const segments = path.split('/').slice(1); // Skip the first segment
+        let currentLevel = root;
 
-	const getIconForDirectory = (directory: string): string => {
-		const icons: { [key: string]: string } = {
-			pb_data: 'serverOutline',
-			pb_hooks: './hook.svg',
-			pb_migrations: 'trendingUpOutline',
-			pb_public: 'browsersOutline',
-		}
+        segments.forEach((segment, index) => {
+            let node = currentLevel.find(n => n.title === segment);
 
-		return icons[directory] || 'defaultIcon'
-	}
+            if (!node) {
+                node = { title: segment };
+                currentLevel.push(node);
+            }
 
-	// const parseDirectory = (dir: string[]): AppPage[] => {
-	// 	const rootNode: { [key: string]: AppPage } = {}
-
-	// 	dir.forEach((path) => {
-	// 		const parts = path.split('/').filter((part) => part.length > 0)
-	// 		let currentNode = rootNode
-
-	// 		parts.forEach((part, index) => {
-	// 			if (!currentNode[part]) {
-	// 				currentNode[part] = {
-	// 					title: part,
-	// 					url: parts.slice(0, index + 1).join('/'),
-	// 					icon: index === 0 ? getIconForDirectory(part) : 'fileIcon', // Assign icon only for root directories
-	// 					children: {},
-	// 				}
-	// 			}
-
-	// 			if (index < parts.length - 1) {
-	// 				currentNode = currentNode[part].children!
-	// 			}
-	// 		})
-	// 	})
-
-	// 	const convertToAppPageArray = (node: { [key: string]: AppPage }): AppPage[] => {
-	// 		return Object.values(node).map((child) => ({
-	// 			title: child.title,
-	// 			url: child.url,
-	// 			icon: child.icon,
-	// 			children:
-	// 				child.children && Object.keys(child.children).length > 0
-	// 					? convertToAppPageArray(child.children)
-	// 					: undefined,
-	// 		}))
-	// 	}
-
-	// 	return convertToAppPageArray(rootNode)
-	// }
-	//const files: any /*AppPage[]*/ = parseDirectory(dir)[0].children
-
-const buildAppPages = (paths: string[], basePath: string = '', level: number = 0): AppPage[] => {
-    const result: AppPage[] = [];
-    const children = paths
-        .filter(path => path.startsWith(basePath))
-        .map(path => path.substring(basePath.length).split('/')[0])
-        .filter((value, index, self) => self.indexOf(value) === index);
-
-    children.forEach(child => {
-        const fullPath = `${basePath}${child}`;
-        const isFile = !paths.some(path => path.startsWith(fullPath + '/'));
-        const appPage: AppPage = {
-            title: child,
-            url: fullPath,
-            icon: level === 0 ? getIconForDirectory(child) : 'fileIcon'
-        };
-
-        if (!isFile) {
-            appPage.children = buildAppPages(paths, `${fullPath}/`, level + 1);
-        }
-
-        result.push(appPage);
+            if (index < segments.length - 1) {
+                node.children = node.children ?? [];
+                currentLevel = node.children;
+            }
+        });
     });
 
-    return result;
-};
+    return root;
+}
 
-// Example usage
-// const dir = `./pb_hooks
-// // ... (your directory structure)
-// ./pb_data/trivia.txt`.split('\n').map(path => path.substring(2)); // remove './' from each path
+const tree: any = buildTree(dir);
+console.log(JSON.stringify(tree,null,2));
 
-const files: AppPage[] = buildAppPages(dir.map(path => path.substring(2)));
-    
 
-	console.log("files", files)
+const clickHandler = async (e: any) => {
+    console.log('clickHandler', e.target.id);
+}
+
+
 </script>
 
 <ion-content class="ion-padding">
-	<AccordionMenu appPages={files} badges={{}} />
 
-	<!-- <div class="container">
-        <div class="box upper-left">
-            <div class="box-title"><ion-label>Database</ion-label></div>
-            <div class="box-content">
-
-            </div>
-        </div>
-        <div class="box upper-right">
-            <div class="box-title"><ion-label>Hooks</ion-label></div>
-            <div class="box-content">
-
-            </div>
-        </div>
-        <div class="box lower-left">
-            <div class="box-title"><ion-label>Migrations</ion-label></div>
-            <div class="box-content">
-
-            </div>
-        </div>
-        <div class="box lower-right">
-            <div class="box-title"><ion-label>Public</ion-label></div>
-            <div class="box-content">
-
-            </div>
-        </div>
-    </div> -->
+    <ion-accordion-group>
+        {#each tree as node}
+          <AccordionWrapper {node} />
+        {/each}
+      </ion-accordion-group>
 </ion-content>
 
 <style>
