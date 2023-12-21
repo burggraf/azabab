@@ -4,22 +4,7 @@
     import { currentUser, pb } from '$services/backend.service'
     import moment from 'moment'
 	const formatDate = (timestamp: number) => moment(timestamp * 1000).format('MM/DD/YY HH:mm:ss')
-
-	const changeMetrics = async (e: any) => {
-		if (e !== 'info') {
-			// fetch a paginated records list
-			try {
-				const resultList = await pb.collection('stats_view').getList(1, 50, {
-					filter: `instance_id = "${e.detail.value}"`,
-					columns: `ts, event, cpu_usage, mem_usage, disk_read, disk_write, net_in, net_out`,
-					sort: '-ts',
-				})
-				stats = resultList.items
-			} catch (error) {
-				console.log('changeMetrics error', error)
-			}
-		}
-	}
+    
     export let project_instances: ProjectInstance[] = [
 		{
 			code: '',
@@ -33,9 +18,19 @@
 		},
 	]
 
+    const loadData = async () => {
+        const resultList = await pb.collection('stats_view').getList(1, 50, {
+            filter: `instance_id = "${project_instances[0].id}"`,
+            columns: `ts, event, cpu_usage, mem_usage, disk_read, disk_write, net_in, net_out`,
+            sort: '-ts',
+        })
+        stats = resultList.items
+    }
+    loadData();
+
 </script>
 <div class="ion-padding" style="overflow: scroll;height: 100%">
-    <ion-segment on:ionChange={changeMetrics} id="metrics" value="info">
+    <!-- <ion-segment on:ionChange={changeMetrics} id="metrics" value="info">
         <ion-segment-button value="info">
             <ion-label>Info</ion-label>
         </ion-segment-button>
@@ -44,7 +39,7 @@
                 <ion-label>{project_instance.site_name}</ion-label>
             </ion-segment-button>
         {/each}
-    </ion-segment>
+    </ion-segment> -->
     <ion-grid class="ion-padding" id="statGrid" style="width: 100%">
         <ion-row style="color:var(--ion-color-light);background-color:var(--ion-color-medium)">
             <ion-col>Date</ion-col>
