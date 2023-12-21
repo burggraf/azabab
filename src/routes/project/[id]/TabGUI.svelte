@@ -1,6 +1,12 @@
 <script lang="ts">
+	import { pb } from '$services/backend.service'
+	import { onMount } from 'svelte'
     import AccordionWrapper from './AccordionWrapper.svelte';
-	const dir = `./pb_hooks
+    export let instance_id: string = ''
+    let dir: string[] = [];
+    let tree: any;
+
+	const xdir = `./pb_hooks
 ./pb_hooks/main.pb.js
 ./pb_public
 ./pb_public/lobby.html
@@ -149,8 +155,48 @@
 ./pb_data/logs.db
 ./pb_data/types.d.ts
 ./pb_data/trivia.txt`.split('\n').sort();
-console.log('dir', JSON.stringify(dir,null,2));
+// console.log('dir', JSON.stringify(dir,null,2));
 
+const getDir = async () => {
+    console.log('****** sending:', `/getinstancefiles/${instance_id}`)
+    const { data, error } = await pb.send(`/getinstancefiles/${instance_id}`, {
+				method: 'GET'
+			})
+    console.log('data', data);
+    console.log('error', error);
+    if (data) dir = data.split('\n').sort();
+    else console.log('error', error);
+    console.log('dir is now', dir)
+    // remove these items from the beginning of the dir:
+    // './', './.ssh', './.ssh/authorized_keys', 
+    // find item './' in dir and remove it
+    const index = dir.indexOf('./');
+    if (index > -1) {
+        dir.splice(index, 1);
+    }
+    // find item './.ssh' in dir and remove it
+    const index2 = dir.indexOf('./.ssh');
+    if (index2 > -1) {
+        dir.splice(index2, 1);
+    }
+    // find item './.ssh/authorized_keys' in dir and remove it
+    const index3 = dir.indexOf('./.ssh/authorized_keys');
+    if (index3 > -1) {
+        dir.splice(index3, 1);
+    }
+    console.log('dir is now', dir)
+
+    tree = buildTree(dir);
+    console.log('tree', tree);
+}
+
+getDir();
+onMount(() => {
+    console.log('instance_id inside the tab is: ', instance_id)
+    console.log('TabGUI onmount', instance_id)
+    console.log('calling getDir');
+    //getDir();
+})  
 
 interface TreeNode {
     title: string;
@@ -182,8 +228,6 @@ function buildTree(paths: string[]): TreeNode[] {
     return root;
 }
 
-const tree: any = buildTree(dir);
-console.log(JSON.stringify(tree,null,2));
 
 
 const clickHandler = async (e: any) => {
@@ -196,9 +240,13 @@ const clickHandler = async (e: any) => {
 <ion-content class="ion-padding">
 
     <ion-accordion-group>
-        {#each tree as node}
-          <AccordionWrapper {node} />
-        {/each}
+        {#if tree}
+            {#each tree as node}
+            <AccordionWrapper {node} />
+            {/each}
+        {:else}
+            <p>loading...</p>
+        {/if}
       </ion-accordion-group>
 </ion-content>
 

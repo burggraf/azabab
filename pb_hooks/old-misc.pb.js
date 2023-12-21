@@ -1,5 +1,4 @@
 /// <reference path="../pb_data/types.d.ts" />
-
 routerAdd('GET', '/test', async (c) => {
 	console.log('** ls')
 	try {
@@ -29,7 +28,7 @@ routerAdd('GET', '/test', async (c) => {
 })
 routerAdd('GET', '/hello/:name', (c) => {
 	let name = c.pathParam('name')
-
+	console.log('** hello', name)
 	return c.json(200, { message: 'Hello ' + name })
 })
 routerAdd(

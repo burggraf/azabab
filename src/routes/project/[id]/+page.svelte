@@ -23,7 +23,7 @@
 
 	export let id = $page.params.id
 	console.log('**** id', id)
-
+	$: instance_id = ''
 	import type { Project, ProjectInstance, Site, Key, ProjectInstanceKey } from './interfaces'
 
 	let keys: Key[] = []
@@ -77,6 +77,9 @@
 				fields: 'code, domain, id, port, site_domain, site_name, site_id, type',
 			})
 			console.log('project_instances', project_instances)
+			if (project_instances.length > 0)
+				instance_id = project_instances[0].id
+			console.log('instance_id is NOW', instance_id)
 		}
 		sites = await pb.collection('sites').getFullList({
 			fields: 'id, name, code, domain, active',
@@ -202,7 +205,14 @@
 			}}
 		>
 			<ion-tab tab="gui">
-				<TabGUI/>
+				{#if instance_id !== ''}
+					<TabGUI {instance_id} />
+				{:else}
+					<div class="ion-padding ion-text-center">
+						<ion-spinner name="crescent" /><br/>
+						<ion-label>Loading...</ion-label>
+					</div>
+				{/if}
 			</ion-tab>
 			<ion-tab tab="cli">
 				<TabCLI {keys} {project_instance_keys} {project_instances} {id}/>
