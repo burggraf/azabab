@@ -1,6 +1,8 @@
 <script lang="ts">
 	import TreeView from './TreeView.svelte'
 	import { pb } from '$services/backend.service'
+    import { textFileExtensions } from '$services/utils.service'
+	import { toast } from '$services/toast'
 	export let instance_id: string = ''
 	let dir: string[] = []
 	let tree: any
@@ -14,7 +16,7 @@
 		console.log('modifiedPath', modifiedPath)
 		console.log('instance_id', instance_id)
 
-		if (modifiedPath.startsWith('pb_public')) {
+		if (false && modifiedPath.startsWith('pb_public')) {
             console.log('getting pb_public file')
             // get the server address from the instance_id
             const instance_rec = await pb.collection('project_instance').getOne(instance_id, {
@@ -28,34 +30,20 @@
             console.log('url', url)
             window.open(url, '_blank');
             
-            // use javascript fetch to download the file
-            // fetch(url)
-            //     .then((response) => response.blob())
-            //     .then((blob) => {
-            //         // Create blob link to download
-            //         const url = window.URL.createObjectURL(
-            //             new Blob([blob]),
-            //         );
-            //         const link = document.createElement('a');
-            //         link.href = url;
-            //         link.setAttribute(
-            //             'download',
-            //             item.label,
-            //         );
-
-            //         // Append to html link element page
-            //         document.body.appendChild(link);
-
-            //         // Start download
-            //         link.click();
-
-            //         // Clean up and remove the link
-            //         link.parentNode?.removeChild(link);
-            //     });
 
 		} else {
             console.log('getting getinstancefile file')
-
+            // get the file extension
+            const ext = '.' + modifiedPath.split('.').pop();
+            console.log('ext', ext)
+            console.log('textFileExtensions', textFileExtensions)
+            console.log('indexOf', textFileExtensions.indexOf(ext))
+            if (textFileExtensions.indexOf(ext) === -1) {
+                console.log('not a text file')
+                toast('Not a text file', 'danger');
+                return;
+            }
+            
 			const { data, error } = await pb.send(`/getinstancefile`, {
 				method: 'POST',
 				body: {
@@ -65,19 +53,13 @@
 				//instance_id
 				//path: fullpath
 			})
-			console.log('getinstancefile: data, error', data, error)
+			console.log('*** getinstancefile: data, error', data, error)
 			if (data?.raw) {
 				console.log('data.raw', data.raw)
-				// // Assuming `data.raw` contains your binary data
-				// // const blob = new Blob([data.raw]); // MIME type is omitted to let the browser infer it
-				// const blob = new Blob([data.raw]);
-
-				// const url = window.URL.createObjectURL(blob);
-				// const a = document.createElement('a');
-				// a.href = url;
-				// a.download = item.label; // item.label should be the desired filename with the correct extension
-				// a.click();
-				// window.URL.revokeObjectURL(url);
+                const el = document.getElementById('preview');                
+                if (el) el.innerText = data.raw;
+                const el2 = document.getElementById('previewTitle');
+                if (el2) el2.innerHTML = item.fullpath.replace('./', '')
 			}
 		}
 	}
@@ -144,7 +126,17 @@
 
 <ion-content class="ion-padding">
 	{#if tree}
-		<TreeView {tree} {callback} />
+        <ion-grid>
+            <ion-row>
+                <ion-col size={"6"}>
+                    <TreeView {tree} {callback} />
+                </ion-col>
+                <ion-col size={"6"} style="border: 1px solid;">
+                    <div id="previewTitle" style="padding: 5px; background-color: var(--ion-color-dark);color: var(--ion-color-dark-contrast);"></div>
+                    <pre id="preview" style="padding-left: 10px;padding-right: 10px;"></pre>                    
+                </ion-col>
+            </ion-row>
+        </ion-grid>
 	{:else}
 		<div class="ion-text-center ion-padding">
 			<ion-spinner name="crescent" /><br />

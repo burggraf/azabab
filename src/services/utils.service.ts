@@ -82,5 +82,7 @@ export const textFileExtensions = [
   ".java",
   ".cpp",
   ".c",
-  ".svelte"
+  ".svelte",
+  ".svg",
+  ".webmanifest"
 ];
