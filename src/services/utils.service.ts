@@ -58,3 +58,29 @@ export const isModal = async () => {
   return (await modalController.getTop() !== undefined);
 }
 
+export const textFileExtensions = [
+  ".txt",
+  ".js",
+  ".ts",
+  ".css",
+  ".html",
+  ".md",
+  ".xml",
+  ".json",
+  ".csv",
+  ".log",
+  ".conf",
+  ".config",
+  ".sh",
+  ".bat",
+  ".py",
+  ".rb",
+  ".php",
+  ".yml",
+  ".yaml",
+  ".ini",
+  ".java",
+  ".cpp",
+  ".c",
+  ".svelte"
+];

@@ -5,11 +5,12 @@
 	}
 </script>
 <script lang="ts">
+	export let tree;
+    export let callback;
 	import { documentOutline, folderOutline, folderOpenOutline, folder } from "ionicons/icons"
 
 	// import { slide } from 'svelte/transition'
-	export let tree
-	const {label, fullpath, children, typ, len} = tree
+	const {label, fullpath, children, typ, len} = tree;
 
 	let expanded = _expansionState[label] || false
 	const toggleExpansion = () => {
@@ -19,6 +20,8 @@
     const handler = (e) => {
         if (typ !== 'f') return;
         console.log("label", label, "fullpath", fullpath, "typ", typ, "len", len);
+        console.log("======callback", callback);
+        callback({label, fullpath, typ, len});
     }
 </script>
 
@@ -32,7 +35,7 @@
 			</span>
 			{#if expanded}
 				{#each children as child}
-					<svelte:self tree={child} />
+					<svelte:self tree={child} {callback} />
 				{/each}
 			{/if}
 		{:else}

@@ -1,90 +1,87 @@
 <script lang="ts">
-    import TreeView from './TreeView.svelte'
+	import TreeView from './TreeView.svelte'
 	import { pb } from '$services/backend.service'
-	import { onMount } from 'svelte'
-    import AccordionWrapper from './AccordionWrapper.svelte';
-    export let instance_id: string = ''
-    let dir: string[] = [];
-    let tree: any;
+	export let instance_id: string = ''
+	let dir: string[] = []
+	let tree: any
 
-const getDir = async () => {
-    const { data, error } = await pb.send(`/getinstancefiles/${instance_id}`, {
-				method: 'GET'
+    const callback = (item: any) => {
+        console.log('handler', item);
+        /*
+            {label: 'data.db', fullpath: './pb_data/data.db', typ: 'f', len: '921600'}        
+        */
+    }
+
+	const getDir = async () => {
+		const { data, error } = await pb.send(`/getinstancefiles/${instance_id}`, {
+			method: 'GET',
+		})
+		if (data)
+			dir = data
+				.split('\n')
+				.filter((item: string) => !item.startsWith('./.ssh') && !item.startsWith('./ '))
+				.sort()
+		else console.log('error', error)
+
+		// remove any array entries that start with './.ssh'
+
+		// console.log(JSON.stringify(dir, null, 2))
+		tree = buildTree(dir)[0]
+		// console.log('tree', tree);
+	}
+
+	getDir()
+
+	interface TreeNode {
+		label: string
+		children?: TreeNode[]
+		fullpath?: string
+		typ?: string
+		len?: string
+	}
+
+	function buildTree(paths: string[]): TreeNode[] {
+		const root: TreeNode[] = []
+
+		paths.forEach((path) => {
+			const segments = path.split('/').slice(1) // Skip the first segment
+			let currentLevel = root
+
+			segments.forEach((segment, index) => {
+				const segmentParts = segment.split(' |')
+				let node = currentLevel.find((n) => n.label === segmentParts[0])
+
+				if (!node) {
+					node = {
+						label: segmentParts[0],
+						fullpath: path.split(' |')[0],
+						typ: segmentParts[1],
+						len: segmentParts[2],
+					}
+					currentLevel.push(node)
+				}
+
+				if (index < segments.length - 1) {
+					node.children = node.children ?? []
+					currentLevel = node.children
+				}
 			})
-    if (data) dir = data.split('\n').filter((item:string) => !item.startsWith('./.ssh') && !item.startsWith('./ ')).sort();
-    else console.log('error', error);
+		})
 
-    // remove any array entries that start with './.ssh'
-        
-    console.log(JSON.stringify(dir,null,2))
-    tree = buildTree(dir)[0];
-    // console.log('tree', tree);
-}
-
-getDir();
-// onMount(() => {
-//     console.log('instance_id inside the tab is: ', instance_id)
-//     console.log('TabGUI onmount', instance_id)
-//     console.log('calling getDir');
-//     //getDir();
-// })  
-
-interface TreeNode {
-    label: string;
-    children?: TreeNode[];
-    fullpath?: string;
-    typ?: string;
-    len?: string;
-}
-
-function buildTree(paths: string[]): TreeNode[] {
-    const root: TreeNode[] = [];
-
-    paths.forEach(path => {
-        const segments = path.split('/').slice(1); // Skip the first segment
-        let currentLevel = root;
-
-        segments.forEach((segment, index) => {
-            const segmentParts = segment.split(' |');
-            let node = currentLevel.find(n => n.label === segmentParts[0]);
-
-            if (!node) {
-                node = { label: segmentParts[0], fullpath: path.split(' |')[0], typ: segmentParts[1], len: segmentParts[2] };
-                currentLevel.push(node);
-            }
-
-            if (index < segments.length - 1) {
-                node.children = node.children ?? [];
-                currentLevel = node.children;
-            }
-        });
-    });
-
-    return [{"label":"root", children: root}];
-}
-
-
-
-const clickHandler = async (e: any) => {
-    console.log('clickHandler', e.target.id);
-}
-
+		return [{ label: 'root', children: root }]
+	}
 
 </script>
 
 <ion-content class="ion-padding">
-    {#if tree}
-    <TreeView {tree} />
-    {/if}
-    <!-- <ion-accordion-group>
-        {#if tree}
-            {#each tree as node}
-            <AccordionWrapper {node} />
-            {/each}
-        {:else}
-            <p>loading...</p>
-        {/if}
-      </ion-accordion-group> -->
+	{#if tree}
+		<TreeView {tree} {callback} />
+    {:else}
+        <div class="ion-text-center ion-padding">
+            <ion-spinner name="crescent" /><br/>
+            <ion-label>Loading...</ion-label>
+        </div>
+     {/if}
 </ion-content>
 
 <style>
