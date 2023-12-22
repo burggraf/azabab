@@ -132,7 +132,7 @@
                     <TreeView {tree} {callback} />
                 </ion-col>
                 <ion-col size={"6"} style="border: 1px solid;">
-                    <div id="previewTitle" style="padding: 5px; background-color: var(--ion-color-dark);color: var(--ion-color-dark-contrast);"></div>
+                    <div id="previewTitle" style="padding: 5px; background-color: var(--ion-color-dark);color: var(--ion-color-dark-contrast);">Preview</div>
                     <pre id="preview" style="padding-left: 10px;padding-right: 10px;"></pre>                    
                 </ion-col>
             </ion-row>
