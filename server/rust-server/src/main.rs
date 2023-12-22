@@ -2,6 +2,7 @@ mod create_project;
 mod create_user;
 mod catch_all_handler;
 mod get_instance_files;
+mod get_instance_file;
 
 use hyper::{Body, Request, Response, Server};
 use hyper::service::{make_service_fn, service_fn};
@@ -41,6 +42,9 @@ async fn request_handler(req: Request<Body>) -> Result<Response<Body>, hyper::Er
         },
         ("/getinstancefiles", &hyper::Method::GET) => {
             get_instance_files::handle_get_instance_files(req).await
+        },        
+        ("/getinstancefile", &hyper::Method::POST) => {
+            get_instance_file::handle_get_instance_file(req, AUTH_TOKEN).await
         },        
         _ => catch_all_handler::handle_catch_all(req).await
     }

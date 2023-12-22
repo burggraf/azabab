@@ -19,8 +19,6 @@
 	$: arrowDown = expanded
     const handler = (e) => {
         if (typ !== 'f') return;
-        console.log("label", label, "fullpath", fullpath, "typ", typ, "len", len);
-        console.log("======callback", callback);
         callback({label, fullpath, typ, len});
     }
 </script>

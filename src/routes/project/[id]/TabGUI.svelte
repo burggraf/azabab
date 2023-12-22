@@ -5,11 +5,24 @@
 	let dir: string[] = []
 	let tree: any
 
-    const callback = (item: any) => {
+    const callback = async (item: any) => {
         console.log('handler', item);
         /*
             {label: 'data.db', fullpath: './pb_data/data.db', typ: 'f', len: '921600'}        
         */
+       const modifiedPath = item.fullpath.replace('./', '')
+       console.log('modifiedPath', modifiedPath)
+       console.log('instance_id', instance_id)
+		const { data, error } = await pb.send(`/getinstancefile`, {
+			method: 'POST',
+            body: {
+                project_instance_id: instance_id,
+                path: modifiedPath
+            }
+            //instance_id
+            //path: fullpath
+		})
+        console.log('getinstancefile: data, error', data, error)
     }
 
 	const getDir = async () => {
@@ -75,7 +88,7 @@
 
 <ion-content class="ion-padding">
 	{#if tree}
-		<TreeView {tree} {callback} />
+	    <TreeView {tree} {callback} />
     {:else}
         <div class="ion-text-center ion-padding">
             <ion-spinner name="crescent" /><br/>
@@ -143,4 +156,5 @@
 		height: 100%;
 		overflow-y: auto;
 	}
+
 </style>
