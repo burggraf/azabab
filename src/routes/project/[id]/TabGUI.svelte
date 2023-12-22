@@ -11,21 +11,12 @@ const getDir = async () => {
     const { data, error } = await pb.send(`/getinstancefiles/${instance_id}`, {
 				method: 'GET'
 			})
-    if (data) dir = data.split('\n').sort();
+    if (data) dir = data.split('\n').filter((item:string) => !item.startsWith('./.ssh') && !item.startsWith('./ ')).sort();
     else console.log('error', error);
-    const index = dir.indexOf('./');
-    if (index > -1) {
-        dir.splice(index, 1);
-    }
-    const index2 = dir.indexOf('./.ssh');
-    if (index2 > -1) {
-        dir.splice(index2, 1);
-    }
-    const index3 = dir.indexOf('./.ssh/authorized_keys');
-    if (index3 > -1) {
-        dir.splice(index3, 1);
-    }
-    // console.log(dir)
+
+    // remove any array entries that start with './.ssh'
+        
+    console.log(JSON.stringify(dir,null,2))
     tree = buildTree(dir)[0];
     // console.log('tree', tree);
 }
@@ -42,6 +33,8 @@ interface TreeNode {
     label: string;
     children?: TreeNode[];
     fullpath?: string;
+    typ?: string;
+    len?: string;
 }
 
 function buildTree(paths: string[]): TreeNode[] {
@@ -52,10 +45,11 @@ function buildTree(paths: string[]): TreeNode[] {
         let currentLevel = root;
 
         segments.forEach((segment, index) => {
-            let node = currentLevel.find(n => n.label === segment);
+            const segmentParts = segment.split(' |');
+            let node = currentLevel.find(n => n.label === segmentParts[0]);
 
             if (!node) {
-                node = { label: segment, fullpath: path };
+                node = { label: segmentParts[0], fullpath: path.split(' |')[0], typ: segmentParts[1], len: segmentParts[2] };
                 currentLevel.push(node);
             }
 

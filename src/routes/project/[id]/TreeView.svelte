@@ -5,9 +5,11 @@
 	}
 </script>
 <script lang="ts">
+	import { documentOutline, folderOutline, folderOpenOutline, folder } from "ionicons/icons"
+
 	// import { slide } from 'svelte/transition'
 	export let tree
-	const {label, fullpath, children} = tree
+	const {label, fullpath, children, typ, len} = tree
 
 	let expanded = _expansionState[label] || false
 	const toggleExpansion = () => {
@@ -15,8 +17,8 @@
 	}
 	$: arrowDown = expanded
     const handler = (e) => {
-        if (children) return;
-        console.log(label, fullpath)
+        if (typ !== 'f') return;
+        console.log("label", label, "fullpath", fullpath, "typ", typ, "len", len);
     }
 </script>
 
@@ -25,6 +27,7 @@
 		{#if children}
 			<span on:click={toggleExpansion}>
 				<span class="arrow" class:arrowDown>&#x25b6</span>
+                <ion-icon icon={expanded?folderOpenOutline:folderOutline} />
 				{label}
 			</span>
 			{#if expanded}
@@ -35,7 +38,7 @@
 		{:else}
 			<span>
 				<span class="no-arrow"/>
-				{label}
+				<ion-icon icon={typ==="f"? documentOutline : folder} /> {label}
 			</span>
 		{/if}
 	</li>
