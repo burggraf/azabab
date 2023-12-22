@@ -1,6 +1,7 @@
 mod create_project;
 mod remove_project;
 mod create_user;
+mod remove_user;
 mod catch_all_handler;
 mod get_instance_files;
 mod get_instance_file;
@@ -45,6 +46,9 @@ async fn request_handler(req: Request<Body>) -> Result<Response<Body>, hyper::Er
         },
         ("/createuser", &hyper::Method::POST) => {
             create_user::handle_create_user(req, AUTH_TOKEN).await
+        },
+        ("/removeuser", &hyper::Method::POST) => {
+            remove_user::handle_remove_user(req, AUTH_TOKEN).await
         },
         ("/getinstancefiles", &hyper::Method::GET) => {
             get_instance_files::handle_get_instance_files(req).await

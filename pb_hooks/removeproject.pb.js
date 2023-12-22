@@ -1,5 +1,4 @@
 routerAdd('POST', '/removeproject', async (c) => {
-	console.log('removeproject...')
 	// read the body via the cached request object
 	// (this method is commonly used in hook handlers because it allows reading the body more than once)
 	const data = $apis.requestInfo(c).data
@@ -44,7 +43,7 @@ routerAdd('POST', '/removeproject', async (c) => {
 		return c.json(200, { data: null, error: 'project_instance.site_domain is required' })
 	}	
 	try {
-		const res = $http.send({
+		const res = await $http.send({
 			url: `http://${site_domain}:5000/removeproject`,
 			method: 'POST',
 			body: JSON.stringify({
@@ -74,6 +73,30 @@ routerAdd('POST', '/removeproject', async (c) => {
 				return c.json(200, {
 					data: null,
 					error: error_to_return || JSON.stringify(removeProjectInstanceKeysError),
+				})
+			}
+
+			try {
+				const res = await $http.send({
+					url: `http://${site_domain}:5000/removeuser`,
+					method: 'POST',
+					body: JSON.stringify({
+						username: domain,
+					}),
+					headers: {
+						'content-type': 'application/json',
+						Authorization: 'your_predefined_auth_token',
+					},
+					timeout: 120, // in seconds
+				})
+				if (res.json?.error) {
+					return c.json(200, { data: null, error: res.json.error })
+				}
+			} catch (removeUserError) {
+				const error_to_return = removeUserError.value.error()
+				return c.json(200, {
+					data: null,
+					error: error_to_return || JSON.stringify(removeUserError),
 				})
 			}
 
