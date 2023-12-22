@@ -1,8 +1,9 @@
-use hyper::{Body, Request, Response, StatusCode};
+use hyper::{Body, Request, Response, StatusCode, header};
 use serde_json::json;
 use std::fs::File;
 use std::io::Read;
 use serde::Deserialize;
+//use mime_guess::from_path;
 
 use crate::AUTH_TOKEN;
 
@@ -46,12 +47,17 @@ pub async fn handle_get_instance_file(mut req: Request<Body>, _auth_token: &str)
         Ok(mut file) => {
             let mut contents = Vec::new();
             file.read_to_end(&mut contents).unwrap();
+            // println!("First few bytes of the file: {:?}", &contents[..std::cmp::min(10, contents.len())]);
+
+            let mime_type = mime_guess::from_path(&file_path).first_or_octet_stream();
+            
             Ok(Response::builder()
                 .status(StatusCode::OK)
+                .header(header::CONTENT_TYPE, mime_type.as_ref())
                 .body(Body::from(contents))
                 .unwrap())
         }
-        Err(_) => {
+         Err(_) => {
             Ok(Response::builder()
                 .status(StatusCode::NOT_FOUND)
                 .body(Body::from(json!({ "error": "File not found" }).to_string()))

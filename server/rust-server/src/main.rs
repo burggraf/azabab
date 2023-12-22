@@ -33,6 +33,8 @@ async fn main() {
 }
 
 async fn request_handler(req: Request<Body>) -> Result<Response<Body>, hyper::Error> {
+    println!("req.uri().path(): {}",req.uri().path());
+
     match (req.uri().path(), req.method()) {
         ("/createproject", &hyper::Method::POST) => {
             create_project::handle_create_project(req, AUTH_TOKEN).await
@@ -45,8 +47,9 @@ async fn request_handler(req: Request<Body>) -> Result<Response<Body>, hyper::Er
         },        
         ("/getinstancefile", &hyper::Method::POST) => {
             get_instance_file::handle_get_instance_file(req, AUTH_TOKEN).await
-        },        
-        _ => catch_all_handler::handle_catch_all(req).await
+        },
+            _ => catch_all_handler::handle_catch_all(req).await
+
     }
 }
 
