@@ -1,4 +1,5 @@
 mod create_project;
+mod remove_project;
 mod create_user;
 mod catch_all_handler;
 mod get_instance_files;
@@ -33,11 +34,14 @@ async fn main() {
 }
 
 async fn request_handler(req: Request<Body>) -> Result<Response<Body>, hyper::Error> {
-   //  println!("req.uri().path(): {}",req.uri().path());
+    // println!("req.uri().path(): {}",req.uri().path());
 
     match (req.uri().path(), req.method()) {
         ("/createproject", &hyper::Method::POST) => {
             create_project::handle_create_project(req, AUTH_TOKEN).await
+        },
+        ("/removeproject", &hyper::Method::POST) => {
+            remove_project::handle_remove_project(req, AUTH_TOKEN).await
         },
         ("/createuser", &hyper::Method::POST) => {
             create_user::handle_create_user(req, AUTH_TOKEN).await

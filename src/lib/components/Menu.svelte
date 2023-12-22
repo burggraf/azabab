@@ -134,7 +134,7 @@
 		await showConfirm({
 			header: 'Manually set online status',
 			message: `Force online status to <b>${$isOnline ? 'Offline' : 'Online'}</b>?`,
-			okHander: async () => {
+			okHandler: async () => {
 				isOnline.set(!$isOnline)
 				toast(
 					`Online status set to: <b>${$isOnline ? 'Online' : 'Offline'}</b>`,
