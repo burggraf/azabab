@@ -18,7 +18,10 @@ pub async fn handle_catch_all(mut req: Request<Body>) -> Result<Response<Body>, 
             // let original_uri = req.headers().get("X-Original-URI").unwrap().to_str().unwrap().to_owned();
             let original_port = req.headers().get("X-Original-Port").unwrap().to_str().unwrap().to_string();
             let original_uri = req.headers().get("X-Original-URI").unwrap().to_str().unwrap().to_string();
-        
+
+            println!("original_port: {}",original_port);
+            println!("original_uri: {}",original_uri);
+
 
                 // Docker interaction
     let docker = Docker::new();

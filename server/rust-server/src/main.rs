@@ -48,7 +48,7 @@ async fn request_handler(req: Request<Body>) -> Result<Response<Body>, hyper::Er
         ("/getinstancefile", &hyper::Method::POST) => {
             get_instance_file::handle_get_instance_file(req, AUTH_TOKEN).await
         },
-            _ => catch_all_handler::handle_catch_all(req).await
+        _ => catch_all_handler::handle_catch_all(req).await
 
     }
 }
