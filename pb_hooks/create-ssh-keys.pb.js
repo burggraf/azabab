@@ -33,7 +33,6 @@ routerAdd('GET', '/create-ssh-keys/:project_instance_id', (c) => {
 				and project_instance_keys.user_id = '${user.id}'`
 		)
 		.all(keys) // throw an error on db failure
-		console.log('keys', JSON.stringify(keys,null,2))
 	let ssh_key_string = ''
 	for (const kkey of keys) {
 		ssh_key_string += kkey.key
@@ -59,11 +58,11 @@ routerAdd('GET', '/create-ssh-keys/:project_instance_id', (c) => {
 	// 	return c.json(200, { data: null, error: 'no keys found' })
 	// }
 
-	console.log('keys[0].site', keys[0].site)
-	console.log('keys[0].username', keys[0].username)
-	console.log('keys[0].port', keys[0].port)
-	console.log('ssh_key_string', ssh_key_string)
-	console.log('ssh_key_string.length', ssh_key_string.length)
+	// console.log('keys[0].site', keys[0].site)
+	// console.log('keys[0].username', keys[0].username)
+	// console.log('keys[0].port', keys[0].port)
+	// console.log('ssh_key_string', ssh_key_string)
+	// console.log('ssh_key_string.length', ssh_key_string.length)
 	try {
 		let res;
 		try {
@@ -85,11 +84,9 @@ routerAdd('GET', '/create-ssh-keys/:project_instance_id', (c) => {
 			// console.log('httpError', httpError)
 			return c.json(200, { data: null, error: httpError.value.error() })
 		}
-        console.log('res', JSON.stringify(res,null,2))
 		return c.json(res.statusCode, res.json)
 	
 	} catch (e) {
-		console.log('e', createUserError.value.error())
 		return c.json(200, { data: null, error: createUserError.value.error() })
 	}
 

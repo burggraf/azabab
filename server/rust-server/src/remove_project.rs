@@ -76,8 +76,37 @@ pub async fn handle_remove_project(mut req: Request<Body>, _auth_token: &str) ->
         .arg("sudo kill -HUP $(cat /var/run/nginx.pid)")
         .output();
 
+    // remove the user's data
+    
+    // Construct the directory path
+    let directory_path = format!("/home/ubuntu/data/{}", port);
+
+    // Execute the command to delete the directory
+    match Command::new("rm")
+        .args(&["-rf", &directory_path])
+        .output() {
+            Ok(output) => {
+                if !output.status.success() {
+                    // Handle the case where the directory deletion fails
+                    return Ok(Response::builder()
+                        .status(StatusCode::INTERNAL_SERVER_ERROR)
+                        .body(Body::from(json!({ "data": null, "error": "Failed to delete directory" }).to_string()))
+                        .unwrap());
+                }
+            },
+            Err(_) => {
+                // Handle the case where the command execution fails
+                return Ok(Response::builder()
+                    .status(StatusCode::INTERNAL_SERVER_ERROR)
+                    .body(Body::from(json!({ "data": null, "error": "Failed to execute directory delete command" }).to_string()))
+                    .unwrap());
+            }
+    }
+
+    // Respond with success
     Ok(Response::builder()
         .status(StatusCode::OK)
         .body(Body::from(json!({ "data": "OK", "error": null }).to_string()))
         .unwrap())
+
 }
