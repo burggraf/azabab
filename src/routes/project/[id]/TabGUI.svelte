@@ -5,25 +5,82 @@
 	let dir: string[] = []
 	let tree: any
 
-    const callback = async (item: any) => {
-        console.log('handler', item);
-        /*
+	const callback = async (item: any) => {
+		console.log('handler', item)
+		/*
             {label: 'data.db', fullpath: './pb_data/data.db', typ: 'f', len: '921600'}        
         */
-       const modifiedPath = item.fullpath.replace('./', '')
-       console.log('modifiedPath', modifiedPath)
-       console.log('instance_id', instance_id)
-		const { data, error } = await pb.send(`/getinstancefile`, {
-			method: 'POST',
-            body: {
-                project_instance_id: instance_id,
-                path: modifiedPath
-            }
-            //instance_id
-            //path: fullpath
-		})
-        console.log('getinstancefile: data, error', data, error)
-    }
+		const modifiedPath = item.fullpath.replace('./', '')
+		console.log('modifiedPath', modifiedPath)
+		console.log('instance_id', instance_id)
+
+		if (modifiedPath.startsWith('pb_public')) {
+            console.log('getting pb_public file')
+            // get the server address from the instance_id
+            const instance_rec = await pb.collection('project_instance').getOne(instance_id, {
+                expand: 'site_id, domain',
+            });
+            const site_rec = await pb.collection('sites').getOne(instance_rec.site_id, {
+                expand: 'domain',
+            });
+            const server = site_rec.domain;
+            const url = `https://${instance_rec.domain}.${server}/${modifiedPath.replace('pb_public/', '')}`;
+            console.log('url', url)
+            window.open(url, '_blank');
+            
+            // use javascript fetch to download the file
+            // fetch(url)
+            //     .then((response) => response.blob())
+            //     .then((blob) => {
+            //         // Create blob link to download
+            //         const url = window.URL.createObjectURL(
+            //             new Blob([blob]),
+            //         );
+            //         const link = document.createElement('a');
+            //         link.href = url;
+            //         link.setAttribute(
+            //             'download',
+            //             item.label,
+            //         );
+
+            //         // Append to html link element page
+            //         document.body.appendChild(link);
+
+            //         // Start download
+            //         link.click();
+
+            //         // Clean up and remove the link
+            //         link.parentNode?.removeChild(link);
+            //     });
+
+		} else {
+            console.log('getting getinstancefile file')
+
+			const { data, error } = await pb.send(`/getinstancefile`, {
+				method: 'POST',
+				body: {
+					project_instance_id: instance_id,
+					path: modifiedPath,
+				},
+				//instance_id
+				//path: fullpath
+			})
+			console.log('getinstancefile: data, error', data, error)
+			if (data?.raw) {
+				console.log('data.raw', data.raw)
+				// // Assuming `data.raw` contains your binary data
+				// // const blob = new Blob([data.raw]); // MIME type is omitted to let the browser infer it
+				// const blob = new Blob([data.raw]);
+
+				// const url = window.URL.createObjectURL(blob);
+				// const a = document.createElement('a');
+				// a.href = url;
+				// a.download = item.label; // item.label should be the desired filename with the correct extension
+				// a.click();
+				// window.URL.revokeObjectURL(url);
+			}
+		}
+	}
 
 	const getDir = async () => {
 		const { data, error } = await pb.send(`/getinstancefiles/${instance_id}`, {
@@ -83,18 +140,17 @@
 
 		return [{ label: 'root', children: root }]
 	}
-
 </script>
 
 <ion-content class="ion-padding">
 	{#if tree}
-	    <TreeView {tree} {callback} />
-    {:else}
-        <div class="ion-text-center ion-padding">
-            <ion-spinner name="crescent" /><br/>
-            <ion-label>Loading...</ion-label>
-        </div>
-     {/if}
+		<TreeView {tree} {callback} />
+	{:else}
+		<div class="ion-text-center ion-padding">
+			<ion-spinner name="crescent" /><br />
+			<ion-label>Loading...</ion-label>
+		</div>
+	{/if}
 </ion-content>
 
 <style>
@@ -156,5 +212,4 @@
 		height: 100%;
 		overflow-y: auto;
 	}
-
 </style>
