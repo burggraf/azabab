@@ -33,7 +33,7 @@ async fn main() {
 }
 
 async fn request_handler(req: Request<Body>) -> Result<Response<Body>, hyper::Error> {
-    println!("req.uri().path(): {}",req.uri().path());
+   //  println!("req.uri().path(): {}",req.uri().path());
 
     match (req.uri().path(), req.method()) {
         ("/createproject", &hyper::Method::POST) => {
