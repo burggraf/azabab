@@ -24,9 +24,13 @@
             columns: `ts, event, cpu_usage, mem_usage, disk_read, disk_write, net_in, net_out`,
             sort: '-ts',
         })
+        console.log('loadData: resultList', resultList)   
         stats = resultList.items
     }
-    loadData();
+    setTimeout(() => {
+        loadData()
+    }, 1000)
+    // loadData();
 
 </script>
 <div class="ion-padding" style="overflow: scroll;height: 100%">
