@@ -1,7 +1,7 @@
 /// <reference path="../pb_data/types.d.ts" />
 
 cronAdd("import_stats", "* * * * *", () => {
-    const IMPORT_STATS_ACTIVE = false;
+    const IMPORT_STATS_ACTIVE = true;
     console.log('import_stats cron fired')
     const import_stats = async () => {
         console.log('import_stats function starting...')
