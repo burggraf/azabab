@@ -100,7 +100,7 @@
 
 <ion-row>
     <ion-col class="ion-text-center bold" style="background-color: var(--ion-color-dark); color: var(--ion-color-dark-contrast)">
-        <ion-label>Streaming Backup</ion-label>
+        <ion-label>Streaming Backups</ion-label>
     </ion-col>
 </ion-row>
 <ion-row>
