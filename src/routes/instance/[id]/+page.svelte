@@ -9,7 +9,6 @@
 	import { page } from '$app/stores'
 	import {
 		arrowBackOutline,
-		checkmarkOutline,
 	} from 'ionicons/icons'
 	import { currentUser, pb } from '$services/backend.service'
 	import { goto } from '$app/navigation'
@@ -17,7 +16,7 @@
 	import { onMount } from 'svelte'
 
 	export let id = $page.params.id
-	const instance_id = $page.params.id
+	// const instance_id = $page.params.id
 	import type { Project, ProjectInstance, Site, Key, ProjectInstanceKey } from './interfaces'
 
 	let keys: Key[] = []
