@@ -50,7 +50,10 @@
             const ext = '.' + modifiedPath.split('.').pop();
             if (textFileExtensions.indexOf(ext) === -1) {
                 const el = document.getElementById('preview');                
-                if (el) el.innerText = `${modifiedPath} is not a text file.`
+                if (el) el.innerText = `not a text file`
+                const el2 = document.getElementById('previewTitle');
+                if (el2) el2.innerHTML = modifiedPath //item.fullpath.replace('./', '')
+
                 return;
             }
             
@@ -145,7 +148,7 @@
                 </ion-col>
                 <ion-col size={"6"} style="border: 1px solid;">
                     <div id="previewTitle" style="padding: 5px; background-color: var(--ion-color-dark);color: var(--ion-color-dark-contrast);">Preview</div>
-                    <pre id="preview" style="padding-left: 10px;padding-right: 10px;">select a file</pre>                    
+                    <pre id="preview" class="ion-text-wrap" style="padding-left: 10px;padding-right: 10px;">select a file</pre>                    
                 </ion-col>
             </ion-row>
         </ion-grid>
