@@ -64,7 +64,7 @@
 
 <ion-grid class="ion-padding Grid">
 	<ion-row>
-		<ion-col>
+		<ion-col class="ion-text-right bold">
 			<ion-label>Project Name</ion-label>
 		</ion-col>
 		<ion-col>
@@ -73,7 +73,7 @@
 	</ion-row>
 
 	<ion-row>
-		<ion-col>
+		<ion-col class="ion-text-right bold">
 			<ion-label>Domain</ion-label>
 		</ion-col>
 		<ion-col>
@@ -82,7 +82,7 @@
 	</ion-row>
 
 	<ion-row>
-		<ion-col>
+		<ion-col class="ion-text-right bold">
 			<ion-label>Site</ion-label>
 		</ion-col>
 		<ion-col>
@@ -90,15 +90,15 @@
 		</ion-col>
 	</ion-row>
 	<ion-row>
-		<ion-col>
+		<ion-col class="ion-text-right bold">
 			<ion-label>Instance Type</ion-label>
 		</ion-col>
 		<ion-col>
 			<ion-label>primary</ion-label>
 		</ion-col>
 	</ion-row>
-	<ion-row><ion-col style="width: 100%;border-top: 1px solid;">&nbsp;</ion-col></ion-row>
 
+	
 	<ion-row><ion-col>&nbsp;</ion-col></ion-row>
 	<ion-row>
 		<ion-col>
@@ -114,3 +114,8 @@
 		</ion-col>
 	</ion-row>
 </ion-grid>
+<style>
+	.bold {
+		font-weight: bold;
+	}
+</style>
