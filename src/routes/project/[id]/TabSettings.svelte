@@ -31,16 +31,21 @@
 	$: domainAvailable = false
 
 	const handleChange = async (event: any) => {
-		// console.log('id', event.target.id)
-		// console.log('handleChange', event.target.value)
-		// console.log(event)
 		const field = event.target.id
 		const value = event.target.value || ''
 		// if field is domain, strip out anything other than a-z 0-9 and -
 		if (field === 'domain') {
 			project[field] = value.toLowerCase().replace(/[^a-z0-9-]/g, '')
 			domainAvailable = await checkDomainAvailability(project)
-		} else {
+		} else if (field === 'name' && project?.id !== '') {
+			project[field] = value
+			try {
+				const result = await pb.collection('projects').update(project?.id, {name: value});			
+			} catch (err) {
+				console.error('error updating project name', err)
+			}
+		} 
+		else {
 			project[field] = value
 		}
 	}
@@ -120,27 +125,39 @@
 			</ion-item>
 		</ion-col>
 	</ion-row>
+
 	<ion-row>
 		<ion-col>
-			<ion-label>domain</ion-label>
+			<ion-label>Domain</ion-label>
 		</ion-col>
 	</ion-row>
-	<ion-row>
-		<ion-col>
-			<ion-item class="GridItem" lines="none">
-				<ion-input
-					on:ionInput={handleChange}
-					class="loginInputBoxWithIcon"
-					type="text"
-					id="domain"
-					placeholder="domain"
-					style="--padding-start: 10px;"
-					value={project.domain}
-					debounce={500}
-				/>
-			</ion-item>
-		</ion-col>
-	</ion-row>
+	{#if project?.id === ''}
+		<ion-row>
+			<ion-col>
+				<ion-item class="GridItem" lines="none">
+					<ion-input
+						on:ionInput={handleChange}
+						class="loginInputBoxWithIcon"
+						type="text"
+						id="domain"
+						placeholder="domain"
+						style="--padding-start: 10px;"
+						value={project.domain}
+						debounce={500}
+					/>
+				</ion-item>
+			</ion-col>
+		</ion-row>
+	{:else}
+		<ion-row>
+			<ion-col>
+				<div class="loginInputBoxWithIcon" style="padding-left: 10px;padding-top:15px; background-color: var(--ion-color-light) !important;">
+					<ion-label>{project.domain}</ion-label>
+				</div>
+			</ion-col>
+		</ion-row>
+	{/if}
+
 	{#if project?.id === '' && project?.domain.trim().length > 0}
 		<ion-row>
 			<ion-col>
@@ -199,18 +216,20 @@
 			</ion-col>
 		</ion-row>
 		<ion-row><ion-col style="width: 100%;border-top: 1px solid;">&nbsp;</ion-col></ion-row>
-		<ion-row>
-			<ion-col>
-				<ion-button
-					size="small"
-					fill="outline"
-					expand="block"
-					color="danger"
-					on:click={removeinstance}
-				>
-					Remove Instance
-				</ion-button>
-			</ion-col>
-		</ion-row>
+		{#if project?.id !== ''}
+			<ion-row>
+				<ion-col>
+					<ion-button
+						size="small"
+						fill="outline"
+						expand="block"
+						color="danger"
+						on:click={removeinstance}
+					>
+						Remove Instance
+					</ion-button>
+				</ion-col>
+			</ion-row>
+		{/if}
 	{/each}
 </ion-grid>

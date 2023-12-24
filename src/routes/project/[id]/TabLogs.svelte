@@ -43,7 +43,7 @@
     }
     setTimeout(() => {
         loadData()
-    }, 500)
+    }, 1000)
     const changeSort = (e: any) => {
         console.log('changeSort: e', e)
         sortDirection = e.detail.value
