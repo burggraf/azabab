@@ -62,11 +62,13 @@
 		>
 	</ion-header>
 	<ion-content>
+		{#if projects.length > 4}
 		<ion-searchbar value={filterValue} 
 			debounce={500} 
 			on:ionInput={filterProjects}
-			style="margin-left: 10px; max-width: 410px;" 
+			style="margin-left: 10px;padding-right: 30px;" 
 			placeholder="search for project"></ion-searchbar>
+		{/if}
 		<ion-list>
 			<div class="grid-container">
 				{#each projects as project}
