@@ -62,7 +62,7 @@
 		project.ownertype = record.ownertype
 		project_instance = await pb.collection('instance_view').getFirstListItem(
 			`project_id = "${id}"`,{
-			fields: 'code, domain, id, port, site_domain, site_name, site_id, type',
+			fields: 'code, domain, id, port, site_domain, site_name, site_id, type, db_streaming_backup_location, logs_streaming_backup_location',
 		})
 		console.log('*****  project_instance', project_instance)
 		sites = await pb.collection('sites').getFullList({

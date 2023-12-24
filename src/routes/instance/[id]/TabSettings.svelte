@@ -62,6 +62,10 @@
 	}
 </script>
 
+<pre>
+	{JSON.stringify(project_instance,null,2)}
+</pre>
+	
 <ion-grid class="ion-padding Grid">
 	<ion-row>
 		<ion-col class="ion-text-right bold">
