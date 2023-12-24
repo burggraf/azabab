@@ -17,8 +17,6 @@
     let sortDirection = 'forward'
     let limit = 50;
     const loadData = async () => {
-        console.log('project_instance', project_instance)
-        console.log('**** load logs for project_instance', project_instance?.id)
         const { data, error } = await pb.send(`/getinstancefile`, {
 				method: 'POST',
 				body: {
@@ -26,9 +24,7 @@
 					path: 'pb_data/log.txt',
 				},
 			})
-			console.log('*** getinstancefile: data, error', data, error)
 			if (data?.raw) {
-				console.log('data.raw', data.raw)
                 let logs = data.raw.replace(/\n$/,'').replace(/└─/g,'  ').replace(/├─/g,'  ').split('\n')
                 if (sortDirection === 'reverse') logs.reverse();
                 const el = document.getElementById('logviewer');                
