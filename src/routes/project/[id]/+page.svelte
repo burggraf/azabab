@@ -1,6 +1,7 @@
 <script lang="ts">
 	import TabCLI from './TabCLI.svelte';
 	import TabGUI from './TabGUI.svelte'
+	import TabLogs from './TabLogs.svelte'
 	import TabMetrics from './TabMetrics.svelte'
 	import TabSettings from './TabSettings.svelte'
 	import './styles.css'
@@ -217,6 +218,9 @@
 			<ion-tab tab="cli">
 				<TabCLI {keys} {project_instance_keys} {project_instances} {id}/>
 			</ion-tab>
+			<ion-tab tab="logs">
+				<TabLogs {project_instances} />
+			</ion-tab>
 			<ion-tab tab="metrics">
 				<TabMetrics {project_instances} />
 			</ion-tab>
@@ -225,16 +229,19 @@
 			</ion-tab>
 			<ion-tab-bar id="tab-bar" slot="top">
 				<ion-tab-button tab="gui">
-					<ion-icon icon={browsersOutline} />GUI
+					<ion-icon src="gui.svg" />GUI
 				</ion-tab-button>
 				<ion-tab-button tab="cli">
-					<ion-icon icon={listOutline} />CLI
+					<ion-icon src="cli.svg" />CLI
+				</ion-tab-button>
+				<ion-tab-button tab="logs">
+					<ion-icon src="logs.svg" />Logs
 				</ion-tab-button>
 				<ion-tab-button tab="metrics">
-					<ion-icon icon={analyticsOutline} />Metrics
+					<ion-icon src="metrics.svg" />Metrics
 				</ion-tab-button>
 				<ion-tab-button tab="settings">
-					<ion-icon icon={settingsOutline} />Settings
+					<ion-icon src="settings.svg" />Settings
 				</ion-tab-button>
 			</ion-tab-bar>
 		</ion-tabs>
