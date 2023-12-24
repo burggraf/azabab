@@ -24,6 +24,27 @@
 			return instance.project_id === project_id
 		})
 	}
+	let filterValue = ''
+	const filterProjects = (e: any) => {
+		console.log('filterProjects now')
+
+		for (let i = 0; i < projects.length; i++) {
+			const project = projects[i]
+			projects[i].hidden = false
+		}
+		const value = e.target.value.toLowerCase()
+		if (value !== '') {
+			for (let i = 0; i < projects.length; i++) {
+				const project = projects[i]
+				if (
+					project.name.toLowerCase().indexOf(value) === -1 &&
+					project.domain.toLowerCase().indexOf(value) === -1
+				) {
+					projects[i].hidden = true
+				}
+			}
+		}
+	}
 </script>
 
 <IonPage {ionViewWillEnter}>
@@ -41,10 +62,15 @@
 		>
 	</ion-header>
 	<ion-content>
+		<ion-searchbar value={filterValue} 
+			debounce={500} 
+			on:ionInput={filterProjects}
+			style="margin-left: 10px; max-width: 410px;" 
+			placeholder="search for project"></ion-searchbar>
 		<ion-list>
 			<div class="grid-container">
 				{#each projects as project}
-					<ion-card style="max-width: 400px;">
+					<ion-card style="max-width: 400px; display: {project.hidden?'none':'block'};">
 						<ion-card-header>
 							<ion-card-title>{project.name}</ion-card-title>
 							<ion-card-subtitle>{project.domain}</ion-card-subtitle>
