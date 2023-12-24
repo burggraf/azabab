@@ -46,15 +46,11 @@
             
 
 		} else {
-            console.log('getting getinstancefile file')
             // get the file extension
             const ext = '.' + modifiedPath.split('.').pop();
-            console.log('ext', ext)
-            console.log('textFileExtensions', textFileExtensions)
-            console.log('indexOf', textFileExtensions.indexOf(ext))
             if (textFileExtensions.indexOf(ext) === -1) {
-                console.log('not a text file')
-                toast('Not a text file', 'danger');
+                const el = document.getElementById('preview');                
+                if (el) el.innerText = `${modifiedPath} is not a text file.`
                 return;
             }
             
@@ -149,7 +145,7 @@
                 </ion-col>
                 <ion-col size={"6"} style="border: 1px solid;">
                     <div id="previewTitle" style="padding: 5px; background-color: var(--ion-color-dark);color: var(--ion-color-dark-contrast);">Preview</div>
-                    <pre id="preview" style="padding-left: 10px;padding-right: 10px;"></pre>                    
+                    <pre id="preview" style="padding-left: 10px;padding-right: 10px;">select a file</pre>                    
                 </ion-col>
             </ion-row>
         </ion-grid>
