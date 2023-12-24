@@ -27,7 +27,7 @@
 			console.log('*** getinstancefile: data, error', data, error)
 			if (data?.raw) {
 				console.log('data.raw', data.raw)
-                const logs = data.raw.split('\n')
+                const logs = data.raw.replace(/\n$/,'').replace(/└─/g,'  ').replace(/├─/g,'  ').split('\n')
                 if (sortDirection === 'reverse') logs.reverse();
                 const el = document.getElementById('logviewer');                
                 if (el) { 
