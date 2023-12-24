@@ -18,6 +18,8 @@ export interface ProjectInstance extends IObjectKeys {
     site_name: string
     site_id: string
     type: string
+	db_streaming_backup_location: string
+	logs_streaming_backup_location: string    
 }
 export interface Site {
     id: string
@@ -37,4 +39,9 @@ export interface ProjectInstanceKey {
     project_instance_id: string
     user_keys_id: string
     project_id: string
+}
+export interface StreamingBackupSite {
+    id: string
+    name: string
+    location: string
 }

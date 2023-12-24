@@ -17,7 +17,9 @@
     let sortDirection = 'forward'
     let limit = 50;
     const loadData = async () => {
-        const { data, error } = await pb.send(`/getinstancefile`, {
+        console.log('TabLogs loadata');
+        try {
+            const { data, error } = await pb.send(`/getinstancefile`, {
 				method: 'POST',
 				body: {
 					project_instance_id: project_instance?.id,
@@ -36,7 +38,9 @@
                     }
                 }
 			} 
-
+        } catch (err) {
+            console.log('TabLogs loadData error', err)
+        }
     }
     setTimeout(() => {
         loadData()

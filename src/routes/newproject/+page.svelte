@@ -5,7 +5,6 @@
 	import {
 		arrowBackOutline,
 		checkmarkCircleOutline,
-		checkmarkOutline,
 		closeCircleOutline,
 		globeOutline,
 	} from 'ionicons/icons'

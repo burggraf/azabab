@@ -17,12 +17,13 @@
 
 	export let id = $page.params.id
 	// const instance_id = $page.params.id
-	import type { Project, ProjectInstance, Site, Key, ProjectInstanceKey } from './interfaces'
+	import type { Project, ProjectInstance, Site, Key, ProjectInstanceKey, StreamingBackupSite } from './interfaces'
 
 	let keys: Key[] = []
 	let project_instance_keys: ProjectInstanceKey[] = []
 
 	let sites: Site[] = []
+	let streaming_backup_sites: StreamingBackupSite[] = []
 	const project: Project = {
 		id: '',
 		domain: '',
@@ -71,6 +72,9 @@
 		keys = await pb.collection('user_keys').getFullList({
 			fields: 'id,title,key,sort_key',
 			sort: 'sort_key',
+		})
+		streaming_backup_sites = await pb.collection('streaming_backup_sites').getFullList({
+			fields: 'id, name, location',
 		})
 	}
 	const back = async () => {
@@ -132,7 +136,7 @@
 				<TabMetrics {project_instance} />
 			</ion-tab>
 			<ion-tab tab="settings">
-				<TabSettings {project} {project_instance} {sites}/>
+				<TabSettings {project} {project_instance} {sites} {streaming_backup_sites} />
 			</ion-tab>
 			<ion-tab-bar id="tab-bar" slot="top">
 				<ion-tab-button tab="gui">

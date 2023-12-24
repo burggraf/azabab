@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { popoverController } from '$ionic/svelte'
-	import { toast } from '$services/toast'
-	import { loadingBox } from '$services/loadingMessage'
-	import * as allIonicIcons from 'ionicons/icons'
+	// import { toast } from '$services/toast'
+	// import { loadingBox } from '$services/loadingMessage'
+	// import * as allIonicIcons from 'ionicons/icons'
 
 	// export let applyDisplaySettings: Function = () => {};
     export let items: any = <any>[];
@@ -21,7 +21,9 @@
             closeOverlay(item)
         }}
     >
+		{#if item.icon}
         <ion-icon slot="start" icon={item.icon} color={item.color}></ion-icon>
+		{/if}
         <ion-label color={item.textcolor}>{item.text}</ion-label>
     </ion-item>
 {/each}
