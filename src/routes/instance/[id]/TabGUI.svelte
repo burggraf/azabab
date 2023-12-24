@@ -2,10 +2,24 @@
 	import TreeView from './TreeView.svelte'
 	import { pb } from '$services/backend.service'
     import { textFileExtensions } from '$services/utils.service'
+	import type { ProjectInstance } from './interfaces'
+
 	import { toast } from '$services/toast'
-	export let instance_id: string = ''
+    export let project_instance: ProjectInstance = 
+		{
+			code: '',
+			domain: '',
+			id: '',
+			port: 0,
+			site_domain: '',
+			site_name: 'Select a site',
+			site_id: '',
+			type: 'primary',
+		};
 	let dir: string[] = []
 	let tree: any
+
+	console.log('**** TabGUI ====> project_instance', project_instance)
 
 	const callback = async (item: any) => {
 		console.log('handler', item)
@@ -14,12 +28,12 @@
         */
 		const modifiedPath = item.fullpath.replace('./', '')
 		console.log('modifiedPath', modifiedPath)
-		console.log('instance_id', instance_id)
+		console.log('TabGUI => project_instance.id', project_instance.id)
 
 		if (false && modifiedPath.startsWith('pb_public')) {
             console.log('getting pb_public file')
             // get the server address from the instance_id
-            const instance_rec = await pb.collection('project_instance').getOne(instance_id, {
+            const instance_rec = await pb.collection('project_instance').getOne(project_instance.id, {
                 expand: 'site_id, domain',
             });
             const site_rec = await pb.collection('sites').getOne(instance_rec.site_id, {
@@ -47,7 +61,7 @@
 			const { data, error } = await pb.send(`/getinstancefile`, {
 				method: 'POST',
 				body: {
-					project_instance_id: instance_id,
+					project_instance_id: project_instance.id,
 					path: modifiedPath,
 				},
 				//instance_id
@@ -65,7 +79,7 @@
 	}
 
 	const getDir = async () => {
-		const { data, error } = await pb.send(`/getinstancefiles/${instance_id}`, {
+		const { data, error } = await pb.send(`/getinstancefiles/${project_instance.id}`, {
 			method: 'GET',
 		})
 		if (data)
@@ -82,7 +96,9 @@
 		// console.log('tree', tree);
 	}
 
-	getDir()
+	setTimeout(() => {
+		getDir()
+	}, 1000)
 
 	interface TreeNode {
 		label: string

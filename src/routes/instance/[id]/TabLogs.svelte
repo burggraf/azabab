@@ -3,7 +3,7 @@
     import type { ProjectInstance } from './interfaces'
     import { currentUser, pb } from '$services/backend.service'
     
-    export let project_instances: ProjectInstance[] = [
+    export let project_instance: ProjectInstance = 
 		{
 			code: '',
 			domain: '',
@@ -13,15 +13,16 @@
 			site_name: 'Select a site',
 			site_id: '',
 			type: 'primary',
-		},
-	];
+		};
     let sortDirection = 'forward'
     let limit = 50;
     const loadData = async () => {
+        console.log('project_instance', project_instance)
+        console.log('**** load logs for project_instance', project_instance?.id)
         const { data, error } = await pb.send(`/getinstancefile`, {
 				method: 'POST',
 				body: {
-					project_instance_id: project_instances[0].id,
+					project_instance_id: project_instance?.id,
 					path: 'pb_data/log.txt',
 				},
 			})

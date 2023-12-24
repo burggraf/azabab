@@ -17,7 +17,7 @@
 		projects = project_records
 	}
 	const newProject = async () => {
-		goto('/project/new')
+		goto('/newproject')
 	}
 	const getInstancesForProject = (project_id: string) => {
 		return project_instances.filter((instance: any) => {
@@ -85,7 +85,7 @@
 										style="cursor:pointer;--padding-start:0px;--inner-padding-end: 0px;"
 										lines="none"
 										on:click={() => {
-											goto(`/project/${instance.project_id}`)
+											goto(`/instance/${instance.project_id}`)
 										}}
 									>
 										{instance.site_name}

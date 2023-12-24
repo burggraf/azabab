@@ -23,12 +23,15 @@ routerAdd('POST', '/createproject', async (c) => {
 	if (!data?.project?.domain) {
 		return c.json(200, { data: null, error: 'domain is required' })
 	}
-	if (!data?.project_instances[0]?.id) {
+	if (!data?.project_instance?.site_id) {
 		return c.json(200, { data: null, error: 'site id is required' })
 	}
+	if (!data?.project_instance?.domain) {
+		return c.json(200, { data: null, error: 'domain is required' })
+	}
 	if (
-		data?.project_instances[0]?.type !== 'primary' &&
-		data?.project_instances[0]?.type !== 'replica'
+		data?.project_instance?.type !== 'primary' &&
+		data?.project_instance?.type !== 'replica'
 	) {
 		return c.json(200, { data: null, error: 'type must be "primary" or "replica"' })
 	}
@@ -50,7 +53,7 @@ routerAdd('POST', '/createproject', async (c) => {
 			.all(projectInsert) // throw an error on db failure
 		// get the id of the newly inserted project
 		const newId = projectInsert[0].id
-		// create the project_instances record
+		// create the project_instance record
 		const project_instancesInsert = arrayOf(
 			new DynamicModel({
 				port: 0,
@@ -62,10 +65,10 @@ routerAdd('POST', '/createproject', async (c) => {
 			.newQuery(
 				`insert into project_instance (project_id, site_id, port, type, domain) 
                     values ('${newId}', 
-                    '${data?.project_instances[0]?.id}', 
-                    (select coalesce((select max(port)+1 FROM project_instance where site_id = '${data?.project_instances[0]?.id}'),10001)),
-                    '${data?.project_instances[0]?.type}',
-                    '${data?.project?.domain}')
+                    '${data?.project_instance?.site_id}', 
+                    (select coalesce((select max(port)+1 FROM project_instance where site_id = '${data?.project_instance?.site_id}'),10001)),
+                    '${data?.project_instance?.type}',
+                    '${data?.project_instance?.domain}')
                     returning port`
 			)
 			.all(project_instancesInsert) // throw an error on db failure
@@ -73,9 +76,9 @@ routerAdd('POST', '/createproject', async (c) => {
 		const newPort = project_instancesInsert[0].port
 		// now use (data?.project?.domain) and (newPort) to create the nginx config file
 		console.log('now create new entry for:')
-		console.log('domain', data?.project?.domain)
+		console.log('domain', data?.project_instance?.domain)
 		console.log('port', newPort)
-		console.log('site domain', data?.site?.domain)
+		console.log('site domain', data?.project_instance?.site_domain)
 		// update: /etc/nginx/domain_ports.txt
 		/*
         const cmd = $os.cmd(
@@ -87,10 +90,10 @@ routerAdd('POST', '/createproject', async (c) => {
 		const output = String.fromCharCode(...cmd.output())
         */
 		const res = $http.send({
-			url: `http://${data?.project_instances[0]?.site_domain}:5000/createproject`,
+			url: `http://${data?.project_instance?.site_domain}:5000/createproject`,
 			method: 'POST',
 			body: JSON.stringify({
-				domain: data?.project?.domain + '.' + data?.site?.domain,
+				domain: data?.project_instance?.domain + '.' + data?.project_instance?.site_domain,
 				port: newPort.toString(),
 			}),
 			headers: {

@@ -8,7 +8,7 @@
     export let id: string = ''
     export let keys: Key[] = []
 	export let project_instance_keys: ProjectInstanceKey[] = []
-    export let project_instances: ProjectInstance[] = [
+    export let project_instance: ProjectInstance = 
 		{
 			code: '',
 			domain: '',
@@ -18,8 +18,8 @@
 			site_name: 'Select a site',
 			site_id: '',
 			type: 'primary',
-		},
-	]
+		};
+	
     onMount(async () => {
         loadProjectInstanceKeys()
     })
@@ -75,12 +75,6 @@
     </ion-row>
     <!-- code, domain, id, port, site_domain, site_name, type -->
 
-    {#each project_instances as project_instance, index}
-        <ion-row>
-            <ion-col class="ion-text-center">
-                <ion-label>Instance #{index + 1}</ion-label>
-            </ion-col>
-        </ion-row>
         <ion-row>
             <ion-col class="ion-text-center">
                 <ion-label>{project_instance.site_name}</ion-label>
@@ -132,6 +126,5 @@ sftp -P 2222 {project_instance.domain}@{project_instance.site_domain}
                 {/if}
             </ion-col>
         </ion-row>
-    {/each}
     <Keys />
 </ion-grid>

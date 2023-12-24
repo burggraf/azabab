@@ -4,7 +4,7 @@
 	import { dropdownmenu } from '$components/DropdownMenu'
 	import * as allIonicIcons from 'ionicons/icons'
 	import { checkmarkCircleOutline, closeCircleOutline } from 'ionicons/icons'
-	import { checkDomainAvailability } from './project-utils'
+	// import { checkDomainAvailability } from '../../newproject/project-utils'
 	import { showConfirm } from '$services/alert.service'
 	import { toast } from '$services/toast'
 	import { goto } from '$app/navigation'
@@ -15,7 +15,7 @@
 		owner: $currentUser?.id,
 		ownertype: 'person',
 	}
-	export let project_instances: ProjectInstance[] = [
+	export let project_instance: ProjectInstance = 
 		{
 			code: '',
 			domain: '',
@@ -25,8 +25,7 @@
 			site_name: 'Select a site',
 			site_id: '',
 			type: 'primary',
-		},
-	]
+		};
 	export let sites: Site[] = []
 	$: domainAvailable = false
 
@@ -59,9 +58,9 @@
 				color: site.active ? 'primary' : 'medium',
 				textcolor: site.active ? 'primary' : 'medium',
 				handler: async () => {
-					project_instances[0].id = site.id
-					project_instances[0].site_name = site.name
-					project_instances[0].site_domain = site.domain
+					project_instance.id = site.id
+					project_instance.site_name = site.name
+					project_instance.site_domain = site.domain
 				},
 			})
 		}
@@ -69,7 +68,7 @@
 	}
 	const removeinstance = async () => {
 		console.log('removeinstance')
-		console.log('project_instance', project_instances[0])
+		console.log('project_instance', project_instance)
 		console.log('project', project)
 		console.log('sites', sites)
 
@@ -82,7 +81,7 @@
 					method: 'POST',
 					body: {
 						project,
-						project_instance: project_instances[0],
+						project_instance: project_instance,
 					},
 				})
                 console.log('data', data)
@@ -172,20 +171,14 @@
 			</ion-col>
 		</ion-row>
 	{/if}
-	<ion-row style="padding-top: 20px;">
+	<!-- <ion-row style="padding-top: 20px;">
 		<ion-col
 			class="ion-text-center"
 			style="width: 100%;border: 1px solid;background-color: var(--ion-color-dark);"
 		>
 			<ion-label color="light"><b>Instances</b></ion-label>
 		</ion-col>
-	</ion-row>
-	{#each project_instances as project_instance, index}
-		<ion-row>
-			<ion-col class="ion-text-center">
-				<ion-label>Instance {index + 1}</ion-label>
-			</ion-col>
-		</ion-row>
+	</ion-row> -->
 		<ion-row>
 			<ion-col>
 				<ion-button size="small" expand="block" on:click={chooseSite}
@@ -215,8 +208,9 @@
 				</ion-button>
 			</ion-col>
 		</ion-row>
-		<ion-row><ion-col style="width: 100%;border-top: 1px solid;">&nbsp;</ion-col></ion-row>
+		<ion-row><ion-col style="width: 100%;border-top: 1px solid;">&nbsp;</ion-col></ion-row>		
 		{#if project?.id !== ''}
+			<ion-row><ion-col>&nbsp;</ion-col></ion-row>
 			<ion-row>
 				<ion-col>
 					<ion-button
@@ -231,5 +225,4 @@
 				</ion-col>
 			</ion-row>
 		{/if}
-	{/each}
 </ion-grid>
