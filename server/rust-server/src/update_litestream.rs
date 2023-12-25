@@ -54,6 +54,6 @@ pub async fn handle_update_litestream(mut req: Request<Body>) -> Result<Response
     // Return response
     Ok(Response::builder()
         .status(StatusCode::OK)
-        .body(Body::from(json!({ "data": "Litestream updated and service restarted", "error": null }).to_string()))
+        .body(Body::from(json!({ "data": "OK", "error": null }).to_string()))
         .unwrap())
 }

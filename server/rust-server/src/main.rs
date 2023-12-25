@@ -5,7 +5,6 @@ mod remove_user;
 mod catch_all_handler;
 mod get_instance_files;
 mod get_instance_file;
-mod update_streaming_backup_settings;
 mod update_litestream;
 
 use hyper::{Body, Request, Response, Server};
@@ -56,9 +55,6 @@ async fn request_handler(req: Request<Body>) -> Result<Response<Body>, hyper::Er
         },        
         ("/getinstancefile", &hyper::Method::POST) => {
             get_instance_file::handle_get_instance_file(req, AUTH_TOKEN).await
-        },
-        ("/update-streaming-backup-settings", &hyper::Method::POST) => {
-            update_streaming_backup_settings::handle_update_streaming_backup_settings(req).await
         },
         ("/updatelitestream", &hyper::Method::POST) => {
             update_litestream::handle_update_litestream(req).await
