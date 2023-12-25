@@ -41,6 +41,10 @@
 		site_name: 'Select a site',
 		site_id: '',
 		type: 'primary',
+		db_streaming_backup_location: '',
+		logs_streaming_backup_location: '',
+		db_streaming_backup_retention: 0,
+		logs_streaming_backup_retention: 0
 	};
 	
 	onMount(async () => {
@@ -63,8 +67,9 @@
 		project.ownertype = record.ownertype
 		project_instance = await pb.collection('instance_view').getFirstListItem(
 			`project_id = "${id}"`,{
-			fields: 'code, domain, id, port, site_domain, site_name, site_id, type, db_streaming_backup_location, logs_streaming_backup_location',
+			fields: 'code, domain, id, port, site_domain, site_name, site_id, type, db_streaming_backup_location, logs_streaming_backup_location, db_streaming_backup_retention, logs_streaming_backup_retention',
 		})
+
 		console.log('*****  project_instance', project_instance)
 		sites = await pb.collection('sites').getFullList({
 			fields: 'id, name, code, domain, active',

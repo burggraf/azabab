@@ -20,6 +20,12 @@
 	}
 	export let streaming_backup_sites: StreamingBackupSite[] = []
 
+    const data: any = {		
+        db_streaming_backup_location: project_instance.db_streaming_backup_location,
+		logs_streaming_backup_location: project_instance.logs_streaming_backup_location,
+		db_streaming_backup_retention: project_instance.db_streaming_backup_retention,
+		logs_streaming_backup_retention: project_instance.logs_streaming_backup_retention
+    };
 	const chooseStreamingBackupLocation = async (e: any, entity: string) => {
 		const items = [{
 			text: 'Not enabled',
@@ -28,7 +34,7 @@
 				textcolor: 'primary',
 				handler: async () => {
 					console.log('unset streaming_backup_site') 
-					project_instance[entity] = ''
+					data[entity] = ''
 				},
 		}]
 		for (let i = 0; i < streaming_backup_sites.length; i++) {
@@ -40,7 +46,7 @@
 				textcolor: 'primary',
 				handler: async () => {
 					console.log('chooseStreamingBackupLocation id', streaming_backup_site.id)
-					project_instance[entity] = streaming_backup_site.id 
+					data[entity] = streaming_backup_site.id 
 				},
 			})
 		}
@@ -59,27 +65,7 @@
 				textcolor: 'primary',
 				handler: async () => {
 					console.log('chooseStreamingBackupDBRetention hours', hours)
-					project_instance[entity] = hours
-				},
-			})
-		}
-		const result = await dropdownmenu(e, items)
-        console.log('*** you chose streaming_backup_retention', result)
-
-	}
-	const chooseStreamingBackupLogsRetention = async (e: any) => {
-		const arr = [0, 24, 72, 168, 336, 504, 720]
-		const items = []
-		for (let i = 0; i < arr.length; i++) {
-			const hours = arr[i]
-			items.push({
-				text: `${hours / 24} day${hours !== 24 ? 's' : ''}`,
-				icon: allIonicIcons.timeOutline,
-				color: 'primary',
-				textcolor: 'primary',
-				handler: async () => {
-					console.log('chooseStreamingBackupLogsRetention hours', hours)
-					project_instance.logs_streaming_backup_retention = hours
+					data[entity] = hours
 				},
 			})
 		}
@@ -95,6 +81,9 @@
 		}
 		return 'Not enabled'
 	}
+    const applyChanges = async () => {
+        console.log('applyChanges project_instance', project_instance)
+    }
 
 </script>
 
@@ -115,7 +104,7 @@
     </ion-col>
     <ion-col>
         <ion-button size="small" color="secondary" expand="block" on:click={(e) => {chooseStreamingBackupLocation(e, 'db_streaming_backup_location')}}>
-            {getBackupLocationName(project_instance.db_streaming_backup_location)}
+            {getBackupLocationName(data.db_streaming_backup_location)}
         </ion-button>
     </ion-col>
 </ion-row>
@@ -125,7 +114,7 @@
     </ion-col>
     <ion-col>
         <ion-button size="small" color="secondary" expand="block" on:click={(e) => {chooseStreamingBackupRetention(e, 'db_streaming_backup_retention')}}>
-            {(project_instance.db_streaming_backup_retention || 0) / 24} {`day${project_instance.db_streaming_backup_retention !== 24 ? 's' : ''}`}
+            {(data.db_streaming_backup_retention || 0) / 24} {`day${data.db_streaming_backup_retention !== 24 ? 's' : ''}`}
         </ion-button>
     </ion-col>
 </ion-row>
@@ -135,7 +124,7 @@
     </ion-col>
     <ion-col>
         <ion-button size="small" color="secondary" expand="block" on:click={(e) => {chooseStreamingBackupLocation(e, 'logs_streaming_backup_location')}}>
-            {getBackupLocationName(project_instance.logs_streaming_backup_location)}
+            {getBackupLocationName(data.logs_streaming_backup_location)}
         </ion-button>
     </ion-col>
 </ion-row>
@@ -145,7 +134,24 @@
     </ion-col>
     <ion-col>
         <ion-button size="small" color="secondary" expand="block" on:click={(e) => {chooseStreamingBackupRetention(e, 'logs_streaming_backup_retention')}}>
-            {(project_instance.logs_streaming_backup_retention || 0) / 24} {`day${project_instance.logs_streaming_backup_retention !== 24 ? 's' : ''}`}
+            {(data.logs_streaming_backup_retention || 0) / 24} {`day${data.logs_streaming_backup_retention !== 24 ? 's' : ''}`}
         </ion-button>
     </ion-col>
 </ion-row>
+{#if project_instance.db_streaming_backup_location !== data.db_streaming_backup_location || 
+     project_instance.logs_streaming_backup_location !== data.logs_streaming_backup_location || 
+     project_instance.db_streaming_backup_retention !== data.db_streaming_backup_retention || 
+     project_instance.logs_streaming_backup_retention !== data.logs_streaming_backup_retention}
+    <ion-row>
+        <ion-col>
+            <ion-button
+                size="small"                
+                expand="block"
+                color="danger"
+                on:click={applyChanges}
+            >
+                Apply Changes
+            </ion-button>
+        </ion-col>
+    </ion-row>
+{/if}

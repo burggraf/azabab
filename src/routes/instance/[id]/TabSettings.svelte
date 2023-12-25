@@ -6,6 +6,7 @@
 	import { showConfirm } from '$services/alert.service'
 	import { toast } from '$services/toast'
 	import { goto } from '$app/navigation'
+	import { trashOutline } from 'ionicons/icons'
 	export let project: Project = {
 		id: '',
 		domain: '',
@@ -105,21 +106,17 @@
 
 	<TabSettingsStreamingBackup {project_instance} {streaming_backup_sites} />
 	
-	<ion-row><ion-col>&nbsp;</ion-col></ion-row>
-	<ion-row>
-		<ion-col>
-			<ion-button
-				size="small"
-				fill="outline"
-				expand="block"
-				color="danger"
-				on:click={removeinstance}
-			>
-				Remove Instance
-			</ion-button>
-		</ion-col>
-	</ion-row>
 </ion-grid>
+<ion-footer class="ion-padding ion-text-left">
+	<ion-button
+		size="small"
+		color="danger"
+		on:click={removeinstance}
+	>
+	<ion-icon slot="icon-only" icon={trashOutline} />
+		&nbsp;&nbsp;Remove Instance
+	</ion-button>
+</ion-footer>
 <style>
 	.bold {
 		font-weight: bold;
