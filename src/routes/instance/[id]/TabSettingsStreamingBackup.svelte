@@ -93,6 +93,9 @@
         console.log('applyChanges project_instance', project_instance)
         // update-streaming-backup-settings
         try {
+            console.log('calling /update-streaming-backup-settings with')
+            console.log('instance_id', project_instance.id)
+            console.log('data', data)
             const { data: changeData, error: changeError } = 
             await pb.send(`/update-streaming-backup-settings`, {
 				method: 'POST',

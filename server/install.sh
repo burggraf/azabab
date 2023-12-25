@@ -171,6 +171,8 @@ echo ""
 ssh ubuntu@$1 "sudo dpkg -i litestream-v0.3.9-linux-amd64.deb"
 ssh ubuntu@$1 "sudo systemctl enable litestream"
 ssh ubuntu@$1 "sudo systemctl start litestream"
+echo "create the litestream.config directory"
+ssh ubuntu@$1 "sudo mkdir ~/litestream.config"
 
 echo ""
 echo "************"

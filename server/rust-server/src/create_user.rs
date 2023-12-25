@@ -3,13 +3,10 @@ use serde_json::json;
 use std::fs::{OpenOptions, create_dir_all};
 use std::io::Write;
 use std::process::Command;
-//use log::{info};
 
 use crate::AUTH_TOKEN;
 
 pub async fn handle_create_user(mut req: Request<Body>, _auth_token: &str) -> Result<Response<Body>, hyper::Error> {
-    // env_logger::init();
-    //info!("This is an info message from handle_create_user");
 
     if let Some(auth_header) = req.headers().get(hyper::header::AUTHORIZATION) {
         if auth_header != AUTH_TOKEN {
@@ -34,7 +31,6 @@ pub async fn handle_create_user(mut req: Request<Body>, _auth_token: &str) -> Re
     let ssh_keys = body_params["ssh_keys"].as_str().unwrap_or_default();
 
     let ssh_dir = format!("/home/ubuntu/data/{}/.ssh", port);
-    //info!("ssh_dir will be: {}", ssh_dir);
     create_dir_all(&ssh_dir).unwrap();
 
     let authorized_keys_path = format!("{}/authorized_keys", ssh_dir);
@@ -45,7 +41,6 @@ pub async fn handle_create_user(mut req: Request<Body>, _auth_token: &str) -> Re
         .open(authorized_keys_path)
         .unwrap();
 
-    //if writeln!(authorized_keys_file, "{}", ssh_keys).is_ok() {
     if authorized_keys_file.write_all(ssh_keys.as_bytes()).is_ok() {
         let commands = format!(
             "sudo docker exec ssh-server sh -c '/create-user.sh {1} {0}'", port, username

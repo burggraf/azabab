@@ -6,6 +6,7 @@ mod catch_all_handler;
 mod get_instance_files;
 mod get_instance_file;
 mod update_streaming_backup_settings;
+mod update_litestream;
 
 use hyper::{Body, Request, Response, Server};
 use hyper::service::{make_service_fn, service_fn};
@@ -36,7 +37,7 @@ async fn main() {
 }
 
 async fn request_handler(req: Request<Body>) -> Result<Response<Body>, hyper::Error> {
-    println!("req.uri().path(): {}",req.uri().path());
+    // println!("req.uri().path(): {}",req.uri().path());
     match (req.uri().path(), req.method()) {
         ("/createproject", &hyper::Method::POST) => {
             create_project::handle_create_project(req, AUTH_TOKEN).await
@@ -58,6 +59,9 @@ async fn request_handler(req: Request<Body>) -> Result<Response<Body>, hyper::Er
         },
         ("/update-streaming-backup-settings", &hyper::Method::POST) => {
             update_streaming_backup_settings::handle_update_streaming_backup_settings(req).await
+        },
+        ("/updatelitestream", &hyper::Method::POST) => {
+            update_litestream::handle_update_litestream(req).await
         },
         _ => catch_all_handler::handle_catch_all(req).await
 
