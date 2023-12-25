@@ -4,6 +4,7 @@
 	import type { ProjectInstance, StreamingBackupSite } from './interfaces'
     import { dropdownmenu } from '$components/DropdownMenu'
 	import * as allIonicIcons from 'ionicons/icons'
+	import { pb } from '$services/backend.service'
 	export let project_instance: ProjectInstance = {
 		code: '',
 		domain: '',
@@ -19,13 +20,20 @@
 		logs_streaming_backup_retention: 0
 	}
 	export let streaming_backup_sites: StreamingBackupSite[] = []
-
-    const data: any = {		
-        db_streaming_backup_location: project_instance.db_streaming_backup_location,
-		logs_streaming_backup_location: project_instance.logs_streaming_backup_location,
-		db_streaming_backup_retention: project_instance.db_streaming_backup_retention,
-		logs_streaming_backup_retention: project_instance.logs_streaming_backup_retention
+    let data: any = {
+            db_streaming_backup_location: '',
+            logs_streaming_backup_location: '',
+            db_streaming_backup_retention: 0,
+            logs_streaming_backup_retention: 0        
     };
+    setTimeout(() => {
+        data = {
+            db_streaming_backup_location: project_instance.db_streaming_backup_location,
+            logs_streaming_backup_location: project_instance.logs_streaming_backup_location,
+            db_streaming_backup_retention: project_instance.db_streaming_backup_retention,
+            logs_streaming_backup_retention: project_instance.logs_streaming_backup_retention
+        }
+    }, 1000)
 	const chooseStreamingBackupLocation = async (e: any, entity: string) => {
 		const items = [{
 			text: 'Not enabled',
@@ -83,6 +91,25 @@
 	}
     const applyChanges = async () => {
         console.log('applyChanges project_instance', project_instance)
+        // update-streaming-backup-settings
+        try {
+            const { data: changeData, error: changeError } = 
+            await pb.send(`/update-streaming-backup-settings`, {
+				method: 'POST',
+				body: {
+					instance_id: project_instance.id,
+					data
+				},
+				//instance_id
+				//path: fullpath
+			})
+            console.log('changeData', changeData)
+            console.log('changeError', changeError)
+        }
+        catch (err) {
+            console.log("ERROR", err)
+        }
+
     }
 
 </script>
