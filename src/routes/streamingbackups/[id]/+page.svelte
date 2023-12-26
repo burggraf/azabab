@@ -8,7 +8,7 @@
 	import * as allIonicIcons from 'ionicons/icons'
 	import { pb } from '$services/backend.service'
 	import { toast } from '$services/toast'
-	import { arrowBackOutline } from 'ionicons/icons'
+	import { arrowBackOutline, refreshOutline } from 'ionicons/icons'
     import { page } from '$app/stores'
     import moment from 'moment'
 
@@ -59,18 +59,24 @@
         }
     }, 1000)
     setTimeout(async () => {
+        await updateDataGenerations();
+        await updateLogsGenerations();
+    }, 1000)
+    const updateDataGenerations = async () => {
+        console.log('updateDataGenerations')
         if (project_instance.db_streaming_backup_location && project_instance.db_streaming_backup_location.length > 0) {
             const data_generations = await getBackupGenerations('data')
             const el = document.getElementById('data-generations')
             if (el) el.innerText = data_generations
         }
+    }
+    const updateLogsGenerations = async () => {
         if (project_instance.logs_streaming_backup_location && project_instance.logs_streaming_backup_location.length > 0) {
             const logs_generations = await getBackupGenerations('logs')
             const el = document.getElementById('logs-generations')
             if (el) el.innerText = logs_generations
         }
-
-    }, 2000)
+    }
 	const chooseStreamingBackupLocation = async (e: any, entity: string) => {
 		const items = [{
 			text: 'Not enabled',
@@ -271,8 +277,12 @@
     </ion-row>
 {/if}
 {#if project_instance.db_streaming_backup_location}
-<ion-row>
-    <ion-col style="background-color: var(--ion-color-dark);color: var(--ion-color-dark-contrast)"><ion-label>data.db: available backups</ion-label></ion-col>
+<ion-row style="background-color: var(--ion-color-dark);color: var(--ion-color-dark-contrast)">
+    <ion-col size={"10"}><ion-label>data.db: available backups</ion-label>
+        </ion-col>
+        <ion-col size={"2"} class="ion-text-right">
+        <ion-button on:click={updateDataGenerations} size="small" fill="clear"><ion-icon color="light" slot="icon-only" icon={refreshOutline}></ion-icon></ion-button>
+        </ion-col>
 </ion-row>
 <ion-row>
     <ion-col>
@@ -282,8 +292,12 @@
 </ion-row>
 {/if}
 {#if project_instance.logs_streaming_backup_location}
-<ion-row>
-    <ion-col style="background-color: var(--ion-color-dark);color: var(--ion-color-dark-contrast)"><ion-label>logs.db: available backups</ion-label></ion-col>
+<ion-row style="background-color: var(--ion-color-dark);color: var(--ion-color-dark-contrast)">
+    <ion-col size={"10"}><ion-label>logs.db: available backups</ion-label>
+        </ion-col>
+        <ion-col size={"2"} class="ion-text-right">
+        <ion-button on:click={updateLogsGenerations} size="small" fill="clear"><ion-icon color="light" slot="icon-only" icon={refreshOutline}></ion-icon></ion-button>
+        </ion-col>
 </ion-row>
 <ion-row>
     <ion-col>
