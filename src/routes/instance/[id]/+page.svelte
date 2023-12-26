@@ -112,7 +112,7 @@
 					</ion-button>
 			</ion-buttons></ion-toolbar
 		>
-	</ion-header>
+	</ion-header>	
 	<ion-content class="ion-padding">
 		<ion-tabs
 			id="ion-tabs"

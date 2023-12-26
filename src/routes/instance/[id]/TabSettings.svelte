@@ -67,7 +67,7 @@
 	}
 </script>
 	
-<ion-grid class="ion-padding Grid">
+<ion-grid class="ion-padding Grid" style="height: 100%;overflow-x: scroll;">
 	<ion-row>
 		<ion-col class="ion-text-right bold">
 			<ion-label>Project Name</ion-label>
@@ -107,7 +107,7 @@
 	<TabSettingsStreamingBackup {project_instance} {streaming_backup_sites} />
 	
 </ion-grid>
-<ion-footer class="ion-padding ion-text-left">
+<ion-footer class="ion-padding ion-text-left" style="background-color: var(--ion-color-light);border-top: 0.1px solid;">
 	<ion-button
 		size="small"
 		color="danger"
