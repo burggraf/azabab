@@ -35,6 +35,19 @@
             logs_streaming_backup_retention: project_instance.logs_streaming_backup_retention
         }
     }, 1000)
+    setTimeout(async () => {
+        if (project_instance.db_streaming_backup_location && project_instance.db_streaming_backup_location.length > 0) {
+            const data_generations = await getBackupGenerations('data')
+            const el = document.getElementById('data-generations')
+            if (el) el.innerText = data_generations
+        }
+        if (project_instance.logs_streaming_backup_location && project_instance.logs_streaming_backup_location.length > 0) {
+            const logs_generations = await getBackupGenerations('logs')
+            const el = document.getElementById('logs-generations')
+            if (el) el.innerText = logs_generations
+        }
+
+    }, 2000)
 	const chooseStreamingBackupLocation = async (e: any, entity: string) => {
 		const items = [{
 			text: 'Not enabled',
@@ -117,7 +130,25 @@
         }
 
     }
-
+    const getBackupGenerations = async (db: string) => {
+        const { data, error } = await pb.send(`/get-litestream-generations`, {
+            method: 'POST',
+            body: {
+                instance_id: project_instance.id,
+                db
+            },
+        });
+        if (error) {
+            console.error('error', error)
+            return ''
+        } else {
+            let arr = data.split('\n');
+            for (let i = 0; i < arr.length; i++) {
+                arr[i] = arr[i].substring(32);
+            }
+            return arr.join('\n');
+        }
+    }
 </script>
 
 <ion-row>
@@ -188,3 +219,31 @@
         </ion-col>
     </ion-row>
 {/if}
+{#if project_instance.db_streaming_backup_location}
+<ion-row>
+    <ion-col style="background-color: var(--ion-color-dark);color: var(--ion-color-dark-contrast)"><ion-label>data.db streaming backups</ion-label></ion-col>
+</ion-row>
+<ion-row>
+    <ion-col>
+        <pre id="data-generations">
+        </pre>
+    </ion-col>
+</ion-row>
+{/if}
+{#if project_instance.logs_streaming_backup_location}
+<ion-row>
+    <ion-col style="background-color: var(--ion-color-dark);color: var(--ion-color-dark-contrast)"><ion-label>logs.db streaming backups</ion-label></ion-col>
+</ion-row>
+<ion-row>
+    <ion-col>
+        <pre id="logs-generations">
+        </pre>
+    </ion-col>
+</ion-row>
+{/if}
+<!-- <ion-row>
+    <ion-col><ion-button on:click={() => {getBackupGenerations('data')}}>get db generations</ion-button></ion-col>
+</ion-row>
+<ion-row>
+    <ion-col><ion-button on:click={() => {getBackupGenerations('logs')}}>get logs generations</ion-button></ion-col>
+</ion-row> -->
