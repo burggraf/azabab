@@ -31,19 +31,7 @@
 		console.log('TabGUI => project_instance.id', project_instance.id)
 
 		if (false && modifiedPath.startsWith('pb_public')) {
-            console.log('getting pb_public file')
-            // get the server address from the instance_id
-            const instance_rec = await pb.collection('project_instance').getOne(project_instance.id, {
-                expand: 'site_id, domain',
-            });
-            const site_rec = await pb.collection('sites').getOne(instance_rec.site_id, {
-                expand: 'domain',
-            });
-            const server = site_rec.domain;
-            const url = `https://${instance_rec.domain}.${server}/${modifiedPath.replace('pb_public/', '')}`;
-            console.log('url', url)
-            window.open(url, '_blank');
-            
+			// old code removed            
 
 		} else {
             // get the file extension

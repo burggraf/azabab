@@ -30,7 +30,7 @@
 	let streaming_backup_sites: StreamingBackupSite[] = []
     const ionViewWillEnter = async () => {
         console.log('*** ionViewWillEnter, id', id)
-        const inst = await pb.collection('project_instance').getOne(id)
+        const inst = await pb.collection('instance_view').getOne(id)
         console.log('inst is', inst);
         if (inst) {
             for (let attr in project_instance) {
