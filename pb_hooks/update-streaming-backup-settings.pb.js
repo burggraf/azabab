@@ -8,19 +8,8 @@ routerAdd('POST', '/update-streaming-backup-settings', async (c) => {
 	if (!data?.instance_id) {
 		return c.json(200, { data: null, error: 'instance_id is required' })
 	}
-	console.log('update-streaming-backup-settings: data', JSON.stringify(data, null, 2))
-
-	console.log('data?.db_streaming_backup_location', data?.data?.db_streaming_backup_location);
 	// update the project_instance record
 	try {
-		console.log('updating the project_instance record')
-		console.log(`update project_instance 
-		set db_streaming_backup_location = '${data?.data?.db_streaming_backup_location}',
-		logs_streaming_backup_location = '${data?.data?.logs_streaming_backup_location}',
-		db_streaming_backup_retention = '${data?.data?.db_streaming_backup_retention}',
-		logs_streaming_backup_retention = '${data?.data?.logs_streaming_backup_retention}'
-		where id = '${data?.instance_id}'`);
-
 		$app
 		.dao()
 		.db()
@@ -40,8 +29,6 @@ routerAdd('POST', '/update-streaming-backup-settings', async (c) => {
 				error: error_to_return || JSON.stringify(update_project_instance_error),
 			})
 	}
-	console.log('finished updating the project_instance record')
-
 	let port = 0;
 	let site_domain = '';
 	let lookup;
@@ -66,22 +53,6 @@ routerAdd('POST', '/update-streaming-backup-settings', async (c) => {
 				logs_streaming_backup_retention: 0
 			})
 		)
-		console.log(`select db_streaming_backup_location,
-		logs_streaming_backup_location,
-		db.access_key_id as db_access_key_id, 
-		db.endpoint as db_endpoint, 
-		db.secret_access_key as db_secret_access_key, 
-		logs.access_key_id as logs_access_key_id, 
-		logs.endpoint as logs_endpoint, 
-		logs.secret_access_key as logs_secret_access_key, 
-		owner, ownertype, port, site_domain, domain, 
-		db_streaming_backup_retention,
-		logs_streaming_backup_retention 
-		from instance_view 
-		left outer join s3 as db on db.id = coalesce(db_streaming_backup_location,'') 
-		left outer join s3 as logs on logs.id = coalesce(logs_streaming_backup_location,'')
-		where instance_view.id = '${data?.instance_id}'`)
-		console.log('executing the query')
 		$app
 			.dao()
 			.db()
@@ -103,7 +74,6 @@ routerAdd('POST', '/update-streaming-backup-settings', async (c) => {
 						where instance_view.id = '${data?.instance_id}'`
 			)
 			.all(lookup) // throw an error on db failure
-		console.log('lookup', JSON.stringify(lookup, null, 2));
 		if (lookup.length === 0) {
 			return c.json(200, { data: null, error: 'project instance not found' })
 		}
@@ -115,8 +85,6 @@ routerAdd('POST', '/update-streaming-backup-settings', async (c) => {
 			site_domain = lookup[0].site_domain
 		}
 	} catch (lookupError) {
-		console.log(lookupError.value.error())
-		console.log('got lookupError', JSON.stringify(lookupError, null, 2));
 		const error_to_return = lookupError.value.error()
 		return c.json(200, {
 			data: null,
@@ -124,10 +92,6 @@ routerAdd('POST', '/update-streaming-backup-settings', async (c) => {
 		})
 	}
 
-	// *************************************************************
-	// console.log('db_streaming_backup_location_s3', JSON.stringify(db_streaming_backup_location_s3, null, 2))
-	// console.log('logs_streaming_backup_location_s3', JSON.stringify(logs_streaming_backup_location_s3, null, 2))
-	// *************************************************************
 	const payload = {files: []}
 	if (lookup[0]?.db_access_key_id && lookup[0]?.db_access_key_id.length > 0) {
 		payload.files.push({filename: `${port}-data`, contents: 
@@ -143,7 +107,6 @@ routerAdd('POST', '/update-streaming-backup-settings', async (c) => {
 		`        force-path-style: true\n`
 	})
 	} else {
-		console.log('lookup[0]?.db_access_key_id failed');
 		payload.files.push({filename: `${port}-data`, contents: ""})
 	}
 
@@ -161,7 +124,6 @@ routerAdd('POST', '/update-streaming-backup-settings', async (c) => {
 		`        force-path-style: true\n`
 	})
 	} else {
-		console.log('lookup[0]?.logs_access_key_id failed');
 		payload.files.push({filename: `${port}-logs`, contents: ""})
 	}
 
@@ -171,15 +133,13 @@ routerAdd('POST', '/update-streaming-backup-settings', async (c) => {
       - type: s3
         bucket: azabab
         path: <site_domain>/<port>-data
-        endpoint: xxxx.la.idrivee2-40.com
+        endpoint: xxxx.xx.idrivee2-40.com
         access-key-id: xxxxxxxxxx
         secret-access-key: xxxxxxxxxxxxx
+		retention: xxh
         force-path-style: true
 	
-	
 	*/
-	console.log('payload.files', JSON.stringify(payload.files, null, 2))
-	console.log('data', JSON.stringify(data, null, 2))
 	const res = $http.send({
 			url: `http://${site_domain}:5000/updatelitestream`,
 			method: 'POST',
@@ -195,14 +155,11 @@ routerAdd('POST', '/update-streaming-backup-settings', async (c) => {
 			},
 			timeout: 120, // in seconds
 		})
-		console.log('res', JSON.stringify(res, null, 2))
 		if (res.json?.error) {
 			return c.json(200, { data: null, error: res.json.error })
 		} else {
 			return c.json(200, { data: res, error: null })
 		}
-		// reload domain_ports.txt file to update domain port mappings
-		// ssh ubuntu@$1  "sudo kill -HUP \$(cat /var/run/nginx.pid)"
 })
 
 

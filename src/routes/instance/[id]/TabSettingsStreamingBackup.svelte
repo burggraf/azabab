@@ -5,6 +5,7 @@
     import { dropdownmenu } from '$components/DropdownMenu'
 	import * as allIonicIcons from 'ionicons/icons'
 	import { pb } from '$services/backend.service'
+	import { toast } from '$services/toast'
 	export let project_instance: ProjectInstance = {
 		code: '',
 		domain: '',
@@ -41,7 +42,6 @@
 				color: 'primary',
 				textcolor: 'primary',
 				handler: async () => {
-					console.log('unset streaming_backup_site') 
 					data[entity] = ''
 				},
 		}]
@@ -53,13 +53,11 @@
 				color: 'primary',
 				textcolor: 'primary',
 				handler: async () => {
-					console.log('chooseStreamingBackupLocation id', streaming_backup_site.id)
 					data[entity] = streaming_backup_site.id 
 				},
 			})
 		}
 		const result = await dropdownmenu(e, items)
-        console.log('*** you chose streaming_backup_site', result)
 	}
 	const chooseStreamingBackupRetention = async (e: any, entity: string) => {
 		const arr = [0, 24, 72, 168, 336, 504, 720]
@@ -72,13 +70,11 @@
 				color: 'primary',
 				textcolor: 'primary',
 				handler: async () => {
-					console.log('chooseStreamingBackupDBRetention hours', hours)
 					data[entity] = hours
 				},
 			})
 		}
 		const result = await dropdownmenu(e, items)
-        console.log('*** you chose streaming_backup_retention', result)
 
 	}
 	const getBackupLocationName = (id: string) => {
@@ -90,12 +86,8 @@
 		return 'Not enabled'
 	}
     const applyChanges = async () => {
-        console.log('applyChanges project_instance', project_instance)
         // update-streaming-backup-settings
         try {
-            console.log('calling /update-streaming-backup-settings with')
-            console.log('instance_id', project_instance.id)
-            console.log('data', data)
             const { data: changeData, error: changeError } = 
             await pb.send(`/update-streaming-backup-settings`, {
 				method: 'POST',
@@ -103,11 +95,22 @@
 					instance_id: project_instance.id,
 					data
 				},
-				//instance_id
-				//path: fullpath
 			})
-            console.log('changeData', changeData)
-            console.log('changeError', changeError)
+            if (changeError) {
+                console.error('changeError', changeError)
+                toast('Error updating streaming backup settings', 'danger')
+                return
+            } else {
+                if (changeData?.json?.data === 'OK') {
+                    toast('Streaming backup settings updated', 'success')
+                    project_instance.db_streaming_backup_location = data.db_streaming_backup_location;
+                    project_instance.logs_streaming_backup_location = data.logs_streaming_backup_location;
+                    project_instance.db_streaming_backup_retention = data.db_streaming_backup_retention; 
+                    project_instance.logs_streaming_backup_retention = data.logs_streaming_backup_retention;                    
+                } else {
+                    toast(changeData?.json?.data, 'danger')
+                }
+            }
         }
         catch (err) {
             console.log("ERROR", err)
