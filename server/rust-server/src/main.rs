@@ -6,6 +6,7 @@ mod catch_all_handler;
 mod get_instance_files;
 mod get_instance_file;
 mod update_litestream;
+mod get_litestream_generations;
 
 use hyper::{Body, Request, Response, Server};
 use hyper::service::{make_service_fn, service_fn};
@@ -58,6 +59,9 @@ async fn request_handler(req: Request<Body>) -> Result<Response<Body>, hyper::Er
         },
         ("/updatelitestream", &hyper::Method::POST) => {
             update_litestream::handle_update_litestream(req).await
+        },
+        ("/getlitestreamgenerations", &hyper::Method::POST) => {
+            get_litestream_generations::handle_get_litestream_generations(req, AUTH_TOKEN).await
         },
         _ => catch_all_handler::handle_catch_all(req).await
 
