@@ -223,7 +223,8 @@
         db: '',
         min: '',
         max: '',
-        selectedDate: ''
+        selectedDate: '',
+        destination: 'backup-overwrite',
     }
     const startRestore = async (db: string) => {
         console.log('startRestore', db)
@@ -241,9 +242,9 @@
         console.log('executeRestore')
         console.log(JSON.stringify(restoreSettings, null, 2))
     }
-    const dateSelected = (e: any) => {
-        console.log('dateSelected', e.detail.value)
-        // restoreSettings.selectedDate = e.detail.value;
+    const selectDate = (e: any) => {
+        console.log('selectDate', e.detail.value)
+        restoreSettings.selectedDate = e.detail.value;
     
     }
 </script>
@@ -261,14 +262,41 @@
 
 <ion-grid id="restoreGrid"  class="ion-padding Grid" style="display: none; height: 100%;overflow-x: scroll;">
     <ion-row>
-        <ion-col>Restore grid</ion-col>
+        <ion-col style="background-color: var(--ion-color-dark);color: var(--ion-color-dark-contrast)">
+            <ion-label>Restore to point-in-time:</ion-label></ion-col>
     </ion-row>
     <ion-row>
         <ion-col>{restoreSettings.selectedDate}</ion-col>
     </ion-row>
     <ion-row>
         <ion-col>
-            <ion-datetime on:ionChange={dateSelected} value={restoreSettings.max} min={restoreSettings.min} max={restoreSettings.max}></ion-datetime>
+            <ion-datetime on:ionChange={selectDate} value={restoreSettings.max} min={restoreSettings.min} max={restoreSettings.max}></ion-datetime>
+        </ion-col>
+    </ion-row>
+    <ion-row>
+        <ion-col style="background-color: var(--ion-color-dark);color: var(--ion-color-dark-contrast)">
+            <ion-label style="padding-left: 50px;">Restore to:</ion-label>
+        </ion-col>
+    </ion-row>
+    <ion-row>
+        <ion-col>
+            <ion-radio-group value={restoreSettings.destination}>
+                <ion-item>
+                    <ion-label>Backup and overwrite existing database</ion-label>
+                    <ion-radio slot="start" value="backup-overwrite"></ion-radio>
+                </ion-item>
+                <ion-item>
+                    <ion-label>Erase and overwrite existing database</ion-label>
+                    <ion-radio slot="start" value="overwrite"></ion-radio>
+                </ion-item>
+                <ion-item>
+                    <ion-label>Create new entry in backups folder</ion-label>
+                    <ion-radio slot="start" value="backups-folder"></ion-radio>
+                </ion-item>
+                <ion-item>
+                    <ion-label>Downloadable file</ion-label>
+                    <ion-radio slot="start" value="download-file"></ion-radio>
+                </ion-item>
         </ion-col>
     </ion-row>
     <ion-row>
