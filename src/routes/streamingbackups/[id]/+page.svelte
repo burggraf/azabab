@@ -165,6 +165,7 @@
             console.error('error', error)
             return ''
         } else {
+            console.log('data')
             console.log(data)
             let arr = data.split('\n');
             let o: string = '';

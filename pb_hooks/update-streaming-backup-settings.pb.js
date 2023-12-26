@@ -104,6 +104,8 @@ routerAdd('POST', '/update-streaming-backup-settings', async (c) => {
 		`        access-key-id: ${lookup[0]?.db_access_key_id || ''}\n` +
 		`        secret-access-key: ${lookup[0]?.db_secret_access_key || ''}\n` +
 		`        retention: ${lookup[0]?.db_streaming_backup_retention}h\n` +
+		`        snapshot-interval: 24h\n` +
+		`        sync-interval: 30s\n` +
 		`        force-path-style: true\n`
 	})
 	} else {
@@ -121,6 +123,8 @@ routerAdd('POST', '/update-streaming-backup-settings', async (c) => {
 		`        access-key-id: ${lookup[0]?.logs_access_key_id || ''}\n` +
 		`        secret-access-key: ${lookup[0]?.logs_secret_access_key || ''}\n` +
 		`        retention: ${lookup[0]?.logs_streaming_backup_retention}h\n` +
+		`        snapshot-interval: 24h\n` +
+		`        sync-interval: 30s\n` +
 		`        force-path-style: true\n`
 	})
 	} else {
