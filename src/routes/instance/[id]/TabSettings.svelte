@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { Project, ProjectInstance, Site, StreamingBackupSite } from './interfaces'
 	import { currentUser, pb } from '$services/backend.service'
-	import TabSettingsStreamingBackup from './TabSettingsStreamingBackup.svelte';
+	// import TabSettingsStreamingBackup from './TabSettingsStreamingBackup.svelte';
 
 	import { showConfirm } from '$services/alert.service'
 	import { toast } from '$services/toast'
@@ -104,7 +104,7 @@
 	</ion-row>
 	<ion-row><ion-col>&nbsp;</ion-col></ion-row>
 
-	<TabSettingsStreamingBackup {project_instance} {streaming_backup_sites} />
+	<ion-button size="small" expand="block" on:click={()=>{goto(`/streamingbackups/${project_instance.id}`)}}>Streaming Backups</ion-button>
 	
 </ion-grid>
 <ion-footer class="ion-padding ion-text-left" style="background-color: var(--ion-color-light);border-top: 0.1px solid;">

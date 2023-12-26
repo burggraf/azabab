@@ -1,12 +1,19 @@
 <script lang="ts">
+    import IonPage from '$ionpage'
 	//db_streaming_backup_location
 	//logs_streaming_backup_location
-	import type { ProjectInstance, StreamingBackupSite } from './interfaces'
+    import '../../instance/[id]/styles.css'
+	import type { ProjectInstance, StreamingBackupSite } from '../../instance/[id]/interfaces'
     import { dropdownmenu } from '$components/DropdownMenu'
 	import * as allIonicIcons from 'ionicons/icons'
 	import { pb } from '$services/backend.service'
 	import { toast } from '$services/toast'
-	export let project_instance: ProjectInstance = {
+	import { arrowBackOutline } from 'ionicons/icons'
+    import { page } from '$app/stores'
+    import moment from 'moment'
+
+    export let id = $page.params.id
+	let project_instance: ProjectInstance = {
 		code: '',
 		domain: '',
 		id: '',
@@ -20,13 +27,29 @@
 		db_streaming_backup_retention: 0,
 		logs_streaming_backup_retention: 0
 	}
-	export let streaming_backup_sites: StreamingBackupSite[] = []
+	let streaming_backup_sites: StreamingBackupSite[] = []
+    const ionViewWillEnter = async () => {
+        console.log('*** ionViewWillEnter, id', id)
+        const inst = await pb.collection('project_instance').getOne(id)
+        console.log('inst is', inst);
+        if (inst) {
+            for (let attr in project_instance) {
+                project_instance[attr] = inst[attr]            
+            }
+        }
+		streaming_backup_sites = await pb.collection('streaming_backup_sites').getFullList({
+			fields: 'id, name, location',
+		})
+    }
     let data: any = {
             db_streaming_backup_location: '',
             logs_streaming_backup_location: '',
             db_streaming_backup_retention: 0,
             logs_streaming_backup_retention: 0        
     };
+    const back = () => {
+        window.history.back()
+    }
     setTimeout(() => {
         data = {
             db_streaming_backup_location: project_instance.db_streaming_backup_location,
@@ -142,18 +165,45 @@
             console.error('error', error)
             return ''
         } else {
+            console.log(data)
             let arr = data.split('\n');
+            let o: string = '';
             for (let i = 0; i < arr.length; i++) {
-                arr[i] = arr[i].substring(32);
+                if (i > 0) {
+                    const item = arr[i];                    
+                    const parts = item.split(/\s+/);
+                    if (parts.length > 3) {
+                        const utcStartDate = parts[3];
+                        const utcEndDate = parts[4];
+                        // convert utc to local
+                        const startDate = moment.utc(utcStartDate).local().format('YYYY-MM-DD hh:mm:ss A');
+                        const endDate = moment.utc(utcEndDate).local().format('YYYY-MM-DD hh:mm:ss A');
+                        o += startDate + ' - ' + endDate + '\n';
+                        // o += parts[3] + ' ' + parts[4] + '\n';
+                    }
+                        
+                }
             }
-            return arr.join('\n');
+            return o; // arr.join('\n');
         }
     }
 </script>
+<IonPage {ionViewWillEnter}>
+	<ion-header>
+		<ion-toolbar color="secondary">
+			<ion-buttons slot="start">
+				<ion-button on:click={back}>
+					<ion-icon slot="icon-only" icon={arrowBackOutline} />
+				</ion-button>
+			</ion-buttons>
+			<ion-title>Streaming Backups</ion-title>
+        </ion-toolbar>
+	</ion-header>	
+<ion-grid class="ion-padding Grid" style="height: 100%;overflow-x: scroll;">
 
 <ion-row>
     <ion-col class="ion-text-center bold" style="background-color: var(--ion-color-dark); color: var(--ion-color-dark-contrast)">
-        <ion-label>Streaming Backups</ion-label>
+        <ion-label>Streaming Backup Settings</ion-label>
     </ion-col>
 </ion-row>
 <ion-row>
@@ -221,7 +271,7 @@
 {/if}
 {#if project_instance.db_streaming_backup_location}
 <ion-row>
-    <ion-col style="background-color: var(--ion-color-dark);color: var(--ion-color-dark-contrast)"><ion-label>data.db streaming backups</ion-label></ion-col>
+    <ion-col style="background-color: var(--ion-color-dark);color: var(--ion-color-dark-contrast)"><ion-label>data.db: available backups</ion-label></ion-col>
 </ion-row>
 <ion-row>
     <ion-col>
@@ -232,7 +282,7 @@
 {/if}
 {#if project_instance.logs_streaming_backup_location}
 <ion-row>
-    <ion-col style="background-color: var(--ion-color-dark);color: var(--ion-color-dark-contrast)"><ion-label>logs.db streaming backups</ion-label></ion-col>
+    <ion-col style="background-color: var(--ion-color-dark);color: var(--ion-color-dark-contrast)"><ion-label>logs.db: available backups</ion-label></ion-col>
 </ion-row>
 <ion-row>
     <ion-col>
@@ -241,9 +291,12 @@
     </ion-col>
 </ion-row>
 {/if}
+</ion-grid>
 <!-- <ion-row>
     <ion-col><ion-button on:click={() => {getBackupGenerations('data')}}>get db generations</ion-button></ion-col>
 </ion-row>
 <ion-row>
     <ion-col><ion-button on:click={() => {getBackupGenerations('logs')}}>get logs generations</ion-button></ion-col>
 </ion-row> -->
+
+</IonPage>
