@@ -1,4 +1,5 @@
 <script lang="ts">
+
     import IonPage from '$ionpage'
 	//db_streaming_backup_location
 	//logs_streaming_backup_location
@@ -8,7 +9,7 @@
 	import * as allIonicIcons from 'ionicons/icons'
 	import { pb } from '$services/backend.service'
 	import { toast } from '$services/toast'
-	import { arrowBackOutline, refreshOutline } from 'ionicons/icons'
+	import { arrowBackOutline, cloudDownloadOutline, refreshOutline } from 'ionicons/icons'
     import { page } from '$app/stores'
     import moment from 'moment'
 
@@ -48,7 +49,16 @@
             logs_streaming_backup_retention: 0        
     };
     const back = () => {
-        window.history.back()
+        const restoreGrid = document.getElementById('restoreGrid');
+        const regularGrid = document.getElementById('regularGrid');
+        if (restoreGrid && regularGrid) {
+            if (restoreGrid.style.display === 'none') {
+                window.history.back()
+            } else {
+                restoreGrid.style.display = 'none';
+                regularGrid.style.display = 'block';
+            }
+        }
     }
     setTimeout(() => {
         data = {
@@ -159,6 +169,10 @@
         }
 
     }
+    const dateRanges = {
+        "data": { min: '', max: ''},
+        "logs": { min: '', max: ''}
+    }
     const getBackupGenerations = async (db: string) => {
         const { data, error } = await pb.send(`/get-litestream-generations`, {
             method: 'POST',
@@ -185,14 +199,52 @@
                         // convert utc to local
                         const startDate = moment.utc(utcStartDate).local().format('YYYY-MM-DD hh:mm:ss A');
                         const endDate = moment.utc(utcEndDate).local().format('YYYY-MM-DD hh:mm:ss A');
+                        const sDate = moment.utc(startDate).toISOString();
+                        const eDate = moment.utc(endDate).toISOString();
+                        console.log('utcStartDate', utcStartDate)
+                        console.log('utcEndDate', utcEndDate)
+                        console.log('startDate', startDate)
+                        console.log('endDate', endDate)
+                        console.log('sDate', sDate)
+                        console.log('eDate', eDate)
                         o += startDate + ' - ' + endDate + '\n';
-                        // o += parts[3] + ' ' + parts[4] + '\n';
+                        // set min and max dateRanges for db
+                        if (dateRanges[db].min === '') dateRanges[db].min = sDate;
+                        if (dateRanges[db].max === '') dateRanges[db].max = eDate;
+                        if (sDate < dateRanges[db].min) dateRanges[db].min = sDate;
+                        if (eDate > dateRanges[db].max) dateRanges[db].max = eDate;
                     }
-                        
                 }
             }
             return o; // arr.join('\n');
         }
+    }
+    const restoreSettings = {
+        db: '',
+        min: '',
+        max: '',
+        selectedDate: ''
+    }
+    const startRestore = async (db: string) => {
+        console.log('startRestore', db)
+        const restoreGrid = document.getElementById('restoreGrid');
+        const regularGrid = document.getElementById('regularGrid');
+        if (restoreGrid && regularGrid) {
+            restoreGrid.style.display = 'block';
+            regularGrid.style.display = 'none';
+            restoreSettings.db = db;
+            restoreSettings.min = dateRanges[db].min;
+            restoreSettings.max = dateRanges[db].max;
+        }
+    }
+    const executeRestore = async () => {
+        console.log('executeRestore')
+        console.log(JSON.stringify(restoreSettings, null, 2))
+    }
+    const dateSelected = (e: any) => {
+        console.log('dateSelected', e.detail.value)
+        // restoreSettings.selectedDate = e.detail.value;
+    
     }
 </script>
 <IonPage {ionViewWillEnter}>
@@ -205,8 +257,35 @@
 			</ion-buttons>
 			<ion-title>Streaming Backups</ion-title>
         </ion-toolbar>
-	</ion-header>	
-<ion-grid class="ion-padding Grid" style="height: 100%;overflow-x: scroll;">
+	</ion-header>
+
+<ion-grid id="restoreGrid"  class="ion-padding Grid" style="display: none; height: 100%;overflow-x: scroll;">
+    <ion-row>
+        <ion-col>Restore grid</ion-col>
+    </ion-row>
+    <ion-row>
+        <ion-col>{restoreSettings.selectedDate}</ion-col>
+    </ion-row>
+    <ion-row>
+        <ion-col>
+            <ion-datetime on:ionChange={dateSelected} value={restoreSettings.max} min={restoreSettings.min} max={restoreSettings.max}></ion-datetime>
+        </ion-col>
+    </ion-row>
+    <ion-row>
+        <ion-col>
+            <ion-button
+                size="small"                
+                expand="block"
+                color="danger"
+                on:click={executeRestore}
+            >
+                Start Restore
+            </ion-button>
+        </ion-col>
+    </ion-row>
+</ion-grid>
+
+<ion-grid id="regularGrid" class="ion-padding Grid" style="height: 100%;overflow-x: scroll;">
 
 <ion-row>
     <ion-col class="ion-text-center bold" style="background-color: var(--ion-color-dark); color: var(--ion-color-dark-contrast)">
@@ -281,7 +360,10 @@
     <ion-col size={"10"}><ion-label>data.db: available backups</ion-label>
         </ion-col>
         <ion-col size={"2"} class="ion-text-right">
-        <ion-button on:click={updateDataGenerations} size="small" fill="clear"><ion-icon color="light" slot="icon-only" icon={refreshOutline}></ion-icon></ion-button>
+        <ion-buttons>
+            <ion-button on:click={updateDataGenerations} size="small" fill="clear"><ion-icon color="light" slot="icon-only" icon={refreshOutline}></ion-icon></ion-button>
+            <ion-button on:click={()=>{startRestore('data')}} size="small" fill="clear"><ion-icon color="light" slot="icon-only" icon={cloudDownloadOutline}></ion-icon></ion-button>
+        </ion-buttons>
         </ion-col>
 </ion-row>
 <ion-row>
@@ -296,7 +378,10 @@
     <ion-col size={"10"}><ion-label>logs.db: available backups</ion-label>
         </ion-col>
         <ion-col size={"2"} class="ion-text-right">
-        <ion-button on:click={updateLogsGenerations} size="small" fill="clear"><ion-icon color="light" slot="icon-only" icon={refreshOutline}></ion-icon></ion-button>
+        <ion-buttons>
+            <ion-button on:click={updateLogsGenerations} size="small" fill="clear"><ion-icon color="light" slot="icon-only" icon={refreshOutline}></ion-icon></ion-button>
+            <ion-button on:click={()=>{startRestore('logs')}} size="small" fill="clear"><ion-icon color="light" slot="icon-only" icon={cloudDownloadOutline}></ion-icon></ion-button>
+        </ion-buttons>
         </ion-col>
 </ion-row>
 <ion-row>
