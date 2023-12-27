@@ -15,6 +15,9 @@
 			sort: 'name',
 		})
 		projects = project_records
+		if (projects.length === 0) {
+			goto('/newproject')
+		}
 	}
 	const newProject = async () => {
 		goto('/newproject')
