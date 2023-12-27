@@ -55,47 +55,65 @@
 
 	const appPages: AppPage[] = [
 		{
-			title: 'Dashboard',
-			url: 'dashboardMenu',
-			icon: 'barChart',
-			children: [
-				{ title: 'Welcome', url: 'welcome', icon: 'map', disabled: false },
-				{ title: 'Projects', url: 'projects', icon: 'map', disabled: false },
-			],
+			title: 'Projects',
+			url: 'projects',
+			icon: 'home',
+			children: [],
 		},
 		{
-			title: 'Help & Information',
+			title: 'Account',
+			url: 'account',
+			icon: 'person',
+			children: [],
+		},
+		{
+			title: 'Settings',
+			url: 'settings',
+			icon: 'settings',
+			children: [],
+		},
+		// {
+		// 	title: 'Dashboard',
+		// 	url: 'dashboardMenu',
+		// 	icon: 'barChart',
+		// 	children: [
+		// 		{ title: 'Welcome', url: 'welcome', icon: 'map', disabled: false },
+		// 		{ title: 'Projects', url: 'projects', icon: 'map', disabled: false },
+		// 	],
+		// },
+		{
+			title: 'Information & Support',
 			url: 'informationMenu',
 			icon: 'informationCircle',
 			children: [
-				{ title: 'About...', url: 'about', icon: 'map', disabled: false },
-				{ title: 'Terms of Use', url: 'terms', icon: 'map', disabled: false },
+				{ title: 'About Azabab', url: 'about', icon: 'map', disabled: false },
+				{ title: 'Terms of Service', url: 'terms', icon: 'map', disabled: false },
 				{ title: 'Privacy Policy', url: 'privacy', icon: 'map', disabled: false },
 				{ title: 'Support', url: 'support', icon: 'map', disabled: false },
 			],
 		},
-		{
-			title: 'Settings & Profile',
-			url: 'settingsMenu',
-			icon: 'settings',
-			children: [
-				{ title: 'Account', url: 'account', icon: 'settings', disabled: false },
-				{ title: 'Settings', url: 'settings', icon: 'settings', disabled: false },
-			],
-		},
-		{
-			title: 'Admin',
-			url: 'adminMenu',
-			icon: 'lockClosed',
-			children: [
-				{ title: 'Users', url: 'adm-users', icon: 'map', disabled: true },
-			],
-		},
-		{
-			title: 'Samples',
-			url: 'samples',
-			icon: 'starOutline',
-		},
+		// {
+		// 	title: 'Settings & Profile',
+		// 	url: 'settingsMenu',
+		// 	icon: 'settings',
+		// 	children: [
+		// 		{ title: 'Account', url: 'account', icon: 'settings', disabled: false },
+		// 		{ title: 'Settings', url: 'settings', icon: 'settings', disabled: false },
+		// 	],
+		// },
+		// {
+		// 	title: 'Admin',
+		// 	url: 'adminMenu',
+		// 	icon: 'lockClosed',
+		// 	children: [
+		// 		{ title: 'Users', url: 'adm-users', icon: 'map', disabled: true },
+		// 	],
+		// },
+		// {
+		// 	title: 'Samples',
+		// 	url: 'samples',
+		// 	icon: 'starOutline',
+		// },
 	]
 
 	const badges: any = {};
