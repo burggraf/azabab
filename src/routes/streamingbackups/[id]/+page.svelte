@@ -224,7 +224,7 @@
         min: '',
         max: '',
         selectedDate: '',
-        destination: 'backup-overwrite',
+        destination: 'backup-folder',
     }
     const startRestore = async (db: string) => {
         console.log('startRestore', db)
@@ -241,11 +241,36 @@
     const executeRestore = async () => {
         console.log('executeRestore')
         console.log(JSON.stringify(restoreSettings, null, 2))
+        console.log('project_instance', project_instance)
+        // convert selectedDate to utc
+        const utcSelectedDate = moment.utc(restoreSettings.selectedDate).toISOString();
+        console.log({
+                instance_id: project_instance.id,
+                db: restoreSettings.db,
+                timestamp: utcSelectedDate,
+                mode: restoreSettings.destination
+            })
+        const { data, error } = await pb.send(`/pitr`, {
+            method: 'POST',
+            body: {
+                instance_id: project_instance.id,
+                db: restoreSettings.db,
+                timestamp: utcSelectedDate,
+                mode: restoreSettings.destination
+            },
+        });
+        console.log('data', data)
+        console.log('error', error)
     }
     const selectDate = (e: any) => {
         console.log('selectDate', e.detail.value)
         restoreSettings.selectedDate = e.detail.value;
     
+    }
+    const changemode = (e: any) => {
+        console.log('changemode', e.detail.value)
+        restoreSettings.destination = e.detail.value;
+        
     }
 </script>
 <IonPage {ionViewWillEnter}>
@@ -275,27 +300,23 @@
     </ion-row>
     <ion-row>
         <ion-col style="background-color: var(--ion-color-dark);color: var(--ion-color-dark-contrast)">
-            <ion-label style="padding-left: 50px;">Restore to:</ion-label>
+            <ion-label style="padding-left: 50px;">Restore option:</ion-label>
         </ion-col>
     </ion-row>
     <ion-row>
         <ion-col>
-            <ion-radio-group value={restoreSettings.destination}>
+            <ion-radio-group on:ionChange={changemode} value={restoreSettings.destination}>
+                <ion-item>
+                    <ion-label>Create new entry in backups folder</ion-label>
+                    <ion-radio slot="start" value="backup-folder"></ion-radio>
+                </ion-item>
                 <ion-item>
                     <ion-label>Backup and overwrite existing database</ion-label>
                     <ion-radio slot="start" value="backup-overwrite"></ion-radio>
                 </ion-item>
                 <ion-item>
                     <ion-label>Erase and overwrite existing database</ion-label>
-                    <ion-radio slot="start" value="overwrite"></ion-radio>
-                </ion-item>
-                <ion-item>
-                    <ion-label>Create new entry in backups folder</ion-label>
-                    <ion-radio slot="start" value="backups-folder"></ion-radio>
-                </ion-item>
-                <ion-item>
-                    <ion-label>Downloadable file</ion-label>
-                    <ion-radio slot="start" value="download-file"></ion-radio>
+                    <ion-radio slot="start" value="erase-overwrite"></ion-radio>
                 </ion-item>
         </ion-col>
     </ion-row>
