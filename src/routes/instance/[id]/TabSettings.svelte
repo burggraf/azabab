@@ -7,6 +7,8 @@
 	import { toast } from '$services/toast'
 	import { goto } from '$app/navigation'
 	import { trashOutline } from 'ionicons/icons'
+	import { instanceTab } from './instanceTabStore'
+
 	export let project: Project = {
 		id: '',
 		domain: '',
@@ -30,6 +32,11 @@
 	}
 	export let sites: Site[] = []
 	export let streaming_backup_sites: StreamingBackupSite[] = []
+    instanceTab.subscribe((value: string) => {
+        if (value === 'settings') {
+            console.log('INSTANCE TAB SETTINGS')
+        }
+    })
 
 	const removeinstance = async () => {
 		console.log('removeinstance')

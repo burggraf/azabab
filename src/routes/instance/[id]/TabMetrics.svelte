@@ -3,22 +3,33 @@
     import type { ProjectInstance } from './interfaces'
     import { currentUser, pb } from '$services/backend.service'
     import moment from 'moment'
+	import { instanceTab } from './instanceTabStore'
 	const formatDate = (timestamp: number) => moment(timestamp * 1000).format('MM/DD/YY HH:mm:ss')
     
     export let project_instance: ProjectInstance = 
 		{
-			code: '',
-			domain: '',
-			id: '',
-			port: 0,
-			site_domain: '',
-			site_name: 'Select a site',
-			site_id: '',
-			type: 'primary',
+            code: '',
+            domain: '',
+            id: '',
+            port: 0,
+            site_domain: '',
+            site_name: 'Select a site',
+            site_id: '',
+            type: 'primary',
+            db_streaming_backup_location: '',
+            logs_streaming_backup_location: '',
+            db_streaming_backup_retention: 0,
+            logs_streaming_backup_retention: 0
 		};
+    instanceTab.subscribe(async (value: string) => {
+        if (value === 'metrics') {
+            console.log('INSTANCE TAB METRICS')
+            await loadData()
+        }
+    })
 
     const loadData = async () => {
-        console.log('tabmetrics loadata')
+        console.log('tabmetrics loadata, $currentUser', $currentUser)
         const resultList = await pb.collection('stats_view').getList(1, 50, {
             filter: `instance_id = "${project_instance?.id}"`,
             columns: `ts, event, cpu_usage, mem_usage, disk_read, disk_write, net_in, net_out`,
@@ -27,10 +38,6 @@
         console.log('loadData: resultList', resultList)   
         stats = resultList.items
     }
-    setTimeout(() => {
-        loadData()
-    }, 1000)
-    // loadData();
 
 </script>
 <div class="ion-padding" style="overflow: scroll;height: 100%">

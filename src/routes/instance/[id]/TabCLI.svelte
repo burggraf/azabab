@@ -1,27 +1,34 @@
 <script lang="ts">
     import Keys from '$components/Keys.svelte'
-	import { onMount } from 'svelte'
     import type { ProjectInstance, ProjectInstanceKey, Key } from './interfaces'
 	import { currentUser, pb } from '$services/backend.service'
     import { toast } from '$services/toast'
+	import { instanceTab } from './instanceTabStore'
 
     export let id: string = ''
     export let keys: Key[] = []
 	export let project_instance_keys: ProjectInstanceKey[] = []
     export let project_instance: ProjectInstance = 
 		{
-			code: '',
-			domain: '',
-			id: '',
-			port: 0,
-			site_domain: '',
-			site_name: 'Select a site',
-			site_id: '',
-			type: 'primary',
+            code: '',
+            domain: '',
+            id: '',
+            port: 0,
+            site_domain: '',
+            site_name: 'Select a site',
+            site_id: '',
+            type: 'primary',
+            db_streaming_backup_location: '',
+            logs_streaming_backup_location: '',
+            db_streaming_backup_retention: 0,
+            logs_streaming_backup_retention: 0
 		};
 	
-    onMount(async () => {
-        loadProjectInstanceKeys()
+    instanceTab.subscribe(async (value: string) => {
+        if (value === 'cli') {
+            console.log('INSTANCE TAB CLI')
+            await loadProjectInstanceKeys()
+        }
     })
     const loadProjectInstanceKeys = async () => {
 		project_instance_keys = await pb.collection('project_instance_keys').getFullList({

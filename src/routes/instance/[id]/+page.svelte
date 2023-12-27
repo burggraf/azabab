@@ -13,11 +13,11 @@
 	import { currentUser, pb } from '$services/backend.service'
 	import { goto } from '$app/navigation'
 	import { toast } from '$services/toast'
-	import { onMount } from 'svelte'
-
+	import { instanceTab } from './instanceTabStore'
 	export let id = $page.params.id
 	// const instance_id = $page.params.id
 	import type { Project, ProjectInstance, Site, Key, ProjectInstanceKey, StreamingBackupSite } from './interfaces'
+	import { onMount } from 'svelte'
 
 	let keys: Key[] = []
 	let project_instance_keys: ProjectInstanceKey[] = []
@@ -47,13 +47,16 @@
 		logs_streaming_backup_retention: 0
 	};
 	
+	let initTab: string;
 	onMount(async () => {
-		const tb: any = document.getElementById('ion-tabs')
-		let initTab: string
-			initTab = localStorage.getItem('project.tab') || 'settings'
+		initTab = localStorage.getItem('instance.tab') || 'settings'
+		console.log('localStorage got ====> initTab', initTab)
 		setTimeout(() => {
+			const tb: any = document.getElementById('ion-tabs')
+			console.log('setTimeout changing tab to:', initTab)
+			console.log('tb is ', tb)
 			if (tb) tb.select(initTab || 'settings')
-		}, 10)
+		}, 100)
 	})
 	const ionViewWillEnter = async () => {
 		console.log('*** ionViewWillEnter, id', id)
@@ -81,6 +84,10 @@
 		streaming_backup_sites = await pb.collection('streaming_backup_sites').getFullList({
 			fields: 'id, name, location',
 		})
+
+		const tb: any = document.getElementById('ion-tabs')
+		
+
 	}
 	const back = async () => {
 		goto('/projects')
@@ -114,36 +121,42 @@
 		>
 	</ion-header>	
 	<ion-content class="ion-padding">
-		<ion-tabs
-			id="ion-tabs"
+		<ion-tabs id="ion-tabs"
 			on:ionTabsDidChange={(e) => {
-				console.log('CHANGE', e.detail.tab)
-				localStorage.setItem('project.tab', e.detail.tab)
+				console.log('*********************************************')
+				console.log('***** ionTabsDidChange               ********')
+				console.log('*********************************************')
+				console.log('e', e)
+				console.log(e.detail.tab);
+				console.log('loccalStorage setting instance.tab', e.detail.tab)
+				localStorage.setItem('instance.tab', e.detail.tab)
+				instanceTab.set(e.detail.tab)
+				console.log('*********************************************')
 			}}
 		>
+			<ion-tab tab="settings">
+					<TabSettings {project} {project_instance} {sites} {streaming_backup_sites} />
+			</ion-tab>
 			<ion-tab tab="gui">
-				{#if project_instance}
 					<TabGUI {project_instance} />
-				{:else}
-					<div class="ion-padding ion-text-center">
+					<!-- <div class="ion-padding ion-text-center">
 						<ion-spinner name="crescent" /><br/>
 						<ion-label>Loading...</ion-label>
-					</div>
-				{/if}
+					</div> -->
 			</ion-tab>
 			<ion-tab tab="cli">
-				<TabCLI {keys} {project_instance_keys} {project_instance} {id}/>
+					<TabCLI {keys} {project_instance_keys} {project_instance} {id}/>
 			</ion-tab>
 			<ion-tab tab="logs">
-				<TabLogs {project_instance} />
+					<TabLogs {project_instance} />
 			</ion-tab>
 			<ion-tab tab="metrics">
-				<TabMetrics {project_instance} />
-			</ion-tab>
-			<ion-tab tab="settings">
-				<TabSettings {project} {project_instance} {sites} {streaming_backup_sites} />
+					<TabMetrics {project_instance} />
 			</ion-tab>
 			<ion-tab-bar id="tab-bar" slot="top">
+				<ion-tab-button tab="settings">
+					<ion-icon src="settings.svg" />Settings
+				</ion-tab-button>
 				<ion-tab-button tab="gui">
 					<ion-icon src="gui.svg" />GUI
 				</ion-tab-button>
@@ -155,9 +168,6 @@
 				</ion-tab-button>
 				<ion-tab-button tab="metrics">
 					<ion-icon src="metrics.svg" />Metrics
-				</ion-tab-button>
-				<ion-tab-button tab="settings">
-					<ion-icon src="settings.svg" />Settings
 				</ion-tab-button>
 			</ion-tab-bar>
 		</ion-tabs>

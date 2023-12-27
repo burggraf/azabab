@@ -41,7 +41,7 @@
 	}
 
 	onMount(async () => {
-		console.log('onMount')
+		console.log('account onMount')
 		const fileInput: any = document.getElementById('fileInput')
 		if (fileInput) {
 			fileInput.addEventListener('change', async function () {

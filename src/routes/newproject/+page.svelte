@@ -38,11 +38,12 @@
 	};
 	
 	onMount(async () => {
+        console.log('*** newproject onMount')
 		const tb: any = document.getElementById('ion-tabs')
 		let initTab: string
 		setTimeout(() => {
 			if (tb) tb.select(initTab || 'settings')
-		}, 10)
+		}, 100)
 	})
 	const ionViewWillEnter = async () => {
 		console.log('*** ionViewWillEnter')

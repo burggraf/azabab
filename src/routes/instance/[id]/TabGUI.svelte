@@ -3,9 +3,25 @@
 	import { pb } from '$services/backend.service'
     import { textFileExtensions } from '$services/utils.service'
 	import type { ProjectInstance } from './interfaces'
+	import { instanceTab } from './instanceTabStore'
 
 	import { toast } from '$services/toast'
-    export let project_instance: ProjectInstance = 
+/**
+    code: string
+    domain: string
+    id: string
+    port: number
+    site_domain: string
+    site_name: string
+    site_id: string
+    type: string
+	db_streaming_backup_location: string
+	logs_streaming_backup_location: string    
+    db_streaming_backup_retention: number
+    logs_streaming_backup_retention: number
+
+ */
+	export let project_instance: ProjectInstance = 
 		{
 			code: '',
 			domain: '',
@@ -15,11 +31,19 @@
 			site_name: 'Select a site',
 			site_id: '',
 			type: 'primary',
+			db_streaming_backup_location: '',
+			logs_streaming_backup_location:  '',    
+			db_streaming_backup_retention: 0,
+			logs_streaming_backup_retention: 0
 		};
 	let dir: string[] = []
 	let tree: any
-
-	console.log('**** TabGUI ====> project_instance', project_instance)
+    instanceTab.subscribe(async (value: string) => {
+        if (value === 'gui') {
+            console.log('INSTANCE TAB GUI')
+			await getDir()
+        }
+    })
 
 	const callback = async (item: any) => {
 		console.log('handler', item)
@@ -83,9 +107,6 @@
 		// console.log('tree', tree);
 	}
 
-	setTimeout(() => {
-		getDir()
-	}, 1000)
 
 	interface TreeNode {
 		label: string
