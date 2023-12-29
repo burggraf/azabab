@@ -13,7 +13,7 @@
 		name: '',
 		project_id: '',
 		owner: '',
-		owner_type: '',
+		ownertype: '',
 		code: '',
 		domain: '',
 		id: '',

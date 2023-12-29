@@ -50,7 +50,7 @@
                 const newInstance: ProjectInstance = {
                     id: instance.id,
                     owner: instance.owner,
-                    owner_type: instance.owner_type,
+                    ownertype: instance.ownertype,
                     name: instance.name,
                     domain: instance.domain,
                     project_id: instance.project_id,

@@ -29,7 +29,7 @@
 		name: '',
 		project_id: '',
 		owner: '',
-		owner_type: '',
+		ownertype: '',
 		code: '',
 		domain: '',
 		id: '',
@@ -60,7 +60,7 @@
 		console.log('*** looking for instances with id', id)
 		project_instance = await pb.collection('instance_view').getFirstListItem(
 			`id = "${id}"`,{
-			fields: 'name, project_id, owner, owner_type, code, domain, id, port, site_domain, site_name, site_id, type, db_streaming_backup_location, logs_streaming_backup_location, db_streaming_backup_retention, logs_streaming_backup_retention',
+			fields: 'name, project_id, owner, ownertype, code, domain, id, port, site_domain, site_name, site_id, type, db_streaming_backup_location, logs_streaming_backup_location, db_streaming_backup_retention, logs_streaming_backup_retention',
 		})
 
 		console.log('*****  project_instance', project_instance)

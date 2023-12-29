@@ -33,7 +33,7 @@
 		name: '',
 		project_id: project_id,
 		owner: '',
-		owner_type: '',
+		ownertype: '',
 		code: '',
 		domain: '',
 		id: '',
@@ -60,7 +60,10 @@
         });
         if (record) {
             for (let attr in project) {
+                console.log('attr', attr, record[attr])
                 project[attr] = record[attr]
+                if (attr !== 'id')
+                    project_instance[attr] = record[attr]
             }
         } else {
             toast('Project not found', 'danger')
@@ -87,7 +90,26 @@
 	}
 	const save = async () => {
 		console.log('save')
+        console.log('project_instance', project_instance)
         console.log('*** NOT IMPLEMENTED ***')
+        /**
+            code: "west-3"
+            db_streaming_backup_location: ""
+            db_streaming_backup_retention: 0
+            domain: ""
+            id: ""
+            logs_streaming_backup_location: ""
+            logs_streaming_backup_retention: 0
+            name: ""
+            owner: ""
+            ownertype: ""
+            port: 0
+            project_id: "ra0055e6d5caee7"
+            site_domain: "west-3.azabab.com"
+            site_id: "ohvsb4qn0e1dyu6"
+            site_name: "US West 3"
+            type: "read write replica"
+        */
 		// const domainAvailable = await checkDomainAvailability(project)
         // console.log('domainAvailable', domainAvailable)
 		// if (project.name.trim().length === 0) {
@@ -173,9 +195,9 @@
 	}
 	$: domainAvailable = false
 
-	const handleChange = async (event: any) => {
-        console.log('*** handleChange', event)
-        console.log('*** NOT IMPLEMENTED ***')
+	// const handleChange = async (event: any) => {
+    //     console.log('*** handleChange', event)
+    //     console.log('*** NOT IMPLEMENTED ***')
 		// const field = event.target.id
 		// const value = event.target.value || ''
 		// // if field is domain, strip out anything other than a-z 0-9 and -
@@ -194,7 +216,7 @@
 		// else {
 		// 	project[field] = value
 		// }
-	}
+	//}
 	const chooseSite = async (e: any) => {
 		let items = []
 		for (let i = 0; i < sites.length; i++) {

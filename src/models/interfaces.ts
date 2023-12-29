@@ -14,7 +14,7 @@ export interface ProjectInstance extends IObjectKeys {
     name: string
     project_id: string
     owner: string
-    owner_type: string
+    ownertype: string
     code: string
     domain: string
     id: string
