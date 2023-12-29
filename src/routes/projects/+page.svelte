@@ -90,7 +90,7 @@
 								{#each getInstancesForProject(project.id) as instance}
 									<ion-item
 										style="cursor:pointer;--padding-start:0px;--inner-padding-end: 0px;"
-										lines="none"
+										lines="full"
 										on:click={() => {
 											goto(`/instance/${instance.id}`)
 										}}
