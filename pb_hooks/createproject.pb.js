@@ -40,23 +40,29 @@ routerAdd('POST', '/createproject', async (c) => {
 		const projectInsert = arrayOf(
 			new DynamicModel({
 				id: '',
+				port: 0
 			})
 		)
 		$app
 			.dao()
 			.db()
 			.newQuery(
-				`insert into projects (name, owner, ownertype, domain) 
-                    values ('${data?.project?.name}', '${data?.project?.owner}', '${data?.project?.ownertype}', '${data?.project?.domain}')
-                    returning id`
+				`insert into projects (name, owner, ownertype, domain, port) 
+                    values ('${data?.project?.name}', '${data?.project?.owner}', '${data?.project?.ownertype}', '${data?.project?.domain}',
+					(select coalesce(max(port)+1,10001) from projects))
+                    returning id, port`
 			)
 			.all(projectInsert) // throw an error on db failure
+		if (projectInsert.length !== 1) {
+			return c.json(200, { data: null, error: 'project insert failed' })
+		}
 		// get the id of the newly inserted project
 		const newId = projectInsert[0].id
+		const newPort = projectInsert[0].port
 		// create the project_instance record
 		const project_instancesInsert = arrayOf(
 			new DynamicModel({
-				port: 0,
+				id: '',
 			})
 		)
 		$app
@@ -65,15 +71,17 @@ routerAdd('POST', '/createproject', async (c) => {
 			.newQuery(
 				`insert into project_instance (project_id, site_id, port, type, domain) 
                     values ('${newId}', 
-                    '${data?.project_instance?.site_id}', 
-                    (select coalesce((select max(port)+1 FROM project_instance where site_id = '${data?.project_instance?.site_id}'),10001)),
+                    '${data?.project_instance?.site_id}',
+					${newPort}, 
                     '${data?.project_instance?.type}',
                     '${data?.project_instance?.domain}')
-                    returning port`
+                    returning id`
 			)
 			.all(project_instancesInsert) // throw an error on db failure
-
-		const newPort = project_instancesInsert[0].port
+		if (project_instancesInsert.length !== 1) {
+			return c.json(200, { data: null, error: 'project_instances insert failed' })
+		}
+		
 		// now use (data?.project?.domain) and (newPort) to create the nginx config file
 		console.log('now create new entry for:')
 		console.log('domain', data?.project_instance?.domain)
@@ -112,20 +120,7 @@ routerAdd('POST', '/createproject', async (c) => {
 		// ssh ubuntu@$1  "sudo kill -HUP \$(cat /var/run/nginx.pid)"
 	} catch (projectInsertError) {
 		console.log('projectInsertError', projectInsertError)
-		for (let attr in projectInsertError) {
-			console.log('attr', attr)
-			console.log(`projectInsertError.${attr} = ${projectInsertError[attr]}`)
-		}
-		for (let attr in projectInsertError.value) {
-			console.log('attr', attr)
-			console.log(`projectInsertError.value.${attr} = ${projectInsertError.value[attr]}`)
-		}
-		console.log(
-			'projectInsertError.value',
-			projectInsertError.value,
-			typeof projectInsertError.value
-		)
-		return c.json(200, { data: null, error: projectInsertError.value.error() })
+		return c.json(200, { data: null, error: projectInsertError?.value?.error() || projectInsertError })
 	}
 })
 
