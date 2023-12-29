@@ -8,6 +8,7 @@ export interface Project extends IObjectKeys {
     name: string
     owner: string
     ownertype: string
+    port: number
 }
 export interface ProjectInstance extends IObjectKeys {
     code: string

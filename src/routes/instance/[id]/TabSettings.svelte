@@ -15,6 +15,7 @@
 		name: '',
 		owner: $currentUser?.id,
 		ownertype: 'person',
+		port: 0
 	}
 	export let project_instance: ProjectInstance = {
 		code: '',

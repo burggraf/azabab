@@ -30,6 +30,7 @@
 		name: '',
 		owner: $currentUser?.id,
 		ownertype: 'person',
+		port: 0
 	}
 	let project_instance: ProjectInstance = 
 	{

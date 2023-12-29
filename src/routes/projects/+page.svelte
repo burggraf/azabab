@@ -76,7 +76,11 @@
 			<div class="grid-container">
 				{#each projects as project}
 					<ion-card style="max-width: 400px; display: {project.hidden?'none':'block'};">
-						<ion-card-header>
+						<ion-card-header style="cursor:pointer;"
+						on:click|stopPropagation={() => {
+							goto(`/project/${project.id}`)
+						}}
+						>
 							<ion-card-title>{project.name}</ion-card-title>
 							<ion-card-subtitle>{project.domain}</ion-card-subtitle>
 						</ion-card-header>
