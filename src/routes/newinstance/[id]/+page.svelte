@@ -52,6 +52,7 @@
         console.log('*** newproject onMount')
 	})
     let existingInstances: any = []
+    let existingInstanceRecords: any[] = []
 	const ionViewWillEnter = async () => {
 		console.log('*** ionViewWillEnter')
         const record = await pb.collection('projects').getOne(project_id, {
@@ -65,9 +66,9 @@
             toast('Project not found', 'danger')
             goto('/projects')
         }
-        const existingInstanceRecords = await pb.collection('instance_view').getFullList({
+        existingInstanceRecords = await pb.collection('instance_view').getFullList({
             filter: `project_id="${project_id}"`,
-            fields: 'site_id'
+            fields: 'site_id, site_name'
         });
         if (existingInstanceRecords) {
             for (let instance of existingInstanceRecords) {
@@ -284,6 +285,16 @@
                         <ion-button size="small" color="secondary" expand="block" on:click={chooseSite}
                             >{project_instance.site_name}</ion-button
                         >
+                    </ion-col>
+                </ion-row>
+                <ion-row>
+                    <ion-col size={"4"}>
+                        <ion-label>Existing instances:</ion-label>
+                    </ion-col>
+                    <ion-col size={"8"} class="ion-text-wrap">
+                        <ion-label>{
+                            existingInstanceRecords.map((record) => record.site_name).join(", ")
+                            }</ion-label>
                     </ion-col>
                 </ion-row>
                 <ion-row>
