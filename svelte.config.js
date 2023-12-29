@@ -24,7 +24,9 @@ const config = {
 			'$ionic': 'src/lib/ionic',
 			'$ionpage': 'src/lib/ionic/svelte/components/IonPage.svelte',
 			'$interfaces': 'src/interfaces',
+			'$models': 'src/models',
 			'$services': 'src/services',
+			'$styles': 'src/styles',
 			'$stores': 'src/stores',
 			'$components': 'src/components',
 			'$localdata': 'src/localdata',
@@ -35,6 +37,7 @@ const config = {
 			entries: ['*',
 			'/instance/[id]',
 			'/streamingbackups/[id]',
+			'/project/[id]',
 			]
 		}
 	},

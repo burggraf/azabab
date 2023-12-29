@@ -1,6 +1,6 @@
 <script lang="ts">
     import Keys from '$components/Keys.svelte'
-    import type { ProjectInstance, ProjectInstanceKey, Key } from './interfaces'
+    import type { ProjectInstance, ProjectInstanceKey, Key } from '$models/interfaces'
 	import { currentUser, pb } from '$services/backend.service'
     import { toast } from '$services/toast'
 	import { instanceTab } from './instanceTabStore'

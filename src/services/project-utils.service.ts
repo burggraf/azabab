@@ -1,4 +1,4 @@
-import type { Project } from '../instance/[id]/interfaces';
+import type { Project } from '$models/interfaces';
 import { pb } from '$services/backend.service';
 export const checkDomainAvailability = async (project: Project) => {
     const domain = project.domain

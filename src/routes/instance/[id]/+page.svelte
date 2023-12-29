@@ -4,7 +4,7 @@
 	import TabLogs from './TabLogs.svelte'
 	import TabMetrics from './TabMetrics.svelte'
 	import TabSettings from './TabSettings.svelte'
-	import './styles.css'
+	import '$styles/grid-styles.css'
 	import IonPage from '$ionpage'
 	import { page } from '$app/stores'
 	import {
@@ -16,7 +16,7 @@
 	import { instanceTab } from './instanceTabStore'
 	export let id = $page.params.id
 	// const instance_id = $page.params.id
-	import type { Project, ProjectInstance, Site, Key, ProjectInstanceKey, StreamingBackupSite } from './interfaces'
+	import type { Project, ProjectInstance, Site, Key, ProjectInstanceKey, StreamingBackupSite } from '$models/interfaces'
 	import { onMount } from 'svelte'
 
 	let keys: Key[] = []

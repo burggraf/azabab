@@ -1,6 +1,6 @@
 <script lang="ts">
 	let stats: any = []
-	import type { ProjectInstance } from './interfaces'
+	import type { ProjectInstance } from '$models/interfaces'
 	import { currentUser, pb } from '$services/backend.service'
 	import { instanceTab } from './instanceTabStore'
 

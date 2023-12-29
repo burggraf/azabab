@@ -2,7 +2,7 @@
 	import TreeView from './TreeView.svelte'
 	import { pb } from '$services/backend.service'
     import { textFileExtensions } from '$services/utils.service'
-	import type { ProjectInstance } from './interfaces'
+	import type { ProjectInstance } from '$models/interfaces'
 	import { instanceTab } from './instanceTabStore'
 
 	import { toast } from '$services/toast'

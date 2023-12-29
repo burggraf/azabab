@@ -35,6 +35,10 @@
 		site_name: 'Select a site',
 		site_id: '',
 		type: 'primary',
+        db_streaming_backup_location: '',
+        logs_streaming_backup_location: '',    
+        db_streaming_backup_retention: 0,
+        logs_streaming_backup_retention: 0
 	};
 	
 	onMount(async () => {
@@ -290,20 +294,3 @@
         
 	</ion-content>
 </IonPage>
-<!--
-		if (project.name.trim().length === 0) {
-			toast('Project name is required', 'danger')
-			return
-		}
-		if (!project.domain) {
-			toast('Project domain is required', 'danger')
-			return
-		}
-		if (!domainAvailable) {
-			toast('Domain is not available', 'danger')
-			return
-		}
-        if (!project_instance.site_id) {
-
-
--->

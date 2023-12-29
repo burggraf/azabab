@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Project, ProjectInstance, Site, StreamingBackupSite } from './interfaces'
+	import type { Project, ProjectInstance, Site, StreamingBackupSite } from '../../../models/'
 	import { currentUser, pb } from '$services/backend.service'
 	// import TabSettingsStreamingBackup from './TabSettingsStreamingBackup.svelte';
 

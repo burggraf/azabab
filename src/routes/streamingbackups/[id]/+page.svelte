@@ -4,7 +4,7 @@
 	//db_streaming_backup_location
 	//logs_streaming_backup_location
     import '../../instance/[id]/styles.css'
-	import type { ProjectInstance, StreamingBackupSite } from '../../instance/[id]/interfaces'
+	import type { ProjectInstance, StreamingBackupSite } from '$models/interfaces'
     import { dropdownmenu } from '$components/DropdownMenu'
 	import * as allIonicIcons from 'ionicons/icons'
 	import { pb } from '$services/backend.service'
