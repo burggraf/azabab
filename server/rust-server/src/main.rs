@@ -1,4 +1,5 @@
 mod create_project;
+mod create_instance;
 mod remove_project;
 mod create_user;
 mod remove_user;
@@ -42,6 +43,9 @@ async fn request_handler(req: Request<Body>) -> Result<Response<Body>, hyper::Er
     match (req.uri().path(), req.method()) {
         ("/createproject", &hyper::Method::POST) => {
             create_project::handle_create_project(req, AUTH_TOKEN).await
+        },
+        ("/createinstance", &hyper::Method::POST) => {
+            create_instance::handle_create_instance(req, AUTH_TOKEN).await
         },
         ("/removeproject", &hyper::Method::POST) => {
             remove_project::handle_remove_project(req, AUTH_TOKEN).await
