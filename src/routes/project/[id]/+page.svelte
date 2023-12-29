@@ -3,6 +3,7 @@
 	import IonPage from '$ionpage'
 	import { page } from '$app/stores'
 	import {
+	addOutline,
 		arrowBackOutline,
 		arrowForwardOutline,
 		checkmarkOutline,
@@ -163,10 +164,12 @@
                         </ion-item>
                     </ion-col>
                 </ion-row>
-                <ion-row><ion-col><ion-label>Instances</ion-label></ion-col></ion-row>
                 <ion-row>
                     <ion-col>
                         <ion-list>
+                            <ion-item-divider>
+                                <ion-label>Instances</ion-label>
+                            </ion-item-divider>
                             {#each instances as instance}
                                 <ion-item
                                     style="cursor:pointer;--padding-start:0px;--inner-padding-end: 0px;"
@@ -190,6 +193,15 @@
                                     </ion-button>
                                 </ion-item>
                             {/each}
+                            <ion-item>
+                                <div style="width:100%;text-align:center;">
+                                    <ion-button size="small" expand="block" 
+                                    on:click={()=>{goto(`/newinstance/${project.id}`)}}>
+                                    <ion-icon slot="icon-only" icon={addOutline} />
+                                    &nbsp;New Instance
+                                    </ion-button>
+                                </div>
+                            </ion-item>
                         </ion-list>
                     </ion-col>
         </ion-grid>
