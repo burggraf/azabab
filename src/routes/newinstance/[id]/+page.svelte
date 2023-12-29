@@ -92,24 +92,6 @@
 		console.log('save')
         console.log('project_instance', project_instance)
         console.log('*** NOT IMPLEMENTED ***')
-        /**
-            code: "west-3"
-            db_streaming_backup_location: ""
-            db_streaming_backup_retention: 0
-            domain: ""
-            id: ""
-            logs_streaming_backup_location: ""
-            logs_streaming_backup_retention: 0
-            name: ""
-            owner: ""
-            ownertype: ""
-            port: 0
-            project_id: "ra0055e6d5caee7"
-            site_domain: "west-3.azabab.com"
-            site_id: "ohvsb4qn0e1dyu6"
-            site_name: "US West 3"
-            type: "read write replica"
-        */
 		// const domainAvailable = await checkDomainAvailability(project)
         // console.log('domainAvailable', domainAvailable)
 		// if (project.name.trim().length === 0) {
@@ -167,27 +149,24 @@
         //     project_instance,
         //     site,
         // })
-        // const { data, error } = await pb.send('/createproject', {
-        //     method: 'POST',
-        //     body: {
-        //         project,
-        //         project_instance,
-        //         site,
-        //     },
-        // })
-        // console.log('data, error', data, error)
-        // if (error) {
-        //     if (error === 'constraint failed: UNIQUE constraint failed: projects.domain (2067)')
-        //         toast('Project domain already exists', 'danger')
-        //     else toast(error, 'danger')
-        // } else {
-        //     // open the project in a new windows
-        //     window.open(`https://${project.domain}.${project_instance.site_domain}/_/`, '_blank')
+        const { data, error } = await pb.send('/createinstance', {
+            method: 'POST',
+            body: {
+                project_instance,
+            },
+        })
+        console.log('data, error', data, error)
+        if (error) {
+            console.log('/createinstance error', error)
+            toast(JSON.stringify(error), 'danger')
+        } else {
+            // open the project in a new windows
+            window.open(`https://${project.domain}.${project_instance.site_domain}/_/`, '_blank')
 
-        //     console.log('**** goto', `/instance/${data}`)
-        //     // id = data
-        //     goto(`/instance/${data}`)
-        // }
+            console.log('**** goto', `/instance/${data}`)
+            // id = data
+            goto(`/instance/${data}`)
+        }
 	}
 	const back = async () => {
         window.history.back()

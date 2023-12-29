@@ -80,7 +80,7 @@ routerAdd('POST', '/createinstance', async (c) => {
 			.dao()
 			.db()
 			.newQuery(
-				`select code, name, domain, active where id = '${data?.project_instance?.site_id}'`
+				`select code, name, domain, active from sites where id = '${data?.project_instance?.site_id}'`
 			)
 			.all(siteData) // throw an error on db failure
 		if (siteData.length !== 1) {

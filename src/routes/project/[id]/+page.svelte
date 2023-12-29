@@ -123,7 +123,7 @@
         <ion-grid class="ion-padding Grid">
             <ion-row>
                 <ion-col>
-                    <ion-label>Project Name {project.id}</ion-label>
+                    <ion-label>Project Name</ion-label>
                 </ion-col>
             </ion-row>
             <ion-row>
@@ -178,7 +178,7 @@
                                         goto(`/instance/${instance.id}`)
                                     }}
                                 >
-                                    {instance.site_name} {instance.id}
+                                    {instance.site_name}
                                     {instance.type}<br />
                                     {instance.domain}.{instance.site_domain}
                                     <ion-button
