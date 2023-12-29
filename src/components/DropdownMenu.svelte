@@ -17,8 +17,10 @@
     <ion-item
         lines="full"
         on:click={async () => {   
-            if (item.handler) await item.handler();
-            closeOverlay(item)
+			if (!item.disabled) {
+				if (item.handler) await item.handler();
+	            closeOverlay(item)
+			}
         }}
     >
 		{#if item.icon}

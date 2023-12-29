@@ -3,7 +3,7 @@
     import IonPage from '$ionpage'
 	//db_streaming_backup_location
 	//logs_streaming_backup_location
-    import '../../instance/[id]/styles.css'
+    import '$styles/grid-styles.css'
 	import type { ProjectInstance, StreamingBackupSite } from '$models/interfaces'
     import { dropdownmenu } from '$components/DropdownMenu'
 	import * as allIonicIcons from 'ionicons/icons'

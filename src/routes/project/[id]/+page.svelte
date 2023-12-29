@@ -49,6 +49,8 @@
             for (let instance of records) {
                 const newInstance: ProjectInstance = {
                     id: instance.id,
+                    owner: instance.owner,
+                    owner_type: instance.owner_type,
                     name: instance.name,
                     domain: instance.domain,
                     project_id: instance.project_id,
@@ -57,8 +59,6 @@
                     site_name: instance.site_name,
                     site_domain: instance.site_domain,
                     site_id: instance.site_id,
-                    owner: instance.owner,
-                    ownertype: instance.ownertype,
                     port: instance.port,
                     code: instance.code,
                     db_streaming_backup_location: instance.db_streaming_backup_location,
