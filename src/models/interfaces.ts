@@ -11,6 +11,10 @@ export interface Project extends IObjectKeys {
     port: number
 }
 export interface ProjectInstance extends IObjectKeys {
+    name: string
+    project_id: string
+    owner: string
+    owner_type: string
     code: string
     domain: string
     id: string

@@ -11,10 +11,10 @@ routerAdd('POST', '/removeproject', async (c) => {
 	if (!user) {
 		return c.json(200, { data: null, error: 'not logged in' })
 	}
-	if (data?.project?.owner !== user?.id) {
+	if (data?.project_instance?.owner !== user?.id) {
 		return c.json(200, { data: null, error: 'not your project' })
 	}
-	if (data?.project?.ownertype !== 'person' && data?.project?.ownertype !== 'org') {
+	if (data?.project_instance?.ownertype !== 'person' && data?.project?.ownertype !== 'org') {
 		return c.json(200, { data: null, error: 'ownertype must be "person" or "org"' })
 	}
 	if (!data?.project_instance?.id) {
@@ -23,7 +23,7 @@ routerAdd('POST', '/removeproject', async (c) => {
 	const domain = data?.project_instance?.domain
 	const port = data?.project_instance?.port
 	const project_instance_id = data?.project_instance?.id
-	const project_id = data?.project?.id
+	const project_id = data?.project_instance?.project_id
 	const site_domain = data?.project_instance?.site_domain
 	// console.log('domain', domain)
 	// console.log('port', port)

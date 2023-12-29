@@ -24,16 +24,12 @@
 
 	let sites: Site[] = []
 	let streaming_backup_sites: StreamingBackupSite[] = []
-	const project: Project = {
-		id: '',
-		domain: '',
-		name: '',
-		owner: $currentUser?.id,
-		ownertype: 'person',
-		port: 0
-	}
 	let project_instance: ProjectInstance = 
 	{
+		name: '',
+		project_id: '',
+		owner: '',
+		owner_type: '',
 		code: '',
 		domain: '',
 		id: '',
@@ -61,17 +57,10 @@
 	})
 	const ionViewWillEnter = async () => {
 		console.log('*** ionViewWillEnter, id', id)
-		console.log('*** looking for projects with id', id)
-		const record = await pb.collection('projects').getOne(id)
-		console.log('project record', record)
-		project.id = record.id
-		project.domain = record.domain
-		project.name = record.name
-		project.owner = record.owner
-		project.ownertype = record.ownertype
+		console.log('*** looking for instances with id', id)
 		project_instance = await pb.collection('instance_view').getFirstListItem(
-			`project_id = "${id}"`,{
-			fields: 'code, domain, id, port, site_domain, site_name, site_id, type, db_streaming_backup_location, logs_streaming_backup_location, db_streaming_backup_retention, logs_streaming_backup_retention',
+			`id = "${id}"`,{
+			fields: 'name, project_id, owner, owner_type, code, domain, id, port, site_domain, site_name, site_id, type, db_streaming_backup_location, logs_streaming_backup_location, db_streaming_backup_retention, logs_streaming_backup_retention',
 		})
 
 		console.log('*****  project_instance', project_instance)
@@ -91,7 +80,8 @@
 
 	}
 	const back = async () => {
-		goto('/projects')
+		//goto('/projects')
+		window.history.back();
 	}
 	const gotoAdminPage = async () => {
 		window.open(`https://${project_instance.domain}.${project_instance.site_domain}/_/`, '_blank')
@@ -110,7 +100,7 @@
 					<ion-icon slot="icon-only" icon={arrowBackOutline} />
 				</ion-button>
 			</ion-buttons>
-			<ion-title>{project?.name || '<untitled project>'}: {project_instance.site_name}</ion-title>
+			<ion-title>{project_instance?.name || '<untitled project>'}: {project_instance?.site_name}</ion-title>
 			<ion-buttons slot="end">
 					<ion-button on:click={gotoSite}>
 						<ion-icon slot="icon-only" src="/launch.svg" />
@@ -136,7 +126,7 @@
 			}}
 		>
 			<ion-tab tab="settings">
-					<TabSettings {project} {project_instance} {sites} {streaming_backup_sites} />
+					<TabSettings {project_instance} {sites} {streaming_backup_sites} />
 			</ion-tab>
 			<ion-tab tab="gui">
 					<TabGUI {project_instance} />

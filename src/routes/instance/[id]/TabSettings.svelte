@@ -9,15 +9,11 @@
 	import { trashOutline } from 'ionicons/icons'
 	import { instanceTab } from './instanceTabStore'
 
-	export let project: Project = {
-		id: '',
-		domain: '',
-		name: '',
-		owner: $currentUser?.id,
-		ownertype: 'person',
-		port: 0
-	}
 	export let project_instance: ProjectInstance = {
+		name: '',
+		project_id: '',
+		owner: '',
+		owner_type: '',
 		code: '',
 		domain: '',
 		id: '',
@@ -42,7 +38,6 @@
 	const removeinstance = async () => {
 		console.log('removeinstance')
 		console.log('project_instance', project_instance)
-		console.log('project', project)
 		console.log('sites', sites)
 
 		await showConfirm({
@@ -53,7 +48,6 @@
 				const { data, error } = await pb.send('/removeproject', {
 					method: 'POST',
 					body: {
-						project,
 						project_instance: project_instance,
 					},
 				})
@@ -64,7 +58,7 @@
 					toast('Error: ' + JSON.stringify(error), 'danger')
 				} else {
 					if (data === '0') {
-						toast(`Project ${project.name} removed`, 'success')
+						toast(`Project ${project_instance.name} removed`, 'success')
 						goto('/projects')
 					} else {
 						toast(`Project instance removed, ${data} instances remain`, 'success')
@@ -81,7 +75,7 @@
 			<ion-label>Project Name</ion-label>
 		</ion-col>
 		<ion-col>
-			<ion-label>{project.name}</ion-label>			
+			<ion-label>{project_instance.name}</ion-label>			
 		</ion-col>
 	</ion-row>
 
@@ -90,7 +84,7 @@
 			<ion-label>Domain</ion-label>
 		</ion-col>
 		<ion-col>
-			<ion-label>{project.domain}.{project_instance.site_domain}</ion-label>
+			<ion-label>{project_instance.domain}.{project_instance.site_domain}</ion-label>
 		</ion-col>
 	</ion-row>
 

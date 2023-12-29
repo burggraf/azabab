@@ -4,6 +4,7 @@
 	import { page } from '$app/stores'
 	import {
 		arrowBackOutline,
+		arrowForwardOutline,
 		checkmarkOutline,
 	} from 'ionicons/icons'
 	import { currentUser, pb } from '$services/backend.service'
@@ -12,7 +13,9 @@
 	import { onMount } from 'svelte'
     export let id = $page.params.id
 
-	import type { Project } from '$models/interfaces'
+	import type { Project, ProjectInstance } from '$models/interfaces'
+
+    let instances: ProjectInstance[] = []
 
 	const project: Project = {
 		id: '',
@@ -36,6 +39,35 @@
         } else {
             toast('Project not found', 'danger')
             goto('/projects')
+        }
+        const records = await pb.collection('instance_view').getFullList({
+            filter: `project_id="${id}"`
+        });
+        console.log('*** instance records', records)
+        if (records) {
+            for (let instance of records) {
+                const newInstance: ProjectInstance = {
+                    id: instance.id,
+                    name: instance.name,
+                    domain: instance.domain,
+                    project_id: instance.project_id,
+                    project_name: instance.project_name,
+                    type: instance.type,
+                    site_name: instance.site_name,
+                    site_domain: instance.site_domain,
+                    site_id: instance.site_id,
+                    owner: instance.owner,
+                    ownertype: instance.ownertype,
+                    port: instance.port,
+                    code: instance.code,
+                    db_streaming_backup_location: instance.db_streaming_backup_location,
+                    logs_streaming_backup_location: instance.logs_streaming_backup_location,
+                    db_streaming_backup_retention: instance.db_streaming_backup_retention,
+                    logs_streaming_backup_retention: instance.logs_streaming_backup_retention,
+                }
+                instances.push(newInstance)
+            }
+            instances = instances; // stupid svelte
         }
 
 	}
@@ -90,7 +122,7 @@
         <ion-grid class="ion-padding Grid">
             <ion-row>
                 <ion-col>
-                    <ion-label>Project Name</ion-label>
+                    <ion-label>Project Name {project.id}</ion-label>
                 </ion-col>
             </ion-row>
             <ion-row>
@@ -131,7 +163,35 @@
                         </ion-item>
                     </ion-col>
                 </ion-row>
-        
+                <ion-row><ion-col><ion-label>Instances</ion-label></ion-col></ion-row>
+                <ion-row>
+                    <ion-col>
+                        <ion-list>
+                            {#each instances as instance}
+                                <ion-item
+                                    style="cursor:pointer;--padding-start:0px;--inner-padding-end: 0px;"
+                                    lines="none"
+                                    on:click={() => {
+                                        goto(`/instance/${instance.id}`)
+                                    }}
+                                >
+                                    {instance.site_name} {instance.id}
+                                    {instance.type}<br />
+                                    {instance.domain}.{instance.site_domain}
+                                    <ion-button
+                                        slot="end"
+                                        size="small"
+                                        fill="outline"
+                                        on:click|stopPropagation={() => {
+                                            goto(`/instance/${instance.id}`)
+                                        }}
+                                    >
+                                        <ion-icon slot="icon-only" icon={arrowForwardOutline} />
+                                    </ion-button>
+                                </ion-item>
+                            {/each}
+                        </ion-list>
+                    </ion-col>
         </ion-grid>
         
 	</ion-content>

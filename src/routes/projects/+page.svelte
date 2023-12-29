@@ -92,7 +92,7 @@
 										style="cursor:pointer;--padding-start:0px;--inner-padding-end: 0px;"
 										lines="none"
 										on:click={() => {
-											goto(`/instance/${instance.project_id}`)
+											goto(`/instance/${instance.id}`)
 										}}
 									>
 										{instance.site_name}
