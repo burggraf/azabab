@@ -17,7 +17,7 @@ else
     echo "Container ${CONTAINER_NAME} does not exist. Running a new container."
     sudo /usr/bin/docker run --restart=unless-stopped --detach \
         -v /home/ubuntu/data:/data \
-        -v /home/ubuntu/.ssh:/.ssh:ro \
+        -v /home/ubuntu/.ssh:/root/.ssh:ro \
         -v /home/ubuntu/sync-server:/sync-server:ro \
         --name "${CONTAINER_NAME}" "${CONTAINER_NAME}"  
 fi

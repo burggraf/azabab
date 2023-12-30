@@ -57,7 +57,7 @@ scp files/* ubuntu@$1:~/
 echo ""
 echo "*** Generate rsa key pair (if necessary) ***"
 echo ""
-ssh ubuntu@$1 "/home/ubuntu/generate-ssh-key.sh"
+ssh ubuntu@$1 "/home/ubuntu/generate_ssh_key.sh"
 
 echo ""
 echo "Configuring Nginx"
