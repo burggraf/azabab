@@ -9,6 +9,7 @@ mod get_instance_file;
 mod update_litestream;
 mod get_litestream_generations;
 mod pitr;
+mod setup_folder_sync;
 
 use hyper::{Body, Request, Response, Server};
 use hyper::service::{make_service_fn, service_fn};
@@ -70,6 +71,9 @@ async fn request_handler(req: Request<Body>) -> Result<Response<Body>, hyper::Er
         },
         ("/pitr", &hyper::Method::POST) => {
             pitr::handle_pitr(req).await
+        },
+        ("/setupfoldersync", &hyper::Method::POST) => {
+            setup_folder_sync::handle_setup_folder_sync(req, AUTH_TOKEN).await
         },
         _ => catch_all_handler::handle_catch_all(req).await
     }
