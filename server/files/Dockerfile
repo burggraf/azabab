@@ -25,7 +25,10 @@ WORKDIR /home/pocketbase
 # RUN rm -r examples
 COPY ./pocketbase .
 COPY ./marmot .
-
+COPY ./marmot-reset.sh .
+COPY ./marmot-snapshot.sh .
+COPY ./marmot-start.sh .
+COPY ./marmot-restart.sh .
 COPY ./start.sh .
 #CMD ["./pocketbase", "serve", "--http", "0.0.0.0:8090"]
 CMD "./start.sh"
