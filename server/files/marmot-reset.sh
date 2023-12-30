@@ -1,3 +1,3 @@
-rm -rf /tmp/nats && rm -rf /tmp/*.cbor
-./marmot -config config.toml -cleanup
+rm /marmot/marmot.cbor
+/home/pocketbase/marmot -config /marmot/marmot.toml -cleanup
 
