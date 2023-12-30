@@ -1,9 +1,18 @@
 # create-user.sh <username> <port-number>
-adduser -D -h /data/$2 $1
+# Check if the 'ubuntu' group exists
+if ! getent group ubuntu >/dev/null; then
+    # The group does not exist, so create it
+    addgroup ubuntu
+    echo "Group 'ubuntu' created."
+else
+    # The group already exists
+    echo "Group 'ubuntu' already exists."
+fi
+adduser -D -h /data/$2 -G ubuntu $1
 
 # Set password for the user
 echo "$1:" | chpasswd
-chown root:root /data/$2
+chown root:ubuntu /data/$2
 chmod 777 /data/$2/pb_*
 mkdir -p /data/$2/.ssh
 touch /data/$2/.ssh/authorized_keys
