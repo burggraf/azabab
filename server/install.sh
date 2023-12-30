@@ -19,6 +19,7 @@ echo ""
 echo "*** Setting hostname ***"
 echo ""
 ssh ubuntu@$1 "sudo hostnamectl set-hostname $1"
+ssh ubuntu@$1 "echo \"$1\" > /home/unbuntu/HOSTNAME"
 
 echo ""
 echo "*** Install Docker ***"
@@ -114,8 +115,34 @@ echo ""
 echo "*** Build the ssh-server Docker image ***"
 echo ""
 ssh ubuntu@$1 "cd ~/ssh-server;sudo docker build -t ssh-server ."
-scp files/start-ssh-server.sh ubuntu@$1:~
+#scp files/start-ssh-server.sh ubuntu@$1:~
 ssh ubuntu@$1 "~/start-ssh-server.sh"
+
+echo ""
+echo "Copy nats-server files to the server"
+echo ""
+ssh ubuntu@$1 "mkdir ~/nats-server"
+scp nats-server/* ubuntu@$1:~/nats-server
+
+echo ""
+echo "*** Build the nats-server Docker image ***"
+echo ""
+ssh ubuntu@$1 "cd ~/nats-server;sudo docker build -t nats-server ."
+#scp files/start-nats-server.sh ubuntu@$1:~
+#########################################
+#### configure nats-server.conf here ####
+#########################################
+#scp files/start-nats-server.sh ubuntu@$1:~
+# replace HOSTNAME
+ssh ubuntu@$1 "~/configure-nats-server.sh"
+#ssh ubuntu@$1 "~/start-nats-server.sh"
+echo ""
+echo "***************************************************"
+echo "********* MANUALLY CONFIGURE NATS-SERVER  *********"
+echo "*********     TO ADD CURRENT ROUTES       *********"
+echo "********* THEN RUN ~/start-nats-server.sh *********"
+echo "***************************************************"
+echo ""
 
 echo ""
 echo "Copy sync-server files to the server"
@@ -127,7 +154,7 @@ echo ""
 echo "*** Build the sync-server Docker image ***"
 echo ""
 ssh ubuntu@$1 "cd ~/sync-server;sudo docker build -t sync-server ."
-scp files/start-sync-server.sh ubuntu@$1:~
+#scp files/start-sync-server.sh ubuntu@$1:~
 ssh ubuntu@$1 "~/start-sync-server.sh"
 
 echo ""
@@ -197,17 +224,6 @@ ssh ubuntu@$1 "sudo systemctl enable litestream"
 ssh ubuntu@$1 "sudo systemctl start litestream"
 echo "create the litestream.config directory"
 ssh ubuntu@$1 "sudo mkdir ~/litestream.config"
-
-# echo ""
-# echo "Install NATS Server"
-# echo ""
-# ssh ubuntu@$1 "sudo mv ~/nats-server /usr/sbin/nats-server"
-# ssh ubuntu@$1 "mkdir -p /home/ubuntu/jetstream"
-# ssh ubuntu@$1 "sudo mv ~/nats-server.service /etc/systemd/system"
-# ssh ubuntu@$1 "sudo chmod 644 /etc/systemd/system/nats-server.service"
-# ssh ubuntu@$1 "sudo chown root:root /etc/systemd/system/nats-server.service"
-# ssh ubuntu@$1 "sudo systemctl enable nats-server.service"
-# ssh ubuntu@$1 "sudo systemctl start nats-server.service"
 
 echo ""
 echo "************"
