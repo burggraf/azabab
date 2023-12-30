@@ -16,6 +16,11 @@ if [ ! -f "./private/cloudflare.ini" ]; then
 fi
 
 echo ""
+echo "*** Setting hostname ***"
+echo ""
+ssh ubuntu@$1 "sudo hostnamectl set-hostname $1"
+
+echo ""
 echo "*** Install Docker ***"
 echo ""
 
@@ -48,6 +53,11 @@ echo ""
 echo "Copy all necessary files to the server"
 echo ""
 scp files/* ubuntu@$1:~/
+
+echo ""
+echo "*** Generate rsa key pair (if necessary) ***"
+echo ""
+ssh ubuntu@$1 "/home/ubuntu/generate-ssh-key.sh"
 
 echo ""
 echo "Configuring Nginx"
@@ -106,6 +116,19 @@ echo ""
 ssh ubuntu@$1 "cd ~/ssh-server;sudo docker build -t ssh-server ."
 scp files/start-ssh-server.sh ubuntu@$1:~
 ssh ubuntu@$1 "~/start-ssh-server.sh"
+
+echo ""
+echo "Copy sync-server files to the server"
+echo ""
+ssh ubuntu@$1 "mkdir ~/sync-server"
+scp sync-server/* ubuntu@$1:~/sync-server
+
+echo ""
+echo "*** Build the sync-server Docker image ***"
+echo ""
+ssh ubuntu@$1 "cd ~/sync-server;sudo docker build -t sync-server ."
+scp files/start-sync-server.sh ubuntu@$1:~
+ssh ubuntu@$1 "~/start-sync-server.sh"
 
 echo ""
 echo "Create a service to run rust-server.exe"
