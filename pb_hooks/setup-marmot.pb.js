@@ -91,17 +91,17 @@ replicate=true
 publish=<READWRITE>
 
 [snapshot]
-enabled=true
-store="s3"
-interval=3600000
+enabled=false
+#store="s3"
+#interval=3600000
 
-[snapshot.s3]
-endpoint="<ENDPOINT>"
-path="marmot/<PORT>"
-use_ssl=true
-access_key="<ACCESS_KEY>"
-secret="<SECRET>"
-bucket="<BUCKET>"
+#[snapshot.s3]
+#endpoint="<ENDPOINT>"
+#path="marmot/<PORT>"
+#use_ssl=true
+#access_key="<ACCESS_KEY>"
+#secret="<SECRET>"
+#bucket="<BUCKET>"
 
 [nats]
 urls=["nats://<HOST>:5222"]
@@ -118,7 +118,7 @@ stream_prefix="changes-<PORT>"
 			config_file = config_file.replace(/<PORT>/g, instance.port.toString())
 			config_file = config_file.replace(/<HOST>/g, instance.site_domain)
 			config_file = config_file.replace(/<NODE>/g, instance.node.toString())
-			config_file = config_file.replace(/<READWRITE>/g, instance.type === 'read write replica' ? 'true' : 'false')
+			config_file = config_file.replace(/<READWRITE>/g, (instance.type === 'read write replica' || instance.type === 'primary') ? 'true' : 'false')
 			config_file = config_file.replace(/<ENDPOINT>/g, ENDPOINT)
 			config_file = config_file.replace(/<ACCESS_KEY>/g, ACCESS_KEY)
 			config_file = config_file.replace(/<SECRET>/g, SECRET)
