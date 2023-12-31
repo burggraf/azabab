@@ -48,7 +48,7 @@ sync {
 	default.rsync,
 	source = "/data/<PORT>",
 	target = "ubuntu@<HOST>:/home/ubuntu/data/<PORT>",
-	exclude   = { "pb_data" },
+	exclude   = { "pb_data", "marmot", ".ssh" },
 	rsync = myRsync
 }
 	`;
