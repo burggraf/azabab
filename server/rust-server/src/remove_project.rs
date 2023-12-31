@@ -76,6 +76,16 @@ pub async fn handle_remove_project(mut req: Request<Body>, _auth_token: &str) ->
         .arg("sudo kill -HUP $(cat /var/run/nginx.pid)")
         .output();
 
+    // Stop Docker container if it's running
+    let _docker_stop_output = Command::new("docker")
+        .args(&["stop", "-t", "0", port])
+        .output();
+
+    // if let Err(e) = docker_stop_output {
+    //     // Log the error but do not fail the operation
+    //     eprintln!("Error stopping Docker container: {}", e);
+    // }
+
     // remove the user's data
     
     // Construct the directory path
