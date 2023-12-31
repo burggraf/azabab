@@ -81,7 +81,7 @@ routerAdd('POST', '/createproject', async (c) => {
 		if (project_instancesInsert.length !== 1) {
 			return c.json(200, { data: null, error: 'project_instances insert failed' })
 		}
-		
+		const newProjectInstanceId = project_instancesInsert[0].id
 		// now use (data?.project?.domain) and (newPort) to create the nginx config file
 		console.log('now create new entry for:')
 		console.log('domain', data?.project_instance?.domain)
@@ -114,7 +114,7 @@ routerAdd('POST', '/createproject', async (c) => {
 		if (res.json?.error) {
 			return c.json(200, { data: null, error: res.json.error })
 		} else {
-			return c.json(200, { data: newId, error: null })
+			return c.json(200, { data: newProjectInstanceId, error: null })
 		}
 		// reload domain_ports.txt file to update domain port mappings
 		// ssh ubuntu@$1  "sudo kill -HUP \$(cat /var/run/nginx.pid)"

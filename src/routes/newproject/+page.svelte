@@ -28,6 +28,10 @@
 	}
 	let project_instance: ProjectInstance = 
 	{
+		name: '',
+		project_id: '',
+		owner: '',
+		ownertype: '',
 		code: '',
 		domain: '',
 		id: '',
@@ -36,10 +40,13 @@
 		site_name: 'Select a site',
 		site_id: '',
 		type: 'primary',
+		db_streaming_backup_location: '',
+		logs_streaming_backup_location: '',
+		db_streaming_backup_retention: 0,
+		logs_streaming_backup_retention: 0
 	};
 	
 	onMount(async () => {
-        console.log('*** newproject onMount')
 		const tb: any = document.getElementById('ion-tabs')
 		let initTab: string
 		setTimeout(() => {
@@ -47,19 +54,12 @@
 		}, 100)
 	})
 	const ionViewWillEnter = async () => {
-		console.log('*** ionViewWillEnter')
 		sites = await pb.collection('sites').getFullList({
 			fields: 'id, name, code, domain, active',
 		})
-        console.log('sites', sites)
-		// if (id === 'new') {
-		// 	project_instance[0].id = sites[0].id
-		// }
 	}
 	const save = async () => {
-		console.log('save')
 		const domainAvailable = await checkDomainAvailability(project)
-        console.log('domainAvailable', domainAvailable)
 		if (project.name.trim().length === 0) {
 			toast('Project name is required', 'danger')
 			return
@@ -75,46 +75,14 @@
         if (!project_instance.site_id) {
             toast('Select a site', 'danger')
         }
-        console.log('project_instance.site_id', project_instance.site_id)
-        console.log('=====project_instance', project_instance)
 		// look up the site to see if it's active
 		const active = sites.find((site) => site.id === project_instance.site_id)?.active;
 		if (!active) {
 			toast('The site you selected is not currently active', 'danger')
 			return
 		} else {
-            console.log('site is active')
-            ///////
-            // code: '',
-            // domain: '',
-            // id: '',
-            // port: 0,
-            // site_domain: '',
-            // site_name: 'Select a site',
-            // site_id: '',
-            // type: 'primary',
         }
-		/*
-        to create a new project, we need to send:
-
-            data.project.owner
-            data.project.name
-            data.project.ownertype
-            data.project.domain
-            
-            data.project_instance.id
-            data.project_instance.type
-
-            data.site.domain 
-        */
 		const site = sites.find((site) => site.id === project_instance.id)
-        console.log('creating new project')
-        console.log('project_instance', project_instance);
-        console.log('sending', {
-            project,
-            project_instance,
-            site,
-        })
         const { data, error } = await pb.send('/createproject', {
             method: 'POST',
             body: {
@@ -123,7 +91,6 @@
                 site,
             },
         })
-        console.log('data, error', data, error)
         if (error) {
             if (error === 'constraint failed: UNIQUE constraint failed: projects.domain (2067)')
                 toast('Project domain already exists', 'danger')
@@ -131,9 +98,6 @@
         } else {
             // open the project in a new windows
             window.open(`https://${project.domain}.${project_instance.site_domain}/_/`, '_blank')
-
-            console.log('**** goto', `/instance/${data}`)
-            // id = data
             goto(`/instance/${data}`)
         }
 	}
@@ -180,7 +144,6 @@
 			})
 		}
 		const result = await dropdownmenu(e, items)
-        console.log('*** you chose site', result)
 	}
 
 </script>
