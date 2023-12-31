@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # File paths
-HOSTNAME_FILE="/home/ubuntu/HOSTNAME"
+HOSTNAME_FILE="/etc/hostname"
 CONFIG_FILE="/home/ubuntu/nats-server.conf" # Replace with the path to your actual config file
 BACKUP_FILE="${CONFIG_FILE}.backup"
 
