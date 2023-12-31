@@ -28,6 +28,7 @@ pub async fn handle_catch_all(mut req: Request<Body>) -> Result<Response<Body>, 
         format!("{}/data/{}/pb_public:/home/pocketbase/pb_public", base_path, original_port),
         format!("{}/data/{}/pb_migrations:/home/pocketbase/pb_migrations", base_path, original_port),
         format!("{}/data/{}/pb_hooks:/home/pocketbase/pb_hooks", base_path, original_port),
+        format!("{}/data/{}/marmot:/marmot", base_path, original_port),
     ];
     let container_options = ContainerOptions::builder("pbdocker")
     .name(&original_port)

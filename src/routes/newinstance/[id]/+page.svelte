@@ -163,17 +163,33 @@
             window.open(`https://${project.domain}.${project_instance.site_domain}/_/`, '_blank')
 
             console.log('********************');
-            console.log(`/setup-folder-sync/${project.id}`)
+            console.log(`/setup-marmot/${project.id}`)
             console.log('********************');
-            const { data:setupSyncData, error:setupSyncError } = await pb.send(`/setup-folder-sync/${project.id}`, {
+            const { data:setupMarmotData, error:setupMarmotError } = await pb.send(`/setup-marmot/${project.id}`, {
                 method: 'GET',
             })
-            if (setupSyncError) {
-                console.log('/setup-folder-sync error', setupSyncError)
-                toast(JSON.stringify(setupSyncError), 'danger')
+            if (setupMarmotError) {
+                console.log('/setup-marmot error', setupMarmotError)
+                toast(JSON.stringify(setupMarmotError), 'danger')
             } else {
-                console.log('/setup-folder-sync data', setupSyncData)
+                console.log('/setup-marmot data', setupMarmotData)
             }
+            
+            console.log('**** goto', `/instance/${data}`)
+
+
+            // console.log('********************');
+            // console.log(`/setup-folder-sync/${project.id}`)
+            // console.log('********************');
+            // const { data:setupSyncData, error:setupSyncError } = await pb.send(`/setup-folder-sync/${project.id}`, {
+            //     method: 'GET',
+            // })
+            // if (setupSyncError) {
+            //     console.log('/setup-folder-sync error', setupSyncError)
+            //     toast(JSON.stringify(setupSyncError), 'danger')
+            // } else {
+            //     console.log('/setup-folder-sync data', setupSyncData)
+            // }
             
             console.log('**** goto', `/instance/${data}`)
             // id = data
