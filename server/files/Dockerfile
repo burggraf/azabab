@@ -11,10 +11,6 @@ EXPOSE 8090
 WORKDIR /home/pocketbase
 COPY ./pocketbase .
 COPY ./marmot .
-COPY ./marmot-reset.sh .
-COPY ./marmot-snapshot.sh .
-COPY ./marmot-start.sh .
-COPY ./marmot-restart.sh .
 COPY ./start.sh .
 CMD "./start.sh"
 
