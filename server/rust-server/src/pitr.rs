@@ -3,6 +3,7 @@ use serde::{Deserialize};
 use serde_json::json;
 use std::process::Command;
 use std::str;
+use chrono::Utc; // Add this for handling UTC time
 
 #[derive(Deserialize)]
 struct PITRData {
@@ -13,30 +14,48 @@ struct PITRData {
 }
 
 pub async fn handle_pitr(mut req: Request<Body>) -> Result<Response<Body>, hyper::Error> {    // Parse request body
+    // Parse request body
     let body_bytes = hyper::body::to_bytes(req.body_mut()).await?;
     let body_str = String::from_utf8(body_bytes.to_vec()).unwrap();
-    let pitr_data: PITRData = serde_json::from_str(&body_str).unwrap();
+    
+    // Make pitr_data mutable
+    let mut pitr_data: PITRData = serde_json::from_str(&body_str).unwrap();
 
+    let is_latest_timestamp = pitr_data.timestamp == "latest";
     // Process the timestamp to create a destination string
-    let destination = pitr_data.timestamp.replace(":", "-");
-
+    let mut destination = pitr_data.timestamp.replace(":", "-");
+    
+    if is_latest_timestamp {
+        destination = Utc::now().format("%Y-%m-%d-%H-%M-%S").to_string();
+        pitr_data.timestamp = destination.clone(); // Now you can modify timestamp
+    }
+    
     match pitr_data.mode.as_str() {
         "backup-folder" => {
-            // Existing logic for "backup-folder" mode
-            // Logic for "backup-folder" mode
             if pitr_data.mode == "backup-folder" {
-                // First command: litestream restore
-                let restore_command = format!(
-                    "litestream restore -o /home/ubuntu/data/{}/pb_data/backups/{}/{}.db -timestamp {} /home/ubuntu/data/{}/pb_data/{}.db",
-                    pitr_data.port, destination, pitr_data.db, pitr_data.timestamp, pitr_data.port, pitr_data.db
-                );
+                // Determine the appropriate restore command based on the timestamp value
+                let restore_command = if is_latest_timestamp {
+                    // Omit the -timestamp parameter
+                    format!(
+                        "litestream restore -o /home/ubuntu/data/{}/pb_data/backups/{}/{}.db /home/ubuntu/data/{}/pb_data/{}.db",
+                        pitr_data.port, destination, pitr_data.db, pitr_data.port, pitr_data.db
+                    )
+                } else {
+                    // Include the -timestamp parameter
+                    format!(
+                        "litestream restore -o /home/ubuntu/data/{}/pb_data/backups/{}/{}.db -timestamp {} /home/ubuntu/data/{}/pb_data/{}.db",
+                        pitr_data.port, destination, pitr_data.db, pitr_data.timestamp, pitr_data.port, pitr_data.db
+                    )
+                };
 
+                // Execute the restore command
                 let restore_output = Command::new("sh")
                     .arg("-c")
                     .arg(&restore_command)
                     .output()
                     .expect("Failed to execute restore command");
 
+                // Handle restore command output
                 if !restore_output.status.success() {
                     let error_message = str::from_utf8(&restore_output.stderr).unwrap_or("Unknown error occurred");
                     return Ok(Response::builder()
@@ -45,7 +64,7 @@ pub async fn handle_pitr(mut req: Request<Body>) -> Result<Response<Body>, hyper
                         .unwrap());
                 }
 
-                // Second command: zip
+                // Construct and execute the zip command
                 let zip_command = format!(
                     "zip -j -m /home/ubuntu/data/{}/pb_data/backups/{}/{}.zip /home/ubuntu/data/{}/pb_data/backups/{}/{}.db",
                     pitr_data.port, destination, pitr_data.db, pitr_data.port, destination, pitr_data.db
@@ -74,9 +93,8 @@ pub async fn handle_pitr(mut req: Request<Body>) -> Result<Response<Body>, hyper
             }
         },
         "backup-overwrite" => {
-            // Logic for "backup-overwrite" mode
+            if pitr_data.mode == "backup-overwrite" {
                 // First command: zip
-            if pitr_data.mode == "backup-overwrite" {    
                 let zip_command = format!(
                     "mkdir -p /home/ubuntu/data/{}/pb_data/backups/{}; zip -j -m /home/ubuntu/data/{}/pb_data/backups/{}/{} /home/ubuntu/data/{}/pb_data/{}*",
                     pitr_data.port, destination, pitr_data.port, destination, pitr_data.db, pitr_data.port, pitr_data.db
@@ -94,12 +112,19 @@ pub async fn handle_pitr(mut req: Request<Body>) -> Result<Response<Body>, hyper
                         .body(Body::from(json!({ "data": null, "error": error_message }).to_string()))
                         .unwrap());
                 }
-
+        
                 // Second command: litestream restore
-                let restore_command = format!(
-                    "litestream restore -o /home/ubuntu/data/{}/pb_data/{}.db /home/ubuntu/data/{}/pb_data/{}.db",
-                    pitr_data.port, pitr_data.db, pitr_data.port, pitr_data.db
-                );
+                let restore_command = if pitr_data.timestamp == "latest" {
+                    format!(
+                        "litestream restore -o /home/ubuntu/data/{}/pb_data/{}.db /home/ubuntu/data/{}/pb_data/{}.db",
+                        pitr_data.port, pitr_data.db, pitr_data.port, pitr_data.db
+                    )
+                } else {
+                    format!(
+                        "litestream restore -o /home/ubuntu/data/{}/pb_data/{}.db -timestamp {} /home/ubuntu/data/{}/pb_data/{}.db",
+                        pitr_data.port, pitr_data.db, pitr_data.timestamp, pitr_data.port, pitr_data.db
+                    )
+                };
                 let restore_output = Command::new("sh")
                     .arg("-c")
                     .arg(&restore_command)
@@ -113,7 +138,7 @@ pub async fn handle_pitr(mut req: Request<Body>) -> Result<Response<Body>, hyper
                         .body(Body::from(json!({ "data": null, "error": error_message }).to_string()))
                         .unwrap());
                 }
-
+        
                 // Return successful response for "backup-overwrite" mode
                 let response_data = format!("Backup and overwrite operation completed for database: {}", pitr_data.db);
                 return Ok(Response::builder()
@@ -123,20 +148,19 @@ pub async fn handle_pitr(mut req: Request<Body>) -> Result<Response<Body>, hyper
             }
         },
         "erase-overwrite" => {
-            // Logic for "erase-overwrite" mode
-                // First command: remove database files
             if pitr_data.mode == "erase-overwrite" {
+                // First command: remove database files
                 let remove_command = format!(
                     "rm /home/ubuntu/data/{}/pb_data/{}*", 
                     pitr_data.port, pitr_data.db
                 );
-
+        
                 let remove_output = Command::new("sh")
                     .arg("-c")
                     .arg(&remove_command)
                     .output()
                     .expect("Failed to execute remove command");
-
+        
                 if !remove_output.status.success() {
                     let error_message = str::from_utf8(&remove_output.stderr).unwrap_or("Unknown error occurred");
                     return Ok(Response::builder()
@@ -144,19 +168,26 @@ pub async fn handle_pitr(mut req: Request<Body>) -> Result<Response<Body>, hyper
                         .body(Body::from(json!({ "data": null, "error": error_message }).to_string()))
                         .unwrap());
                 }
-
+        
                 // Second command: litestream restore
-                let restore_command = format!(
-                    "litestream restore -o /home/ubuntu/data/{}/pb_data/{}.db /home/ubuntu/data/{}/pb_data/{}.db", 
-                    pitr_data.port, pitr_data.db, pitr_data.port, pitr_data.db
-                );
-
+                let restore_command = if pitr_data.timestamp == "latest" {
+                    format!(
+                        "litestream restore -o /home/ubuntu/data/{}/pb_data/{}.db /home/ubuntu/data/{}/pb_data/{}.db", 
+                        pitr_data.port, pitr_data.db, pitr_data.port, pitr_data.db
+                    )
+                } else {
+                    format!(
+                        "litestream restore -o /home/ubuntu/data/{}/pb_data/{}.db -timestamp {} /home/ubuntu/data/{}/pb_data/{}.db", 
+                        pitr_data.port, pitr_data.db, pitr_data.timestamp, pitr_data.port, pitr_data.db
+                    )
+                };
+        
                 let restore_output = Command::new("sh")
                     .arg("-c")
                     .arg(&restore_command)
                     .output()
                     .expect("Failed to execute restore command");
-
+        
                 if !restore_output.status.success() {
                     let error_message = str::from_utf8(&restore_output.stderr).unwrap_or("Unknown error occurred");
                     return Ok(Response::builder()
@@ -164,7 +195,7 @@ pub async fn handle_pitr(mut req: Request<Body>) -> Result<Response<Body>, hyper
                         .body(Body::from(json!({ "data": null, "error": error_message }).to_string()))
                         .unwrap());
                 }
-
+        
                 // Return successful response for "erase-overwrite" mode
                 let response_data = format!("Erase and overwrite operation completed for database: {}", pitr_data.db);
                 return Ok(Response::builder()

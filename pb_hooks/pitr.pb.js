@@ -72,13 +72,16 @@ routerAdd('POST', '/pitr', async (c) => {
 		return utcDate.toISOString();
 	}
 	// convert timestamp from local time to UTC
-	const UTCtimestamp = convertToUTC(data.timestamp)
+	let UTCtimestamp;
+	if (data.timestamp !== 'latest') {
+	 	UTCtimestamp = convertToUTC(data.timestamp)
+	}
 	console.log(JSON.stringify({
 		url: `http://${site_domain}:5000/pitr`,
 		method: 'POST',
 		body: JSON.stringify({
 			db: data.db,
-			timestamp: UTCtimestamp, //data.timestamp,
+			timestamp: UTCtimestamp || 'latest', //data.timestamp,
 			mode: data.mode,
 			port: port.toString(),
 		}
@@ -89,13 +92,16 @@ routerAdd('POST', '/pitr', async (c) => {
 		},
 		timeout: 120, // in seconds
 	},null,2))
+	
+	console.log('data.timestamp', data.timestamp)
+	console.log('UTCtimestamp', UTCtimestamp)
 
 	const res = $http.send({
 			url: `http://${site_domain}:5000/pitr`,
 			method: 'POST',
 			body: JSON.stringify({
 				db: data.db,
-				timestamp: UTCtimestamp, //data.timestamp,
+				timestamp: UTCtimestamp || 'latest', //data.timestamp,
 				mode: data.mode,
 				port: port.toString(),
 			}

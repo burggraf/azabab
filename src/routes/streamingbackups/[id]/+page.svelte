@@ -223,7 +223,7 @@
         db: '',
         min: '',
         max: '',
-        selectedDate: '',
+        selectedDate: 'latest',
         destination: 'backup-folder',
     }
     const startRestore = async (db: string) => {
@@ -242,8 +242,21 @@
         console.log('executeRestore')
         console.log(JSON.stringify(restoreSettings, null, 2))
         console.log('project_instance', project_instance)
-        // convert selectedDate to utc
-        const utcSelectedDate = moment.utc(restoreSettings.selectedDate).toISOString();
+        let utcSelectedDate;
+        // check to see if restoreSettings.selectedDate is a valid date string
+        if (restoreSettings.selectedDate !== 'latest') {
+            const d = new Date(restoreSettings.selectedDate);
+            if (isNaN(d.getTime())) {
+                toast('Invalid date', 'danger')
+                restoreSettings.selectedDate = restoreSettings.max;
+                return;
+            }
+            // convert selectedDate to utc
+            utcSelectedDate = moment.utc(restoreSettings.selectedDate).toISOString();
+        } else {
+            utcSelectedDate = 'latest';
+        }
+
         console.log({
                 instance_id: project_instance.id,
                 db: restoreSettings.db,
@@ -260,12 +273,29 @@
             },
         });
         console.log('data', data)
-        console.log('error', error)
+        console.log('**** -> error', error)
+        if (error) {
+            toast(error, 'danger')
+        } else {
+            toast('Retore completed', 'success')
+            window.history.back();
+        }
     }
-    const selectDate = (e: any) => {
-        console.log('selectDate', e.detail.value)
+    let restoreFromLatest = true;
+    const toggleLatest = (e: any) => {
+        console.log('toggleLatest', e.detail.checked)
+        restoreFromLatest = e.detail.checked;
+        if (restoreFromLatest) {
+            console.log('setting selectedDate to latest')
+            restoreSettings.selectedDate = 'latest';
+        } else {
+            console.log('setting selectedDate to max', restoreSettings.max)
+            restoreSettings.selectedDate = restoreSettings.max
+        }
+    }
+    const selectDateChange = (e: any) => {
+        console.log('selectDateChange', e.detail.value)
         restoreSettings.selectedDate = e.detail.value;
-    
     }
     const changemode = (e: any) => {
         console.log('changemode', e.detail.value)
@@ -286,7 +316,53 @@
 	</ion-header>
 
 <ion-grid id="restoreGrid"  class="ion-padding Grid" style="display: none; height: 100%;overflow-x: scroll;">
+
     <ion-row>
+        <ion-col size={"6"}>
+            <div style="padding-top:5px;">
+            Restore from latest backup 
+            </div>
+        </ion-col>
+        <ion-col size={"6"}>
+            <ion-toggle checked={true} color="primary" on:ionChange={toggleLatest} />
+        </ion-col>
+    </ion-row>
+
+    {#if !restoreFromLatest}
+    <ion-row>
+        <ion-col size={"3"}>
+            Min:
+        </ion-col>
+        <ion-col size={"9"}>
+            <div style="padding-left: 10px;">
+            {restoreSettings.min}
+            </div>
+        </ion-col>
+    </ion-row>
+    <ion-row>
+        <ion-col size={"3"}>
+            <div style="padding-top: 15px;">
+            Restore to:
+            </div>
+        </ion-col>
+        <ion-col size={"9"}>
+            <ion-input class="loginInputBoxWithIcon" style="--padding-start: 10px;width: 225px;"
+            on:ionInput={selectDateChange} value={restoreSettings.selectedDate} type="text"></ion-input>
+        </ion-col>
+    </ion-row>
+    <ion-row>
+        <ion-col size={"3"}>
+            Max:
+        </ion-col>
+        <ion-col size={"9"}>
+            <div style="padding-left: 10px;">
+                {restoreSettings.max}
+            </div>
+        </ion-col>
+    </ion-row>
+    {/if}
+
+    <!-- <ion-row>
         <ion-col style="background-color: var(--ion-color-dark);color: var(--ion-color-dark-contrast)">
             <ion-label>Restore to point-in-time:</ion-label></ion-col>
     </ion-row>
@@ -297,7 +373,9 @@
         <ion-col>
             <ion-datetime on:ionChange={selectDate} value={restoreSettings.max} min={restoreSettings.min} max={restoreSettings.max}></ion-datetime>
         </ion-col>
-    </ion-row>
+    </ion-row> -->
+
+
     <ion-row>
         <ion-col style="background-color: var(--ion-color-dark);color: var(--ion-color-dark-contrast)">
             <ion-label style="padding-left: 50px;">Restore option:</ion-label>
@@ -328,7 +406,7 @@
                 color="danger"
                 on:click={executeRestore}
             >
-                Start Restore
+                Start restore from {restoreSettings.selectedDate}
             </ion-button>
         </ion-col>
     </ion-row>
