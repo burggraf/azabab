@@ -9,6 +9,7 @@ use tokio::io::{AsyncWriteExt, AsyncReadExt};
 struct FileData {
     filename: String,
     contents: String,
+    destination: String, // Add destination field
 }
 
 pub async fn handle_update_litestream(mut req: Request<Body>) -> Result<Response<Body>, hyper::Error> {
@@ -20,10 +21,19 @@ pub async fn handle_update_litestream(mut req: Request<Body>) -> Result<Response
     // Process each FileData and update files
     for data in file_data {
         let file_path = format!("/home/ubuntu/litestream.config/{}", data.filename);
-        let mut file = File::create(file_path).await.unwrap();
+        let mut file = File::create(&file_path).await.unwrap();
         file.write_all(data.contents.as_bytes()).await.unwrap();
-    }
 
+        // If contents is empty, run the rclone delete command
+        if data.contents.is_empty() {
+            let command = format!("rclone delete {}:azabab/backups/{}", data.destination, data.filename);
+            let _ = Command::new("sh")
+                .arg("-c")
+                .arg(command)
+                .output();
+        }
+    }
+    
     // Concatenate and update litestream configuration
     let mut paths = tokio::fs::read_dir("/home/ubuntu/litestream.config/").await.unwrap();
     let mut combined_contents = String::new();

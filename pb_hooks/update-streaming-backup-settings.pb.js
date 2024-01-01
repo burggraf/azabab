@@ -67,7 +67,9 @@ routerAdd('POST', '/update-streaming-backup-settings', async (c) => {
 						coalesce(logs.secret_access_key,'') as logs_secret_access_key, 
 						owner, ownertype, port, site_domain, domain, 
 						db_streaming_backup_retention,
-						logs_streaming_backup_retention 
+						logs_streaming_backup_retention,
+						db.code as db_destination,
+						logs.code as logs_destination 
 						from instance_view 
 						left outer join s3 as db on db.id = coalesce(db_streaming_backup_location,'') 
 						left outer join s3 as logs on logs.id = coalesce(logs_streaming_backup_location,'')
@@ -94,7 +96,7 @@ routerAdd('POST', '/update-streaming-backup-settings', async (c) => {
 
 	const payload = {files: []}
 	if (lookup[0]?.db_access_key_id && lookup[0]?.db_access_key_id.length > 0) {
-		payload.files.push({filename: `${port}-data`, contents: 
+		payload.files.push({filename: `${port}-data`, destination: `${lookup[0]?.db_destination}`, contents: 
 		`  - path: /home/ubuntu/data/${port}/pb_data/data.db\n` +
 		`    replicas:\n` +
 		`      - type: s3\n` +
@@ -114,7 +116,7 @@ routerAdd('POST', '/update-streaming-backup-settings', async (c) => {
 	}
 
 	if (lookup[0]?.logs_access_key_id && lookup[0]?.logs_access_key_id.length > 0) {
-		payload.files.push({filename: `${port}-logs`, contents: 
+		payload.files.push({filename: `${port}-logs`, destination: `${lookup[0]?.logs_destination}`, contents: 
 		`  - path: /home/ubuntu/data/${port}/pb_data/logs.db\n` +
 		`    replicas:\n` +
 		`      - type: s3\n` +
