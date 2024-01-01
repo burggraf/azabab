@@ -13,38 +13,6 @@ routerAdd('GET', '/setup-marmot/:project_id', (c) => {
 	if (!user) {
 		return c.json(200, { data: null, error: 'not logged in' })
 	}
-	let ENDPOINT = ''
-	let ACCESS_KEY = ''
-	let SECRET = ''
-	let BUCKET = 'azabab'
-	try {
-		// get S3 bucket info
-		const s3Data = arrayOf(
-			new DynamicModel({
-				access_key_id: '',
-				secret_access_key: '',
-				endpoint: '',
-			})
-		)
-		$app
-			.dao()
-			.db()
-			.newQuery(
-				`SELECT access_key_id, secret_access_key, endpoint
-				from s3
-				where location = 'Los Angeles' limit 1` 
-			)
-			.all(s3Data) // throw an error on db failure
-		if (s3Data.length === 0) {
-			return c.json(200, { data: null, error: 's3 bucket not found' })
-		} else {
-			ENDPOINT = s3Data[0].endpoint
-			ACCESS_KEY = s3Data[0].access_key_id
-			SECRET = s3Data[0].secret_access_key
-		}
-	} catch (e) {
-		return c.json(200, { data: null, error: e.value.error() || e })
-	}
 	try {
 		const projectData = arrayOf(
 			new DynamicModel({
@@ -79,10 +47,6 @@ routerAdd('GET', '/setup-marmot/:project_id', (c) => {
 # <HOST> (nats server, e.g. west-1.azabab.com)
 # <NODE> (e.g. 1)
 # <READWRITE> (e.g. true or false for READONLY)
-# <ENDPOINT> (S3 endpoint)
-# <ACCESS_KEY> (S3 access key)
-# <SECRET> (S3 secret)
-# <BUCKET> (S3 bucket)
 seq_map_path="/marmot/marmot.cbor"
 db_path="/home/pocketbase/pb_data/data.db"
 node_id=<NODE>
@@ -92,20 +56,9 @@ publish=<READWRITE>
 
 [snapshot]
 enabled=false
-#store="s3"
-#interval=3600000
-
-#[snapshot.s3]
-#endpoint="<ENDPOINT>"
-#path="marmot/<PORT>"
-#use_ssl=true
-#access_key="<ACCESS_KEY>"
-#secret="<SECRET>"
-#bucket="<BUCKET>"
 
 [nats]
 urls=["nats://<HOST>:5222"]
-#server_config=""
 subject_prefix="change-log-<PORT>"
 stream_prefix="changes-<PORT>"
 `;
@@ -119,10 +72,6 @@ stream_prefix="changes-<PORT>"
 			config_file = config_file.replace(/<HOST>/g, instance.site_domain)
 			config_file = config_file.replace(/<NODE>/g, instance.node.toString())
 			config_file = config_file.replace(/<READWRITE>/g, (instance.type === 'read write replica' || instance.type === 'primary') ? 'true' : 'false')
-			config_file = config_file.replace(/<ENDPOINT>/g, ENDPOINT)
-			config_file = config_file.replace(/<ACCESS_KEY>/g, ACCESS_KEY)
-			config_file = config_file.replace(/<SECRET>/g, SECRET)
-			config_file = config_file.replace(/<BUCKET>/g, BUCKET)
 
 			console.log('*********************************************')
 			console.log(`calling: http://${instance.site_domain}:5000/setupmarmot`)
@@ -131,6 +80,9 @@ stream_prefix="changes-<PORT>"
 			console.log('config_file.length', config_file.length)
 			console.log('port', instance.port.toString())
 			console.log('*********************************************')
+			if (projectData.length === 1) {
+				config_file = ''
+			}
 			try {
 				const res = $http.send({
 					url:     `http://${instance.site_domain}:5000/setupmarmot`,

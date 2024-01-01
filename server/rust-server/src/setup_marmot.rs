@@ -33,38 +33,46 @@ pub async fn handle_setup_marmot(mut req: Request<Body>, _auth_token: &str) -> R
     println!("port: {}", port);
     println!("config_file: {}", config_file);
 
-    // Step 1: Create folder /home/ubuntu/data/<PORT>/marmot
-    let folder_path = format!("/home/ubuntu/data/{}/marmot", port);
-    if !Path::new(&folder_path).exists() {
-        fs::create_dir_all(&folder_path).unwrap();
-    }
-    println!("step 1 complete");
+    // Check if config_file is empty
+    if config_file.is_empty() {
+        let toml_path = format!("/home/ubuntu/data/{}/marmot/marmot.toml", port);
+        if Path::new(&toml_path).exists() {
+            fs::remove_file(&toml_path).unwrap();
+            println!("marmot.toml deleted as config_file is empty");
+        }
+    } else {
+        // Step 1: Create folder /home/ubuntu/data/<PORT>/marmot
+        let folder_path = format!("/home/ubuntu/data/{}/marmot", port);
+        if !Path::new(&folder_path).exists() {
+            fs::create_dir_all(&folder_path).unwrap();
+        }
+        println!("step 1 complete");
 
-    // Step 2: Create marmot.toml with the contents of config_file
-    let toml_path = format!("{}/marmot.toml", folder_path);
-    fs::write(&toml_path, config_file).unwrap();
-    println!("step 2 complete");
+        // Step 2: Create marmot.toml with the contents of config_file
+        let toml_path = format!("{}/marmot.toml", folder_path);
+        fs::write(&toml_path, config_file).unwrap();
+        println!("step 2 complete");
+    }
 
     // Step 3: Check if a container with name <PORT> is running
     let output = Command::new("docker")
-        .arg("ps")
-        .arg("-q")
-        .arg("--filter")
-        .arg(format!("name={}", port))
-        .output()
-        .expect("Failed to execute docker command");
-    
+    .arg("ps")
+    .arg("-q")
+    .arg("--filter")
+    .arg(format!("name={}", port))
+    .output()
+    .expect("Failed to execute docker command");
+
     if !output.stdout.is_empty() {
-        // Step 4: Execute script inside the running container
-        Command::new("docker")
-            .arg("exec")
-            .arg(port)
-            .arg("sh")
-            .arg("-c")
-            .arg("marmot-restart.sh")
-            .output()
-            .expect("Failed to execute command inside container");
-        println!("step 4 complete");
+    // Step 4: Stop the container if it's running
+    Command::new("docker")
+        .arg("stop")
+        .arg("-t")
+        .arg("0")
+        .arg(port)
+        .output()
+        .expect("Failed to stop container");
+    println!("Container {} stopped", port);
     }
 
     // Return success response
