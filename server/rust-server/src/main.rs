@@ -11,6 +11,7 @@ mod get_litestream_generations;
 mod pitr;
 mod setup_folder_sync;
 mod setup_marmot;
+mod sync;
 
 use hyper::{Body, Request, Response, Server};
 use hyper::service::{make_service_fn, service_fn};
@@ -78,6 +79,9 @@ async fn request_handler(req: Request<Body>) -> Result<Response<Body>, hyper::Er
         },
         ("/setupmarmot", &hyper::Method::POST) => {
             setup_marmot::handle_setup_marmot(req, AUTH_TOKEN).await
+        },
+        ("/sync", &hyper::Method::POST) => {
+            sync::handle_sync(req, AUTH_TOKEN).await
         },
         _ => catch_all_handler::handle_catch_all(req).await
     }
