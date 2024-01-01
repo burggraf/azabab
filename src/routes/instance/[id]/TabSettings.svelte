@@ -52,6 +52,24 @@
 						project_instance: project_instance,
 					},
 				})
+
+				// we need to call setup-marmot to reconfigure marmot
+				// this will delete marmot if there is only one instance left
+				// it will also remove sync files if there is only one instance left
+				console.log('********************');
+				console.log(`/setup-marmot/${project_instance.project_id}`)
+				console.log('********************');
+				const { data:setupMarmotData, error:setupMarmotError } = 
+					await pb.send(`/setup-marmot/${project_instance.project_id}`, {
+					method: 'GET',
+				})
+				if (setupMarmotError) {
+					console.log('/setup-marmot error', setupMarmotError)
+					toast(JSON.stringify(setupMarmotError), 'danger')
+				} else {
+					console.log('/setup-marmot data', setupMarmotData)
+				}
+
 				console.log('data', data)
 				console.log('typeof data', typeof data)
 				console.log('error', error)
