@@ -24,6 +24,7 @@
 
 	let sites: Site[] = []
 	let streaming_backup_sites: StreamingBackupSite[] = []
+	let projectInstances: any[] = []
 	let project_instance: ProjectInstance = 
 	{
 		name: '',
@@ -74,7 +75,10 @@
 		streaming_backup_sites = await pb.collection('streaming_backup_sites').getFullList({
 			fields: 'id, name, location',
 		})
-
+		projectInstances = await pb.collection('instance_view').getFullList({
+			fields: 'id, site_id, site_name, site_domain, type',
+			filter: `project_id = "${project_instance.project_id}"`,
+		})
 		const tb: any = document.getElementById('ion-tabs')
 		
 
@@ -126,7 +130,7 @@
 			}}
 		>
 			<ion-tab tab="settings">
-					<TabSettings {project_instance} {sites} {streaming_backup_sites} />
+					<TabSettings {project_instance} {sites} {streaming_backup_sites} {projectInstances} />
 			</ion-tab>
 			<ion-tab tab="gui">
 					<TabGUI {project_instance} />
@@ -136,7 +140,7 @@
 					</div> -->
 			</ion-tab>
 			<ion-tab tab="cli">
-					<TabCLI {keys} {project_instance_keys} {project_instance} {id}/>
+					<TabCLI {keys} {project_instance_keys} {project_instance} />
 			</ion-tab>
 			<ion-tab tab="logs">
 					<TabLogs {project_instance} />

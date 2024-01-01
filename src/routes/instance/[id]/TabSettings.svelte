@@ -25,15 +25,16 @@
 		db_streaming_backup_location: '',
 		logs_streaming_backup_location: '',
 		db_streaming_backup_retention: 0,
-		logs_streaming_backup_retention: 0
+		logs_streaming_backup_retention: 0,
 	}
 	export let sites: Site[] = []
+	export let projectInstances: any[] = []
 	export let streaming_backup_sites: StreamingBackupSite[] = []
-    instanceTab.subscribe((value: string) => {
-        if (value === 'settings') {
-            console.log('INSTANCE TAB SETTINGS')
-        }
-    })
+	instanceTab.subscribe((value: string) => {
+		if (value === 'settings') {
+			console.log('INSTANCE TAB SETTINGS')
+		}
+	})
 
 	const removeinstance = async () => {
 		console.log('removeinstance')
@@ -57,11 +58,14 @@
 				if (error) {
 					toast('Error: ' + JSON.stringify(error), 'danger')
 				} else {
-					const { data: removeFolderSyncData, error: removeFolderSyncError } = await pb.send(`/setup-folder-sync/${project_instance.project_id}`, {
-						method: 'GET',
-					})
+					const { data: removeFolderSyncData, error: removeFolderSyncError } = await pb.send(
+						`/setup-folder-sync/${project_instance.project_id}`,
+						{
+							method: 'GET',
+						}
+					)
 					console.log('removeFolderSyncData', removeFolderSyncData)
-					console.log('removeFolderSyncError', removeFolderSyncError)					
+					console.log('removeFolderSyncError', removeFolderSyncError)
 					if (data === '0') {
 						toast(`Project ${project_instance.name} removed`, 'success')
 						goto('/projects')
@@ -74,22 +78,21 @@
 		})
 	}
 	const sync = async (direction: string) => {
-		const { data, error } = 
-			await pb.send(`/sync/${project_instance.id}/${direction}`, {
-						method: 'GET',
-					})
+		const { data, error } = await pb.send(`/sync/${project_instance.id}/${direction}`, {
+			method: 'GET',
+		})
 		console.log('error', error)
 		console.log('data', data)
 	}
 </script>
-	
+
 <ion-grid class="ion-padding Grid" style="height: 100%;overflow-x: scroll;">
 	<ion-row>
 		<ion-col class="ion-text-right bold">
 			<ion-label>Project Name</ion-label>
 		</ion-col>
 		<ion-col>
-			<ion-label>{project_instance.name}</ion-label>			
+			<ion-label>{project_instance.name}</ion-label>
 		</ion-col>
 	</ion-row>
 
@@ -115,44 +118,53 @@
 			<ion-label>Instance Type</ion-label>
 		</ion-col>
 		<ion-col>
-			<ion-label>primary</ion-label>
+			<ion-label>{project_instance.type}</ion-label>
 		</ion-col>
 	</ion-row>
 	<ion-row><ion-col>&nbsp;</ion-col></ion-row>
 
-	<ion-button size="small" expand="block" on:click={()=>{goto(`/streamingbackups/${project_instance.id}`)}}>Streaming Backups</ion-button>
-	
+	<ion-button
+		size="small"
+		expand="block"
+		on:click={() => {
+			goto(`/streamingbackups/${project_instance.id}`)
+		}}>Streaming Backups</ion-button
+	>
 </ion-grid>
-<ion-footer class="ion-padding ion-text-left" style="background-color: var(--ion-color-light);border-top: 0.1px solid;">
+<!-- <ion-footer class="ion-padding ion-text-left" style="background-color: var(--ion-color-light);border-top: 0.1px solid;"> -->
+<ion-footer>
 	<ion-toolbar color="light">
 		<ion-buttons slot="start">
-			<ion-button
-				size="small"
-				color="danger"
-				on:click={removeinstance}
-			>
-			<ion-icon slot="icon-only" icon={trashOutline} />
+			<ion-button size="small" color="danger" on:click={removeinstance}>
+				<ion-icon slot="icon-only" icon={trashOutline} />
 				&nbsp;&nbsp;Remove Instance
 			</ion-button>
 		</ion-buttons>
 		<ion-buttons slot="end">
-			<ion-button
-				size="small"
-				color="primary"
-				on:click={()=>{sync('up')}}
-			>
-				<ion-icon slot="icon-only" icon={cloudUploadOutline} />		
-			</ion-button>&nbsp;&nbsp;
-			<ion-button
-				size="small"
-				color="primary"
-				on:click={()=>{sync('down')}}
-			>
-				<ion-icon slot="icon-only" icon={cloudDownloadOutline} />		
-			</ion-button>
+			{#if projectInstances.length > 1}
+				<ion-button
+					size="small"
+					color="primary"
+					on:click={() => {
+						sync('up')
+					}}
+				>
+					<ion-icon slot="icon-only" icon={cloudUploadOutline} />
+				</ion-button>&nbsp;&nbsp;
+				<ion-button
+					size="small"
+					color="primary"
+					on:click={() => {
+						sync('down')
+					}}
+				>
+					<ion-icon slot="icon-only" icon={cloudDownloadOutline} />
+				</ion-button>
+			{/if}
 		</ion-buttons>
-		</ion-toolbar>
+	</ion-toolbar>
 </ion-footer>
+
 <style>
 	.bold {
 		font-weight: bold;
