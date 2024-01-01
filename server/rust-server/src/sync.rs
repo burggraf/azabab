@@ -6,7 +6,7 @@ use std::env;
 use crate::AUTH_TOKEN;
 
 pub async fn handle_sync(mut req: Request<Body>, _auth_token: &str) -> Result<Response<Body>, hyper::Error> {
-    println!("handle_sync");
+    // println!("handle_sync");
 
     // Check for authorization
     if let Some(auth_header) = req.headers().get(hyper::header::AUTHORIZATION) {
@@ -44,7 +44,7 @@ pub async fn handle_sync(mut req: Request<Body>, _auth_token: &str) -> Result<Re
                 .arg(&sync_command)
                 .output()
                 .expect("Failed to execute sync command");
-            println!("Sync up executed for port {}", port);
+            // println!("Sync up executed for port {}", port);
         },
         "down" => {
             // Stop Docker container if it's running
@@ -58,9 +58,19 @@ pub async fn handle_sync(mut req: Request<Body>, _auth_token: &str) -> Result<Re
                 .arg(&sync_command)
                 .output()
                 .expect("Failed to execute sync command");
-            println!("Sync down executed for port {}", port);
+            // println!("Sync down executed for port {}", port);
         },
-        _ => println!("Invalid direction"),
+        "delete" => {
+            // New code for "delete" direction
+            let delete_command = format!("rclone delete {}:azabab/sync/{}", destination, port);
+            Command::new("sh")
+                .arg("-c")
+                .arg(&delete_command)
+                .output()
+                .expect("Failed to execute delete command");
+            // println!("Delete executed for port {}", port);
+        },        
+        _ => println!("Invalid direction: {} for port {}", direction, port),
     }
 
     // Return success response

@@ -43,8 +43,9 @@ routerAdd('GET', '/sync/:instance_id/:direction', (c) => {
 			return c.json(200, { data: null, error: 'you are not the project instance owner' })
 		}
 		const instance = instanceData[0]
+		let res;
 		try {
-			const res = $http.send({
+			res = $http.send({
 				url:     `http://${instance.site_domain}:5000/sync`,
 				method:  "POST",
 				body:    JSON.stringify({
@@ -63,7 +64,7 @@ routerAdd('GET', '/sync/:instance_id/:direction', (c) => {
 			// console.log('httpError', httpError)
 			return c.json(200, { data: null, error: httpError.value.error() })
 		}		
-		return c.json(200, { data: 'ok', error: null })
+		return c.json(200, { data: res?.json?.data || "ok", error: null })
 	} catch (e){
 		return c.json(200, { data: null, error: e.value.error() || e })
 	}
