@@ -85,7 +85,8 @@
 	}
 	const back = async () => {
 		//goto('/projects')
-		window.history.back();
+		// window.history.back();
+		goto('/project/' + project_instance.project_id)
 	}
 	const gotoAdminPage = async () => {
 		window.open(`https://${project_instance.domain}.${project_instance.site_domain}/_/`, '_blank')
