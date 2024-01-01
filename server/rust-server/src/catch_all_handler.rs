@@ -32,8 +32,8 @@ pub async fn handle_catch_all(mut req: Request<Body>) -> Result<Response<Body>, 
     ];
     let container_options = ContainerOptions::builder("pbdocker")
     .name(&original_port)
-    .cpus(0.25)
-    .memory(96 * 1024 * 1024) // Memory in bytes
+    .cpus(0.50)
+    .memory(256 * 1024 * 1024) // Memory in bytes
     .expose(8090, "tcp", original_port.parse::<u32>().unwrap())
     .volumes(volume_mounts.iter().map(AsRef::as_ref).collect::<Vec<&str>>())
     .auto_remove(true)
