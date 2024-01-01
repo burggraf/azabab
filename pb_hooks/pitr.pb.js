@@ -58,12 +58,27 @@ routerAdd('POST', '/pitr', async (c) => {
 		})
 	}
 
+	function convertToUTC(dateString) {
+		// Create a Date object from the local date string
+		var localDate = new Date(dateString);
+	
+		// Calculate the UTC offset for PST
+		// Note: Adjust this offset for Daylight Saving Time if necessary
+		var utcOffset = 8 * 60 * 60 * 1000; // 8 hours in milliseconds
+	
+		// Add the offset to the local time
+		var utcDate = new Date(localDate.getTime() + utcOffset);
+	
+		return utcDate.toISOString();
+	}
+	// convert timestamp from local time to UTC
+	const UTCtimestamp = convertToUTC(data.timestamp)
 	console.log(JSON.stringify({
 		url: `http://${site_domain}:5000/pitr`,
 		method: 'POST',
 		body: JSON.stringify({
 			db: data.db,
-			timestamp: data.timestamp,
+			timestamp: UTCtimestamp, //data.timestamp,
 			mode: data.mode,
 			port: port.toString(),
 		}
@@ -80,7 +95,7 @@ routerAdd('POST', '/pitr', async (c) => {
 			method: 'POST',
 			body: JSON.stringify({
 				db: data.db,
-				timestamp: data.timestamp,
+				timestamp: UTCtimestamp, //data.timestamp,
 				mode: data.mode,
 				port: port.toString(),
 			}
