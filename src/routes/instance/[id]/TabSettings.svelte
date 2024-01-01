@@ -6,7 +6,7 @@
 	import { showConfirm } from '$services/alert.service'
 	import { toast } from '$services/toast'
 	import { goto } from '$app/navigation'
-	import { trashOutline } from 'ionicons/icons'
+	import { cloudDownloadOutline, cloudUploadOutline, trashOutline } from 'ionicons/icons'
 	import { instanceTab } from './instanceTabStore'
 
 	export let project_instance: ProjectInstance = {
@@ -73,6 +73,14 @@
 			},
 		})
 	}
+	const sync = async (direction: string) => {
+		const { data, error } = 
+			await pb.send(`/sync/${project_instance.id}/${direction}`, {
+						method: 'GET',
+					})
+		console.log('error', error)
+		console.log('data', data)
+	}
 </script>
 	
 <ion-grid class="ion-padding Grid" style="height: 100%;overflow-x: scroll;">
@@ -116,14 +124,34 @@
 	
 </ion-grid>
 <ion-footer class="ion-padding ion-text-left" style="background-color: var(--ion-color-light);border-top: 0.1px solid;">
-	<ion-button
-		size="small"
-		color="danger"
-		on:click={removeinstance}
-	>
-	<ion-icon slot="icon-only" icon={trashOutline} />
-		&nbsp;&nbsp;Remove Instance
-	</ion-button>
+	<ion-toolbar color="light">
+		<ion-buttons slot="start">
+			<ion-button
+				size="small"
+				color="danger"
+				on:click={removeinstance}
+			>
+			<ion-icon slot="icon-only" icon={trashOutline} />
+				&nbsp;&nbsp;Remove Instance
+			</ion-button>
+		</ion-buttons>
+		<ion-buttons slot="end">
+			<ion-button
+				size="small"
+				color="primary"
+				on:click={()=>{sync('up')}}
+			>
+				<ion-icon slot="icon-only" icon={cloudUploadOutline} />		
+			</ion-button>&nbsp;&nbsp;
+			<ion-button
+				size="small"
+				color="primary"
+				on:click={()=>{sync('down')}}
+			>
+				<ion-icon slot="icon-only" icon={cloudDownloadOutline} />		
+			</ion-button>
+		</ion-buttons>
+		</ion-toolbar>
 </ion-footer>
 <style>
 	.bold {
