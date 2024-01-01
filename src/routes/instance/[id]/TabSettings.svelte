@@ -40,7 +40,10 @@
 		console.log('removeinstance')
 		console.log('project_instance', project_instance)
 		console.log('sites', sites)
-
+		if (projectInstances.length > 1 && project_instance.type === 'primary') {
+			toast('You cannot remove the primary instance if there are existing replicas', 'danger')
+			return
+		}
 		await showConfirm({
 			header: 'Remove Project Instance',
 			message: `Are you SURE?  This cannot be undone.  If this is the last instance, the project will also be removed.`,
@@ -133,6 +136,7 @@
 	</ion-row>
 	<ion-row><ion-col>&nbsp;</ion-col></ion-row>
 
+	{#if projectInstances.length < 2}
 	<ion-button
 		size="small"
 		expand="block"
@@ -140,6 +144,13 @@
 			goto(`/streamingbackups/${project_instance.id}`)
 		}}>Streaming Backups</ion-button
 	>
+	{:else}
+		<ion-row>
+		<ion-col>
+			<div><b>Streaming backups are disabled if you have more than one instance.</b>  Streaming backups require a database lock that interferes with multi-instance replication.</div>
+		</ion-col>
+		</ion-row>
+	{/if}
 </ion-grid>
 <!-- <ion-footer class="ion-padding ion-text-left" style="background-color: var(--ion-color-light);border-top: 0.1px solid;"> -->
 <ion-footer>

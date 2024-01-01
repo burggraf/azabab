@@ -101,6 +101,18 @@
 		// 	project[field] = value
 		// }
 	}
+    const createNewInstance = async () => {
+        console.log('*** createNewInstance')
+        for (let i = 0; i < instances.length; i++) {
+            const instance = instances[i]
+            if (instance.db_streaming_backup_location !== '' || 
+                instance.logs_streaming_backup_location !== '') {
+                toast('You cannot create a new instance if you are configured for streaming backup', 'danger')
+                return
+            }
+        }
+        goto(`/newinstance/${project.id}`)
+    }
 </script>
 
 <IonPage {ionViewWillEnter}>
@@ -196,7 +208,7 @@
                             <ion-item>
                                 <div style="width:100%;text-align:center;">
                                     <ion-button size="small" expand="block" 
-                                    on:click={()=>{goto(`/newinstance/${project.id}`)}}>
+                                    on:click={createNewInstance}>
                                     <ion-icon slot="icon-only" icon={addOutline} />
                                     &nbsp;New Instance
                                     </ion-button>
