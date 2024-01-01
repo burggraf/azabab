@@ -58,14 +58,6 @@
 				if (error) {
 					toast('Error: ' + JSON.stringify(error), 'danger')
 				} else {
-					const { data: removeFolderSyncData, error: removeFolderSyncError } = await pb.send(
-						`/setup-folder-sync/${project_instance.project_id}`,
-						{
-							method: 'GET',
-						}
-					)
-					console.log('removeFolderSyncData', removeFolderSyncData)
-					console.log('removeFolderSyncError', removeFolderSyncError)
 					if (data === '0') {
 						toast(`Project ${project_instance.name} removed`, 'success')
 						goto('/projects')

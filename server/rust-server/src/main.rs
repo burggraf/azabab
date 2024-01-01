@@ -9,7 +9,6 @@ mod get_instance_file;
 mod update_litestream;
 mod get_litestream_generations;
 mod pitr;
-mod setup_folder_sync;
 mod setup_marmot;
 mod sync;
 
@@ -73,9 +72,6 @@ async fn request_handler(req: Request<Body>) -> Result<Response<Body>, hyper::Er
         },
         ("/pitr", &hyper::Method::POST) => {
             pitr::handle_pitr(req).await
-        },
-        ("/setupfoldersync", &hyper::Method::POST) => {
-            setup_folder_sync::handle_setup_folder_sync(req, AUTH_TOKEN).await
         },
         ("/setupmarmot", &hyper::Method::POST) => {
             setup_marmot::handle_setup_marmot(req, AUTH_TOKEN).await

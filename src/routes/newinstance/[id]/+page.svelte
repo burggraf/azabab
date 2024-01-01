@@ -174,23 +174,7 @@
             } else {
                 console.log('/setup-marmot data', setupMarmotData)
             }
-            
-            console.log('**** goto', `/instance/${data}`)
-
-
-            // console.log('********************');
-            // console.log(`/setup-folder-sync/${project.id}`)
-            // console.log('********************');
-            // const { data:setupSyncData, error:setupSyncError } = await pb.send(`/setup-folder-sync/${project.id}`, {
-            //     method: 'GET',
-            // })
-            // if (setupSyncError) {
-            //     console.log('/setup-folder-sync error', setupSyncError)
-            //     toast(JSON.stringify(setupSyncError), 'danger')
-            // } else {
-            //     console.log('/setup-folder-sync data', setupSyncData)
-            // }
-            
+                       
             console.log('**** goto', `/instance/${data}`)
             // id = data
             goto(`/instance/${data}`)
