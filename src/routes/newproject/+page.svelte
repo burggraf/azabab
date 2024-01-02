@@ -214,7 +214,7 @@
                 <ion-row>
                     <ion-col>
                         <ion-label color={domainAvailable ? 'success' : 'danger'} style="padding-left: 20px;">
-                            {domainAvailable ? 'Domain is available' : 'Domain is not available'}
+                            {domainAvailable ? `${project.domain}.${project_instance.site_domain} is available` : `Domain is not available`}
                             <ion-icon
                                 color={domainAvailable ? 'success' : 'danger'}
                                 icon={domainAvailable ? checkmarkCircleOutline : closeCircleOutline}

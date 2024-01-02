@@ -7,16 +7,22 @@ export const checkDomainAvailability = async (project: Project) => {
         return retval;
     }
     try {
-        const record = await pb.collection('projects').getFirstListItem(`domain="${domain}"`, {
-            fields: 'domain',
-        });
-        retval = false;
-    } catch (error: any) {
-        if (error?.response?.message === "The requested resource wasn't found.") {
-            retval = true;
+        const { data, error } = await pb.send(`/check-domain/${domain}`, {
+			method: 'GET',
+		})
+        console.log('check-domain data, error', data, error)
+        if (error) {
+            console.log('ERROR checking domain ' + domain, error)
+            return false;
         } else {
-            retval = false;
+            if (data === 0)
+                retval = true;
+            else
+                retval = false;
         }
+    } catch (error: any) {
+        console.log('ERROR checking domain ' + domain, error)
+        return false;
     }
     return retval;
 }
