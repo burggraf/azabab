@@ -1,5 +1,7 @@
 <script lang="ts">
 	import IonPage from "$ionpage";
+	import '$styles/grid-styles.css'
+	import * as allIonicIcons from 'ionicons/icons'
 
 	import { currentUser } from '$services/backend.service';
 	import { goto } from '$app/navigation';
@@ -39,28 +41,163 @@
 	};
 </script>
 <IonPage>
-<ion-header>
+
+
+
+
+
+	<ion-header>
+		{#if $currentUser}
+		<ion-toolbar color="secondary">
+			<ion-buttons slot="start">
+					<ion-menu-button />
+			</ion-buttons>
+			<ion-title>Welcome</ion-title>
+		</ion-toolbar>
+		{/if}
+	</ion-header>
+	<ion-content class="ion-padding">
+		<div class="width-400">
+			{#if $currentUser}
+			<div class="ion-text-center" style="margin-top: -30px;">
+				<ion-grid>
+					<ion-row>
+						<ion-col size="auto">
+							<ion-img style="height: 40px; width:40px; margin-left:10px; margin-right: 10px; margin-top: 30px;" src="/assets/icon.svg"></ion-img>
+						</ion-col>
+						<ion-col size="auto">
+							<h1>Azabab</h1>
+							<p>Hosting Service</p>			
+						</ion-col>
+					</ion-row>
+				</ion-grid>
+			</div>
+				<div class="center">
+					Welcome back <b>{"user name"}</b>.
+				</div><br/>
+				<ion-button on:click={()=>{goto('/newproject')}} color="secondary" size="large" expand="block">
+					<ion-icon slot="start" icon={allIonicIcons.documentOutline}></ion-icon>
+					Create a project now.
+				</ion-button><br/>
+				<ion-button on:click={()=>{goto('/projects')}} color="primary" size="large" expand="block">
+					<ion-icon slot="start" icon={allIonicIcons.appsOutline}></ion-icon>
+					View your list of projects.
+				</ion-button><br/>
+		{:else}
+			
+			<div class="ion-text-center">
+				<ion-grid>
+					<ion-row>
+						<ion-col size="auto">
+							<ion-img style="height: 60px; width:60px; margin-left:10px; margin-right: 10px; margin-top: 30px;" src="icon.svg"></ion-img>
+						</ion-col>
+						<ion-col size="auto">
+							<h1><b>Welcome to Azabab</b></h1>
+							<p>Hosting Made Easy</p>			
+						</ion-col>
+					</ion-row>
+				</ion-grid>
+			</div>
+		{/if}
+	</div>
+	<div class="width-400">
+		<ion-button expand="block" on:click={openLoginBox}>Get Started</ion-button>
+	</div>
+	<div class="flex-container">
+		<div class="flex-item primary">
+			<h3>What is Azabab?</h3>
+			<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Nesciunt vitae incidunt asperiores quos, saepe eum excepturi consequuntur atque culpa voluptatum rem.</p>
+		</div>
+		<div class="flex-item secondary">
+			<h3>Host Pocketbase</h3>
+			<p>Setup an unlimited number of free Pocketbase projects in just a few seconds.  Decide on a domain name, click a button, and you're live.</p>
+		</div>
+		<div class="flex-item tertiary">
+			<h3>Standard Features</h3>
+			<ul>
+				<li>Quick view of your backend layout</li>
+				<li>CLI access to your site with SCP or SFTP</li>
+				<li>Site Logs</li>
+				<li>Site Metrics</li>
+				<li>Full Pocketbase Admin Access</li>
+			</ul>
+		</div>
+		<div class="flex-item primary">
+			<h3>Advanced Features</h3>
+			<ul>
+				<li>Locations across the world</li>
+				<li>Streaming backups with point-in-time recovery</li>
+				<li>Read-Only or Read-Write replication</li>
+				<li>High availability</li>
+				<li>Global scalability</li>
+			</ul>
+		</div>
+		<div class="flex-item secondary">
+			<h3>Pocketbase Features</h3>
+			<ul>
+				<li>Database with automatic API</li>
+				<li>Authentication (email, oauth, social)</li>
+				<li>Storage (upload/download from storage & S3)</li>
+				<li>Realtime database capabilities</li>
+				<li>Management dashboard, hooks, and more</li>
+			</ul>
+		</div>
+		<div class="flex-item tertiary">
+			<h3>What else?</h3>
+			<p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Eius id cupiditate exercitationem itaque modi sequi debitis quidem ratione minus placeat beatae quos laudantium iure consequatur possimus rerum tempore, dolore in.</p>
+		</div>
+	</div><br/>
+	<br/><br/><br/><br/>&nbsp;
+	</ion-content>
+	<ion-footer>
+		{#if !$currentUser}
+		<ion-toolbar color="transparent" class="ion-text-center">
+			<b>{app_name} {app_version}</b><br/>
+			<span
+				on:click={() => {
+					goto("/terms");
+				}}
+				class="pointer">Terms of Service</span
+			>
+			<span>&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;&nbsp;</span>
+			<span
+				on:click={() => {
+					goto("/privacy");
+				}}
+				class="pointer">Privacy</span
+			>
+			<span>&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;&nbsp;</span>
+			<span
+				on:click={() => {
+					goto("/support");
+				}}
+				class="pointer">Support</span
+			>
+		</ion-toolbar>
+		{/if}
+	</ion-footer>
+
+
+
+
+
+
+
+<!-- <ion-header>
 	{#if $currentUser}
 		<ion-toolbar color="primary">
 			<ion-buttons slot="start">
 				<ion-menu-button />
 			</ion-buttons>
-			<ion-title>Starting Page</ion-title>
+			<ion-title>Azabab</ion-title>
 		</ion-toolbar>
 	{/if}
 </ion-header>
 <ion-content class="ion-padding">
-	<div class="flex-container">
+	<div class="center flex-container" style="max-width: 500px; background-color:pink;">
 		<div style="text-align: center;">
 			<span style="font-style: italic;">
-				Starting Page
-			</span>
-			<h3>Start here...</h3>
-			<a on:click={()=>{goto('/welcome')}}>Goto Welcome</a>
-
-			<br/><br/>
-			<span>
-				Lorem, ipsum dolor sit amet consectetur adipisicing elit. Distinctio ullam aperiam rerum ratione nam harum, sit earum! Suscipit est, dolorem soluta incidunt deleniti odit ipsam aspernatur quas vitae hic. Blanditiis!
+				Welcome to Azabab
 			</span>
 			<br/>
 			<br/>
@@ -97,8 +234,9 @@
 			>
 		</ion-toolbar>
 	{/if}
-</ion-footer>
+</ion-footer> -->
 </IonPage>
+
 <style>
 	.padded {
 		padding-left: 5px;
