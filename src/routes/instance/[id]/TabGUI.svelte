@@ -97,7 +97,7 @@
 		if (data)
 			dir = data
 				.split('\n')
-				.filter((item: string) => !item.startsWith('./.ssh') && !item.startsWith('./ '))
+				.filter((item: string) => !item.startsWith('./.ssh') && !item.startsWith('./.data.db-litestream') && !item.startsWith('./ '))
 				.sort()
 		else console.log('error', error)
 
