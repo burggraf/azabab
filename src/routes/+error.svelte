@@ -4,9 +4,12 @@
     import { goto } from '$app/navigation';
 	import { currentUser } from '$services/backend.service';
 	import * as allIonicIcons from 'ionicons/icons';
+
     import { pushPathStack, popPathStack } from '$services/navigation.service';
-    pushPathStack();
-	// goto('/components/Splash');
+    // pushPathStack();
+
+    // goto('/components/Splash');
+    goto('/projects');
 </script>
 <IonPage>
 <ion-header>
