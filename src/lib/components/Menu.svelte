@@ -45,6 +45,7 @@
 		iosIcon?: string
 		mdIcon?: string
 		children?: AppChild[]
+		disabled?: boolean
 	}
 	interface AppChild {
 		title: string
@@ -65,12 +66,14 @@
 			url: 'account',
 			icon: 'person',
 			children: [],
+			disabled: (!$currentUser)
 		},
 		{
 			title: 'Settings',
 			url: 'settings',
 			icon: 'settings',
 			children: [],
+			disabled: (!$currentUser)
 		},
 		// {
 		// 	title: 'Dashboard',
