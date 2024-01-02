@@ -58,6 +58,10 @@
 	})
 	const ionViewWillEnter = async () => {
 		console.log('*** ionViewWillEnter, id', id)
+		if (!$currentUser) {
+			goto('/');
+		}
+		
 		console.log('*** looking for instances with id', id)
 		project_instance = await pb.collection('instance_view').getFirstListItem(
 			`id = "${id}"`,{

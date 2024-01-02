@@ -54,6 +54,9 @@
 		}, 100)
 	})
 	const ionViewWillEnter = async () => {
+		if (!$currentUser) {
+			goto('/');
+		}
 		sites = await pb.collection('sites').getFullList({
 			fields: 'id, name, code, domain, active',
 		})

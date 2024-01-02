@@ -2,11 +2,14 @@
 	import { goto } from '$app/navigation'
 	import IonPage from '$ionpage'
 	import { addOutline, constructOutline, eyeOutline } from 'ionicons/icons'
-	import { pb } from '$services/backend.service'
+	import { pb, currentUser } from '$services/backend.service'
 	let projects: any = []
 	let project_instances: any = []
 	const ionViewWillEnter = async () => {
 		console.log('ionViewWillEnter')
+		if (!$currentUser) {
+			goto('/');
+		}
 		const instance_records = await pb.collection('instance_view').getFullList({
 			sort: 'name,type,site_name',
 		})
@@ -17,6 +20,18 @@
 		projects = project_records
 		if (projects.length === 0) {
 			// goto('/newproject')
+		}
+		if ($currentUser && $currentUser.verified === false) {
+			pb.collection('users').subscribe($currentUser.id, function (e) {
+				console.log('****** user changed ******')
+				console.log('e.action', e.action);
+				console.log('e.record', e.record);
+				if (e.record?.verified) {
+					currentUser.set({ ...$currentUser, verified: true })
+					pb.collection('users').unsubscribe(); 
+					// goto('/projects')
+				}
+			});
 		}
 	}
 	const newProject = async () => {
@@ -58,13 +73,16 @@
 			</ion-buttons>
 			<ion-title>Azabab Projects</ion-title>
 			<ion-buttons slot="end">
-				<ion-button on:click={newProject}>
-					<ion-icon slot="icon-only" icon={addOutline} />
-				</ion-button>
+				{#if $currentUser?.verified === true}
+					<ion-button on:click={newProject}>
+						<ion-icon slot="icon-only" icon={addOutline} />
+					</ion-button>
+				{/if}
 			</ion-buttons></ion-toolbar
 		>
 	</ion-header>
 	<ion-content>
+		{#if $currentUser}
 		{#if projects.length > 4}
 		<ion-searchbar value={filterValue} 
 			debounce={500} 
@@ -72,7 +90,20 @@
 			style="margin-left: 10px;padding-right: 30px;" 
 			placeholder="search for project"></ion-searchbar>
 		{/if}
-		{#if projects.length === 0}
+		{#if $currentUser && $currentUser.verified === false}
+		<div class="width-500">
+			<ion-card>
+				<ion-card-header>
+					<ion-card-title>Verify Your Email</ion-card-title>
+				</ion-card-header>
+				<ion-card-content>
+					You need to verify your email before you can create a project. Please
+					check your email for a verification link.
+				</ion-card-content>
+			</ion-card>
+		</div>
+		{/if}
+		{#if projects.length === 0 && $currentUser.verified === true}
 		<div class="width-500">
 			<ion-card>
 				<ion-card-header>
@@ -88,7 +119,7 @@
 				</ion-card-content>
 			</ion-card>
 		</div>
-		{:else }
+		{:else}
 		<ion-list>
 			<div class="grid-container">
 				{#each projects as project}
@@ -154,6 +185,20 @@
 				{/each}
 			</div>
 		</ion-list>
+		{/if}
+		{:else}
+
+		<div class="width-500">
+			<ion-card>
+				<ion-card-header>
+					<ion-card-title>Sign up or log in</ion-card-title>
+				</ion-card-header>
+				<ion-card-content>
+					You need to sign up or log in to create a project.
+				</ion-card-content>
+			</ion-card>
+		</div>
+	
 		{/if}
 	</ion-content>
 </IonPage>

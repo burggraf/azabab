@@ -4,7 +4,7 @@
 	import { page } from '$app/stores'
 	import * as allIonicIcons from 'ionicons/icons'
 	import { arrowBackOutline } from 'ionicons/icons'
-	import { pb } from '$services/backend.service'
+	import { pb, currentUser } from '$services/backend.service'
 	import { goto } from '$app/navigation'
 	import { toast } from '$services/toast'
 	import { onMount } from 'svelte'
@@ -50,6 +50,9 @@
 	let primary_instance_id = ''
 	const ionViewWillEnter = async () => {
 		console.log('*** ionViewWillEnter')
+		if (!$currentUser) {
+			goto('/');
+		}
 		const record = await pb.collection('projects').getOne(project_id, {
 			expand: 'id,domain,name,owner,ownertype,port',
 		})

@@ -32,6 +32,9 @@
 	})
 	const ionViewWillEnter = async () => {
 		console.log('*** ionViewWillEnter')
+		if (!$currentUser) {
+			goto('/');
+		}
         const record = await pb.collection('projects').getOne(id, {});
         if (record) {
             for (let attr in project) {

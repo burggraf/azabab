@@ -19,7 +19,7 @@ export let apiURL = '';
 if (host === 'localhost' || host === '127.0.0.1') port = '8090';
 
 
-if (host === 'localhost' || host === '127.0.0.1') {
+if (false && (host === 'localhost' || host === '127.0.0.1')) {
   apiURL = "https://east-3.azabab.com";
 } else {
   // get current protocol (http or https)
@@ -27,9 +27,8 @@ if (host === 'localhost' || host === '127.0.0.1') {
   apiURL = `${protocol}//${host}`;
   if (port) apiURL += `:${port}`;
   apiURL += '/';
-  console.log('apiURL', apiURL);
 }
-
+console.log('apiURL', apiURL);
 export const pb = new PocketBase(apiURL);
 
 export let currentUser: any = writable<any | null>(null);
