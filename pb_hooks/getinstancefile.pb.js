@@ -28,7 +28,7 @@ routerAdd('POST', '/getinstancefile', (c) => {
 		.dao()
 		.db()
 		.newQuery(
-			`SELECT sites.domain as site,port 
+			`SELECT sites.domain as site, project_instance.port 
 			from project_instance 
 			join sites on project_instance.site_id = sites.id
 			join projects on project_instance.project_id = projects.id

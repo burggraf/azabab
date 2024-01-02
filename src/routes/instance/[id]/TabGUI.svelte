@@ -90,6 +90,7 @@
 	}
 
 	const getDir = async () => {
+		console.log('getDir project_instance.id: ', project_instance.id)
 		const { data, error } = await pb.send(`/getinstancefiles/${project_instance.id}`, {
 			method: 'GET',
 		})

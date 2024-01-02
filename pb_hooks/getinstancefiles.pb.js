@@ -12,6 +12,14 @@ routerAdd('GET', '/getinstancefiles/:project_instance_id', (c) => {
 		return c.json(200, { data: null, error: 'not logged in' })
 	}
 
+	console.log(`SELECT sites.domain as site,port 
+	from project_instance 
+	join sites on project_instance.site_id = sites.id
+	join projects on project_instance.project_id = projects.id
+	where project_instance.id = '${project_instance_id}' 
+		and projects.owner = '${user.id}'`
+	);
+
 	const sites = arrayOf(
 		new DynamicModel({
 			site: '',
@@ -22,7 +30,7 @@ routerAdd('GET', '/getinstancefiles/:project_instance_id', (c) => {
 		.dao()
 		.db()
 		.newQuery(
-			`SELECT sites.domain as site,port 
+			`SELECT sites.domain as site, project_instance.port 
 			from project_instance 
 			join sites on project_instance.site_id = sites.id
 			join projects on project_instance.project_id = projects.id
@@ -31,6 +39,7 @@ routerAdd('GET', '/getinstancefiles/:project_instance_id', (c) => {
 		)
 		.all(sites) // throw an error on db failure
 
+	console.log(`http://${sites[0].site}:5000/getinstancefiles?port=${sites[0].port}`);
 	try {
 		let res;
 		try {
