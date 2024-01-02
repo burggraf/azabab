@@ -63,7 +63,7 @@
 				<ion-grid>
 					<ion-row>
 						<ion-col size="auto">
-							<ion-img style="height: 40px; width:40px; margin-left:10px; margin-right: 10px; margin-top: 30px;" src="/assets/icon.svg"></ion-img>
+							<ion-img style="height: 40px; width:40px; margin-left:10px; margin-right: 10px; margin-top: 30px;" src="/icon.svg"></ion-img>
 						</ion-col>
 						<ion-col size="auto">
 							<h1>Azabab</h1>
