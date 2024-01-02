@@ -12,33 +12,70 @@ mod pitr;
 mod setup_marmot;
 mod sync;
 
+use std::convert::Infallible;
 use hyper::{Body, Request, Response, Server};
 use hyper::service::{make_service_fn, service_fn};
-//use std::process::Command;
-//use hyper::client::Client;
-//use std::fs::OpenOptions;
-//use std::io::Write;
-//use serde_json::json;
 
 const AUTH_TOKEN: &str = "your_predefined_auth_token";  // Replace with your actual token
 
+async fn offline_handler(_req: hyper::Request<Body>) -> Result<Response<Body>, hyper::Error> {
+    Ok(Response::new(Body::from("This application is currently offline")))
+}
+
+async fn maintenance_handler(_req: hyper::Request<Body>) -> Result<Response<Body>, hyper::Error> {
+    Ok(Response::new(Body::from("This application is in maintenance mode")))
+}
 
 #[tokio::main]
 async fn main() {
-    let addr = ([0, 0, 0, 0], 5000).into();
+    let main_addr = ([0, 0, 0, 0], 5000).into();
+    let offline_addr = ([0, 0, 0, 0], 9999).into();
+    let maintenance_addr = ([0, 0, 0, 0], 9998).into();
 
-    let make_svc = make_service_fn(|_conn| async {
+    // Main server
+    let main_service = make_service_fn(|_conn| async {
         Ok::<_, hyper::Error>(service_fn(request_handler))
     });
+    let main_server = Server::bind(&main_addr).serve(main_service);
 
-    let server = Server::bind(&addr).serve(make_svc);
+    // Offline server
+    let offline_service = make_service_fn(|_conn| async {
+        Ok::<_, Infallible>(service_fn(offline_handler))
+    });
+    let offline_server = Server::bind(&offline_addr).serve(offline_service);
 
-    println!("Listening on http://{}", addr);
+    // Maintenance server
+    let maintenance_service = make_service_fn(|_conn| async {
+        Ok::<_, Infallible>(service_fn(maintenance_handler))
+    });
+    let maintenance_server = Server::bind(&maintenance_addr).serve(maintenance_service);
 
-    if let Err(e) = server.await {
-        eprintln!("server error: {}", e);
-    }
+    println!("Main server listening on http://{}", main_addr);
+    println!("Offline server listening on http://{}", offline_addr);
+    println!("Maintenance server listening on http://{}", maintenance_addr);
+
+    let _ = tokio::join!(
+        main_server,
+        offline_server,
+        maintenance_server,
+    );
 }
+// #[tokio::main]
+// async fn main() {
+//     let addr = ([0, 0, 0, 0], 5000).into();
+
+//     let make_svc = make_service_fn(|_conn| async {
+//         Ok::<_, hyper::Error>(service_fn(request_handler))
+//     });
+
+//     let server = Server::bind(&addr).serve(make_svc);
+
+//     println!("Listening on http://{}", addr);
+
+//     if let Err(e) = server.await {
+//         eprintln!("server error: {}", e);
+//     }
+// }
 
 async fn request_handler(req: Request<Body>) -> Result<Response<Body>, hyper::Error> {
     // println!("req.uri().path(): {}",req.uri().path());
