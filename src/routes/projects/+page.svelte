@@ -56,7 +56,7 @@
 			<ion-buttons slot="start">
 				<ion-menu-button />
 			</ion-buttons>
-			<ion-title>Projects</ion-title>
+			<ion-title>Azabab Projects</ion-title>
 			<ion-buttons slot="end">
 				<ion-button on:click={newProject}>
 					<ion-icon slot="icon-only" icon={addOutline} />
@@ -72,6 +72,23 @@
 			style="margin-left: 10px;padding-right: 30px;" 
 			placeholder="search for project"></ion-searchbar>
 		{/if}
+		{#if projects.length === 0}
+		<div class="width-500">
+			<ion-card>
+				<ion-card-header>
+					<ion-card-title>No Projects Yet</ion-card-title>
+				</ion-card-header>
+				<ion-card-content>
+					Looks like you don't have any projects yet. Click the button below to
+					start a new project.
+					<ion-button expand="block" on:click={newProject}>
+						<ion-icon slot="icon-only" icon={addOutline} />
+						Create New Project
+					</ion-button>
+				</ion-card-content>
+			</ion-card>
+		</div>
+		{:else }
 		<ion-list>
 			<div class="grid-container">
 				{#each projects as project}
@@ -137,6 +154,7 @@
 				{/each}
 			</div>
 		</ion-list>
+		{/if}
 	</ion-content>
 </IonPage>
 
@@ -158,4 +176,11 @@
 		/* font-family: monospace; */
 		text-transform: lowercase;	
 	}
+
+	.width-500 {
+		text-align: center;
+		max-width: 500px;
+		margin: auto;
+	}
+
 </style>

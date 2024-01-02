@@ -31,7 +31,7 @@
 			component: LoginModal,
 			componentProps: {
 				providers: ['google', 'facebook'],
-				onSignIn: () => { goto('/welcome') },
+				onSignIn: () => { goto('/projects') },
 			},
 			showBackdrop: true,
 			backdropDismiss: true,
