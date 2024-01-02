@@ -8,6 +8,58 @@ routerAdd('POST', '/update-streaming-backup-settings', async (c) => {
 	if (!data?.instance_id) {
 		return c.json(200, { data: null, error: 'instance_id is required' })
 	}
+	// get existing codes (destinations) for data and logs in case we have to delete files
+	let db_destination = ''
+	let logs_destination = ''
+
+	console.log(`select coalesce(data.code,'') as db_destination, coalesce(logs.code,'') as logs_destination 
+	from project_instance 
+	left outer join s3 as data on data.id = project_instance.db_streaming_backup_location 
+	left outer join s3 as logs on logs.id = project_instance.logs_streaming_backup_location 
+	where project_instance.id = '${data?.instance_id}'`);
+
+	try {
+		const destinationLookup = arrayOf(
+			new DynamicModel({
+				db_destination: '',
+				logs_destination: '',
+			})
+		)
+		$app
+		.dao()
+		.db()
+		.newQuery(
+			`select coalesce(data.code,'') as db_destination, coalesce(logs.code,'') as logs_destination 
+			from project_instance 
+			left outer join s3 as data on data.id = project_instance.db_streaming_backup_location 
+			left outer join s3 as logs on logs.id = project_instance.logs_streaming_backup_location 
+			where project_instance.id = '${data?.instance_id}'`
+		).all(destinationLookup)
+		if (destinationLookup.length > 0) {
+			db_destination = destinationLookup[0].db_destination
+			logs_destination = destinationLookup[0].logs_destination
+		}
+		console.log('db_destination', db_destination)
+		console.log('logs_destination', logs_destination)
+	} catch (destinationLookupError) {
+			//removeProjectInstanceError.value.error()
+			const error_to_return = destinationLookupError.value.error()
+			return c.json(200, {
+				data: null,
+				error: error_to_return || JSON.stringify(destinationLookupError),
+			})
+	}
+
+	console.log('update the project_instance record')
+
+
+	console.log(`update project_instance 
+	set db_streaming_backup_location = '${data?.data?.db_streaming_backup_location}',
+	logs_streaming_backup_location = '${data?.data?.logs_streaming_backup_location}',
+	db_streaming_backup_retention = '${data?.data?.db_streaming_backup_retention}',
+	logs_streaming_backup_retention = '${data?.data?.logs_streaming_backup_retention}'
+	where id = '${data?.instance_id}'`);
+
 	// update the project_instance record
 	try {
 		$app
@@ -21,6 +73,7 @@ routerAdd('POST', '/update-streaming-backup-settings', async (c) => {
 			logs_streaming_backup_retention = '${data?.data?.logs_streaming_backup_retention}'
 			where id = '${data?.instance_id}'`
 		).execute()
+		console.log('done updating project_instance with streaming backup settings')
 	} catch (update_project_instance_error) {
 			//removeProjectInstanceError.value.error()
 			const error_to_return = update_project_instance_error.value.error()
@@ -33,6 +86,23 @@ routerAdd('POST', '/update-streaming-backup-settings', async (c) => {
 	let site_domain = '';
 	let lookup;
 	try {
+		console.log('lookup the instance view record')
+		console.log(`select db_streaming_backup_location,
+		logs_streaming_backup_location,
+		coalesce(db.access_key_id,'') as db_access_key_id, 
+		coalesce(db.endpoint,'') as db_endpoint, 
+		coalesce(db.secret_access_key,'') as db_secret_access_key, 
+		coalesce(logs.access_key_id,'') as logs_access_key_id, 
+		coalesce(logs.endpoint,'') as logs_endpoint, 
+		coalesce(logs.secret_access_key,'') as logs_secret_access_key, 
+		owner, ownertype, port, site_domain, domain, 
+		db_streaming_backup_retention,
+		logs_streaming_backup_retention
+		from instance_view 
+		left outer join s3 as db on db.id = coalesce(db_streaming_backup_location,'') 
+		left outer join s3 as logs on logs.id = coalesce(logs_streaming_backup_location,'')
+		where instance_view.id = '${data?.instance_id}'`);
+
 		// check if the user is the owner of the instance
 		lookup = arrayOf(
 			new DynamicModel({
@@ -67,15 +137,14 @@ routerAdd('POST', '/update-streaming-backup-settings', async (c) => {
 						coalesce(logs.secret_access_key,'') as logs_secret_access_key, 
 						owner, ownertype, port, site_domain, domain, 
 						db_streaming_backup_retention,
-						logs_streaming_backup_retention,
-						db.code as db_destination,
-						logs.code as logs_destination 
+						logs_streaming_backup_retention
 						from instance_view 
 						left outer join s3 as db on db.id = coalesce(db_streaming_backup_location,'') 
 						left outer join s3 as logs on logs.id = coalesce(logs_streaming_backup_location,'')
 						where instance_view.id = '${data?.instance_id}'`
 			)
 			.all(lookup) // throw an error on db failure
+			console.log('got lookup', JSON.stringify(lookup,null,2))
 		if (lookup.length === 0) {
 			return c.json(200, { data: null, error: 'project instance not found' })
 		}
@@ -96,7 +165,7 @@ routerAdd('POST', '/update-streaming-backup-settings', async (c) => {
 
 	const payload = {files: []}
 	if (lookup[0]?.db_access_key_id && lookup[0]?.db_access_key_id.length > 0) {
-		payload.files.push({filename: `${port}-data`, destination: `${lookup[0]?.db_destination}`, contents: 
+		payload.files.push({filename: `${port}-data`, destination: `${db_destination}`, contents: 
 		`  - path: /home/ubuntu/data/${port}/pb_data/data.db\n` +
 		`    replicas:\n` +
 		`      - type: s3\n` +
@@ -112,11 +181,11 @@ routerAdd('POST', '/update-streaming-backup-settings', async (c) => {
 		`        force-path-style: true\n`
 	})
 	} else {
-		payload.files.push({filename: `${port}-data`, contents: ""})
+		payload.files.push({filename: `${port}-data`, destination: `${db_destination}`, contents: ""})
 	}
 
 	if (lookup[0]?.logs_access_key_id && lookup[0]?.logs_access_key_id.length > 0) {
-		payload.files.push({filename: `${port}-logs`, destination: `${lookup[0]?.logs_destination}`, contents: 
+		payload.files.push({filename: `${port}-logs`, destination: `${logs_destination}`, contents: 
 		`  - path: /home/ubuntu/data/${port}/pb_data/logs.db\n` +
 		`    replicas:\n` +
 		`      - type: s3\n` +
@@ -132,7 +201,7 @@ routerAdd('POST', '/update-streaming-backup-settings', async (c) => {
 		`        force-path-style: true\n`
 	})
 	} else {
-		payload.files.push({filename: `${port}-logs`, contents: ""})
+		payload.files.push({filename: `${port}-logs`, destination: `${logs_destination}`, contents: ""})
 	}
 
 	/*
@@ -148,6 +217,7 @@ routerAdd('POST', '/update-streaming-backup-settings', async (c) => {
         force-path-style: true
 	
 	*/
+	console.log('payload', JSON.stringify(payload,null,2))
 	const res = $http.send({
 			url: `http://${site_domain}:5000/updatelitestream`,
 			method: 'POST',
