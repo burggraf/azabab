@@ -11,6 +11,7 @@ mod get_litestream_generations;
 mod pitr;
 mod setup_marmot;
 mod sync;
+mod toggle_instance;
 
 use std::convert::Infallible;
 use hyper::{Body, Request, Response, Server};
@@ -115,6 +116,9 @@ async fn request_handler(req: Request<Body>) -> Result<Response<Body>, hyper::Er
         },
         ("/sync", &hyper::Method::POST) => {
             sync::handle_sync(req, AUTH_TOKEN).await
+        },
+        ("/toggleinstance", &hyper::Method::POST) => {
+            toggle_instance::handle_toggle_instance(req, AUTH_TOKEN).await
         },
         _ => catch_all_handler::handle_catch_all(req).await
     }
