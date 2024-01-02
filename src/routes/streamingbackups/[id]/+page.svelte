@@ -12,22 +12,28 @@
 	import { arrowBackOutline, cloudDownloadOutline, refreshOutline } from 'ionicons/icons'
     import { page } from '$app/stores'
     import moment from 'moment'
+	import { json } from '@sveltejs/kit'
 
     export let id = $page.params.id
-	let project_instance: ProjectInstance = {
-		code: '',
-		domain: '',
-		id: '',
-		port: 0,
-		site_domain: '',
-		site_name: 'Select a site',
-		site_id: '',
-		type: 'primary',
-		db_streaming_backup_location: '',
-		logs_streaming_backup_location: '',
-		db_streaming_backup_retention: 0,
-		logs_streaming_backup_retention: 0
-	}
+    export let project_instance: ProjectInstance = 
+		{
+            name: '',
+            project_id: '',
+            owner: '',
+            ownertype: '',
+            code: '',
+            domain: '',
+            id: '',
+            port: 0,
+            site_domain: '',
+            site_name: 'Select a site',
+            site_id: '',
+            type: 'primary',
+            db_streaming_backup_location: '',
+            logs_streaming_backup_location: '',
+            db_streaming_backup_retention: 0,
+            logs_streaming_backup_retention: 0
+        };
 	let streaming_backup_sites: StreamingBackupSite[] = []
     const ionViewWillEnter = async () => {
         console.log('*** ionViewWillEnter, id', id)
@@ -97,8 +103,11 @@
 					data[entity] = ''
 				},
 		}]
-		for (let i = 0; i < streaming_backup_sites.length; i++) {
+		for (let i = 0; i < streaming_backup_sites.length; i++) { 
 			const streaming_backup_site = streaming_backup_sites[i]
+            // you can only choose the current streaming_backup_site or delete it
+            // then later pick a new destination
+            if (data[entity].length > 0 && streaming_backup_site.id !== data[entity]) continue;
 			items.push({
 				text: streaming_backup_site.name,
 				icon: allIonicIcons.globeOutline,
@@ -314,7 +323,6 @@
 			<ion-title>Streaming Backups</ion-title>
         </ion-toolbar>
 	</ion-header>
-
 <ion-grid id="restoreGrid"  class="ion-padding Grid" style="display: none; height: 100%;overflow-x: scroll;">
 
     <ion-row>
