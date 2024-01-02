@@ -12,6 +12,7 @@ sudo docker stats \
 	--format "$(date -u '+%s')\t$2\t{{.Name}}\t{{.CPUPerc}}\t{{.MemUsage}}\t{{.NetIO}}\t{{.BlockIO}}" \
 	$1 \
 	| sed 's| / |\t|g' \
+	| grep -v 'nats-server' \
 	| grep -v 'ssh-server' > $FILE
 
 # Check if file size is greater than 0
