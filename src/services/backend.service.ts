@@ -15,13 +15,21 @@ export const pb = new PocketBase('http://127.0.0.1:8090', new CustomAuthStore())
 // get current host and port
 const host = window.location.hostname;
 let port = window.location.port;
+export let apiURL = '';
 if (host === 'localhost' || host === '127.0.0.1') port = '8090';
-// get current protocol (http or https)
-const protocol = window.location.protocol;
-export let apiURL = `${protocol}//${host}`;
-if (port) apiURL += `:${port}`;
-apiURL += '/';
-console.log('apiURL', apiURL);
+
+
+if (host === 'localhost' || host === '127.0.0.1') {
+  apiURL = "https://east-3.azabab.com";
+} else {
+  // get current protocol (http or https)
+  const protocol = window.location.protocol;
+  apiURL = `${protocol}//${host}`;
+  if (port) apiURL += `:${port}`;
+  apiURL += '/';
+  console.log('apiURL', apiURL);
+}
+
 export const pb = new PocketBase(apiURL);
 
 export let currentUser: any = writable<any | null>(null);
