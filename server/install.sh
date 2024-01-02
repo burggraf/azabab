@@ -138,19 +138,6 @@ ssh ubuntu@$1 "~/configure-nats-server.sh"
 #ssh ubuntu@$1 "~/start-nats-server.sh"
 
 echo ""
-echo "Copy sync-server files to the server"
-echo ""
-ssh ubuntu@$1 "mkdir ~/sync-server"
-scp sync-server/* ubuntu@$1:~/sync-server
-
-echo ""
-echo "*** Build the sync-server Docker image ***"
-echo ""
-ssh ubuntu@$1 "cd ~/sync-server;sudo docker build -t sync-server ."
-#scp files/start-sync-server.sh ubuntu@$1:~
-ssh ubuntu@$1 "~/start-sync-server.sh"
-
-echo ""
 echo "Create a service to run rust-server.exe"
 echo ""
 ssh ubuntu@$1 "sudo mv ~/rust-server.service /etc/systemd/system"
@@ -224,4 +211,19 @@ echo "*********     TO ADD CURRENT ROUTES       *********"
 echo "********* THEN RUN ~/start-nats-server.sh *********"
 echo "***************************************************"
 echo ""
+
+echo ""
+echo "***************************************************"
+echo "**** MANUALLY CONFIGURE RCLONE                 ****"
+echo "**** /root/.config/rclone/rclone.conf          ****"
+echo "*** one entry per s3 location                  ****"
+echo "***************************************************"
+echo "[code]"
+echo "type = s3"
+echo "provider = IDrive"
+echo "access_key_id = xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+echo "secret_access_key = xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+echo "endpoint = xxxxxxxxxxxxxxxxxxxxxxx"
+echo "***************************************************"
+
 
