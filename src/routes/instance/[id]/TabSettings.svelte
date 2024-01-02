@@ -44,6 +44,11 @@
 			toast('You cannot remove the primary instance if there are existing replicas', 'danger')
 			return
 		}
+		if (project_instance.db_streaming_backup_location || 
+			project_instance.logs_streaming_backup_location) {
+			toast('You cannot remove an instance with streaming backups enabled', 'danger')
+			return
+		}
 		await showConfirm({
 			header: 'Remove Project Instance',
 			message: `Are you SURE?  This cannot be undone.  If this is the last instance, the project will also be removed.`,
