@@ -69,7 +69,7 @@ routerAdd('POST', '/createproject', async (c) => {
 			.dao()
 			.db()
 			.newQuery(
-				`insert into project_instance (project_id, site_id, port, type, domain, status) 
+				`insert into project_instance (project_id, site_id, port, type, domain, instance_status) 
                     values ('${newId}', 
                     '${data?.project_instance?.site_id}',
 					${newPort}, 
