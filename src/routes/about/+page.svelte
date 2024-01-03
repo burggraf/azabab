@@ -1,7 +1,10 @@
 <script lang="ts">
 	import IonPage from "$ionpage";
+    import { pb } from '$services/backend.service'
     const ionViewWillEnter = async () => {
         console.log("ionViewWillEnter")
+        const { data, error } = await pb.send('/get-environment',{"method":"GET"})
+        console.log('enviroment:', data)
     }
 </script>
 <IonPage {ionViewWillEnter}>
