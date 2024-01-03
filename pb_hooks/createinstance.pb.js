@@ -108,14 +108,14 @@ routerAdd('POST', '/createinstance', async (c) => {
 			.newQuery(
 				`insert into project_instance (project_id, site_id, port, type, domain, 
 					db_streaming_backup_location, db_streaming_backup_retention, 
-					logs_streaming_backup_location, logs_streaming_backup_retention) 
+					logs_streaming_backup_location, logs_streaming_backup_retention, status) 
                     values (
 						'${data?.project_instance?.project_id}',
 						'${data?.project_instance?.site_id}',
 						${data?.project_instance?.port},
 						'${data?.project_instance?.type}',
 						'${data?.project_instance?.domain}',
-					    '',0,'',0 
+					    '',0,'',0,'online' 
 					)
 					returning id`
 			)

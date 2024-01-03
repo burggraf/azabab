@@ -69,12 +69,13 @@ routerAdd('POST', '/createproject', async (c) => {
 			.dao()
 			.db()
 			.newQuery(
-				`insert into project_instance (project_id, site_id, port, type, domain) 
+				`insert into project_instance (project_id, site_id, port, type, domain, status) 
                     values ('${newId}', 
                     '${data?.project_instance?.site_id}',
 					${newPort}, 
                     '${data?.project_instance?.type}',
-                    '${data?.project_instance?.domain}')
+                    '${data?.project_instance?.domain}',
+					'online')
                     returning id`
 			)
 			.all(project_instancesInsert) // throw an error on db failure

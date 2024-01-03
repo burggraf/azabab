@@ -7,12 +7,13 @@
 	import type { ProjectInstance, StreamingBackupSite } from '$models/interfaces'
     import { dropdownmenu } from '$components/DropdownMenu'
 	import * as allIonicIcons from 'ionicons/icons'
-	import { pb } from '$services/backend.service'
+	import { pb, currentUser } from '$services/backend.service'
 	import { toast } from '$services/toast'
 	import { arrowBackOutline, cloudDownloadOutline, refreshOutline } from 'ionicons/icons'
     import { page } from '$app/stores'
     import moment from 'moment'
 	import { json } from '@sveltejs/kit'
+	import { goto } from '$app/navigation'
 
     export let id = $page.params.id
     export let project_instance: ProjectInstance = 
@@ -37,6 +38,9 @@
 	let streaming_backup_sites: StreamingBackupSite[] = []
     const ionViewWillEnter = async () => {
         console.log('*** ionViewWillEnter, id', id)
+		if (!$currentUser) {
+			goto('/');
+		}
         const inst = await pb.collection('instance_view').getOne(id)
         console.log('inst is', inst);
         if (inst) {

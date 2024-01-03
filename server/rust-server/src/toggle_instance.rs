@@ -29,6 +29,8 @@ pub async fn handle_toggle_instance(mut req: Request<Body>, _auth_token: &str) -
     let port = body_params["port"].as_str().unwrap_or_default();
     let status = body_params["status"].as_str().unwrap_or_default();
 
+    println!("toggleinstance port {} status {}", port, status);
+
     // Modify the /etc/nginx/domain_ports.txt file
     let mut file_content = String::new();
     {
