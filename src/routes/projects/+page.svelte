@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation'
 	import IonPage from '$ionpage'
-	import { addOutline, constructOutline, eyeOutline } from 'ionicons/icons'
+	import { addOutline, constructOutline, ellipseSharp, eyeOutline } from 'ionicons/icons'
 	import { pb, currentUser } from '$services/backend.service'
 	let projects: any = []
 	let project_instances: any = []
@@ -11,7 +11,7 @@
 			goto('/');
 		}
 		const instance_records = await pb.collection('instance_view').getFullList({
-			sort: 'name,type,site_name',
+			sort: 'name,type,site_name,instance_status',
 		})
 		project_instances = instance_records
 		const project_records = await pb.collection('projects').getFullList({
@@ -150,7 +150,8 @@
 										<ion-button
 										slot="end"
 										size="small"
-										fill="clear"
+										fill="outline"
+										color={instance.instance_status === 'online' ? 'success' : instance.instance_status === 'offline' ? 'danger' : 'warning'}
 										on:click|stopPropagation={() => {
 											// launch in another windows
 											window.open(

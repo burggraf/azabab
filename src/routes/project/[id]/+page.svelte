@@ -7,6 +7,7 @@
 		arrowBackOutline,
 		arrowForwardOutline,
 		checkmarkOutline,
+		ellipseSharp,
 	} from 'ionicons/icons'
 	import { currentUser, pb } from '$services/backend.service'
 	import { goto } from '$app/navigation'
@@ -68,6 +69,7 @@
                     logs_streaming_backup_location: instance.logs_streaming_backup_location,
                     db_streaming_backup_retention: instance.db_streaming_backup_retention,
                     logs_streaming_backup_retention: instance.logs_streaming_backup_retention,
+                    instance_status: instance.instance_status
                 }
                 instances.push(newInstance)
             }
@@ -196,6 +198,16 @@
                                     {instance.site_name}
                                     {instance.type}<br />
                                     {instance.domain}.{instance.site_domain}
+                                    <ion-button
+                                        slot="end"
+                                        size="small"
+                                        fill="clear"
+                                    >
+                                        <ion-icon slot="icon-only" color={
+                                            instance.instance_status === 'online' ? 'success' : 
+                                            instance.instance_status === 'offline' ? 'danger' : 'warning'
+                                        } icon={ellipseSharp} />
+                                    </ion-button>
                                     <ion-button
                                         slot="end"
                                         size="small"
