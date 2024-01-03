@@ -2,9 +2,7 @@
 
 cronAdd("import_stats", "* * * * *", () => {
     const IMPORT_STATS_ACTIVE = true;
-    console.log('import_stats cron fired')
     const import_stats = async () => {
-        console.log('import_stats function starting...')
         const convertUnits = (str) => {
             // get units by looking for letters in the string
             const arr = str.split(/([a-zA-Z]+)/)
@@ -52,7 +50,6 @@ cronAdd("import_stats", "* * * * *", () => {
             .all(sites) // throw an error on db failure
     
         const process_site = async (site) => {
-            console.log('processing stats for', site.name)
             try {
                 let counter = 0
                 let records_inserted = 0;
@@ -90,12 +87,10 @@ cronAdd("import_stats", "* * * * *", () => {
                             continue // empty line
                         }
                         const record = arr[i].split('\t')
-                        if (record.length < 10) {
-                            console.log(`${site.name} file ${f} line ${i + 1} skipping record.length < 10`, record.length)
-                            console.log('record: ', JSON.stringify(record))
-                            // contents
-                            // f
-                            $os.writeFile(`./${site.domain}-${f}-line${i+1}.txt`, contents, 777);
+                        if (record.length < 10 || record.length > 10) {
+                            // console.log(`${site.name} file ${f} line ${i + 1} skipping record.length < 10`, record.length)
+                            // console.log('record: ', JSON.stringify(record))
+                            // $os.writeFile(`./${site.domain}-${f}-line${i+1}.txt`, contents, 777);
                             continue
                         } else {
                             const rec = {}
@@ -164,7 +159,7 @@ cronAdd("import_stats", "* * * * *", () => {
             $app.dao().db()
             .newQuery("update stats set instance_id = coalesce((select id from project_instance where project_instance.port = stats.port and project_instance.site_id = stats.site_id),'MISSING') where stats.instance_id = ''")
             .execute() // throw an error on db failure
-            console.log('updated instance_ids')
+            // console.log('updated instance_ids')
         } catch (update_error) {
             console.log('update instance_ids error', update_error)
         }
