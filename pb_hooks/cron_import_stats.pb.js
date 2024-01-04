@@ -140,7 +140,7 @@ cronAdd("import_stats", "* * * * *", () => {
                     }
                     counter++;
                 }
-                console.log(`${site.name} SUCCESS: ${counter} files processed, ${records_inserted} records inserted.`)
+                // console.log(`${site.name} SUCCESS: ${counter} files processed, ${records_inserted} records inserted.`)
                 // return c.json(200, { data: `SUCCESS: ${counter} files processed, ${records_inserted} records inserted.`, error: null })
 
                 return;
