@@ -3,6 +3,7 @@ Description=Rust Server Service
 After=network.target
 
 [Service]
+Environment="ENVIRONMENT=production"
 Type=simple
 User=root
 WorkingDirectory=/home/ubuntu
