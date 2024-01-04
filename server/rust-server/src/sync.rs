@@ -39,6 +39,7 @@ pub async fn handle_sync(mut req: Request<Body>, _auth_token: &str) -> Result<Re
         "up" => {
             // Execute rclone sync for "up" direction
             let sync_command = format!("rclone sync {} {}:azabab/sync/{} --exclude marmot/marmot.toml", port, destination, port);
+            // println!("sync_command: {}", sync_command);
             Command::new("sh")
                 .arg("-c")
                 .arg(&sync_command)
@@ -53,6 +54,7 @@ pub async fn handle_sync(mut req: Request<Body>, _auth_token: &str) -> Result<Re
                 .output();
 
             let sync_command = format!("rclone sync {}:azabab/sync/{} {} --exclude marmot/marmot.toml", destination, port, port);
+            // println!("sync_command: {}", sync_command);
             Command::new("sh")
                 .arg("-c")
                 .arg(&sync_command)
@@ -63,6 +65,7 @@ pub async fn handle_sync(mut req: Request<Body>, _auth_token: &str) -> Result<Re
         "delete" => {
             // New code for "delete" direction
             let delete_command = format!("rclone delete {}:azabab/sync/{}", destination, port);
+            // println!("delete_command: {}", delete_command);
             Command::new("sh")
                 .arg("-c")
                 .arg(&delete_command)
@@ -72,7 +75,7 @@ pub async fn handle_sync(mut req: Request<Body>, _auth_token: &str) -> Result<Re
         },        
         _ => println!("Invalid direction: {} for port {}", direction, port),
     }
-
+    // println!("Sync operation complete");
     // Return success response
     Ok(Response::builder()
         .status(StatusCode::OK)
