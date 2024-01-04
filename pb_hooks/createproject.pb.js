@@ -43,13 +43,17 @@ routerAdd('POST', '/createproject', async (c) => {
 				port: 0
 			})
 		)
+		let startingPort = "10001";
+		if ($os.getenv("ENVIRONMENT") === "dev") {
+			startingPort = "50001";
+		}
 		$app
 			.dao()
 			.db()
 			.newQuery(
 				`insert into projects (name, owner, ownertype, domain, port) 
                     values ('${data?.project?.name}', '${data?.project?.owner}', '${data?.project?.ownertype}', '${data?.project?.domain}',
-					(select coalesce(max(port)+1,10001) from projects))
+					(select coalesce(max(port)+1,${startingPort}) from projects))
                     returning id, port`
 			)
 			.all(projectInsert) // throw an error on db failure
