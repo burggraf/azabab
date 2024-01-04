@@ -36,15 +36,6 @@ pub async fn handle_catch_all(mut req: Request<Body>) -> Result<Response<Body>, 
     let _ = docker.containers().get(&container.id).start().await.unwrap();
 
     let server_uri = format!("http://localhost:{}/api/health", original_port);
-    /*
-    {
-        "code": 200,
-        "message": "API is healthy.",
-        "data": {
-            "canBackup": false
-        }
-    }
-     */
     let client = Client::new();
     let mut interval = interval(Duration::from_millis(50));
     let mut server_ready = false;
