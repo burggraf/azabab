@@ -7,15 +7,18 @@
 		arrowBackOutline,
 		arrowForwardOutline,
 		checkmarkOutline,
+		codeDownloadSharp,
 		ellipseSharp,
+		syncCircleOutline,
 	} from 'ionicons/icons'
 	import { currentUser, pb } from '$services/backend.service'
 	import { goto } from '$app/navigation'
 	import { toast } from '$services/toast'
-	import { onMount } from 'svelte'
     export let id = $page.params.id
 
 	import type { Project, ProjectInstance } from '$models/interfaces'
+	import { showConfirm } from '$services/alert.service'
+	import { loadingBox } from '$services/loadingMessage'
 
     let instances: ProjectInstance[] = []
 
@@ -28,11 +31,7 @@
         port: 0
 	}
 	
-	onMount(async () => {
-        console.log('*** project onMount')
-	})
 	const ionViewWillEnter = async () => {
-		console.log('*** ionViewWillEnter')
 		if (!$currentUser) {
 			goto('/');
 		}
@@ -48,7 +47,6 @@
         const records = await pb.collection('instance_view').getFullList({
             filter: `project_id="${id}"`
         });
-        console.log('*** instance records', records)
         if (records) {
             for (let instance of records) {
                 const newInstance: ProjectInstance = {
@@ -107,7 +105,6 @@
 		// }
 	}
     const createNewInstance = async () => {
-        console.log('*** createNewInstance')
         for (let i = 0; i < instances.length; i++) {
             const instance = instances[i]
             if (instance.db_streaming_backup_location !== '' || 
@@ -118,6 +115,29 @@
         }
         goto(`/newinstance/${project.id}`)
     }
+	const resync = async () => {
+        if (instances.length < 2) {
+            toast('You must have at least two instances to resync', 'danger')
+            return
+        }
+		await showConfirm({
+			header: 'Resync Project Instances',
+			message: `This will sync all files and data between the primary and replica instances.  Are you SURE?`,
+			okHandler: async () => {
+                const loader = await loadingBox('Resyncing replicas with primary...')
+                loader.present()
+				const { data, error } = await pb.send(`/resync/${project.id}`, {
+					method: 'GET',
+				})
+                loader.dismiss()
+                if (error) {
+                    toast('Error: ' + JSON.stringify(error), 'danger')
+                } else {
+                    toast('Resync complete', 'success')
+                }
+			},
+		})
+	}
 </script>
 
 <IonPage {ionViewWillEnter}>
@@ -234,4 +254,38 @@
         </ion-grid>
         
 	</ion-content>
-</IonPage>
+    <ion-footer>
+        <ion-toolbar color="light">
+            <ion-buttons slot="start">
+                {#if instances.length > 1}
+                <ion-button size="small" color="primary" on:click={resync}>
+                    <ion-icon slot="icon-only" icon={syncCircleOutline} />
+                    &nbsp;&nbsp;Re-Sync Instances
+                </ion-button>
+                {/if}
+            </ion-buttons>
+            <ion-buttons slot="end">
+                <!-- {#if projectInstances.length > 1}
+                    <ion-button
+                        size="small"
+                        color="primary"
+                        on:click={() => {
+                            sync('up')
+                        }}
+                    >
+                        <ion-icon slot="icon-only" icon={cloudUploadOutline} />
+                    </ion-button>&nbsp;&nbsp;
+                    <ion-button
+                        size="small"
+                        color="primary"
+                        on:click={() => {
+                            sync('down')
+                        }}
+                    >
+                        <ion-icon slot="icon-only" icon={cloudDownloadOutline} />
+                    </ion-button>
+                {/if} -->
+            </ion-buttons>
+        </ion-toolbar>
+    </ion-footer>
+    </IonPage>
