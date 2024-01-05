@@ -237,7 +237,7 @@
 				&nbsp;&nbsp;Remove Instance
 			</ion-button>
 		</ion-buttons>
-		<ion-buttons slot="end">
+		<!-- <ion-buttons slot="end">
 			{#if projectInstances.length > 1}
 				<ion-button
 					size="small"
@@ -258,7 +258,7 @@
 					<ion-icon slot="icon-only" icon={cloudDownloadOutline} />
 				</ion-button>
 			{/if}
-		</ion-buttons>
+		</ion-buttons> -->
 	</ion-toolbar>
 </ion-footer>
 
