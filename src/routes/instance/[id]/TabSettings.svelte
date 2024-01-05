@@ -143,7 +143,7 @@
 		console.log('*** you chose status', result)
 	}
 	const toggleinstance = async (status: string) => {
-
+		console.log('calling hook /toggleinstance')
 		const { data, error } = await pb.send(`/toggleinstance`, {
 			method: 'POST',
 			body: {
@@ -151,8 +151,8 @@
 				status: status,
 			},
 		})
-		console.log('error', error)
-		console.log('data', data)
+		console.log('toggleinstance hook error', error)
+		console.log('toggleinstance hook data', data)
 		if (data === 'ok') {
 			project_instance.instance_status = status
 		}

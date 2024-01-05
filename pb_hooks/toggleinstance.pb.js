@@ -2,6 +2,10 @@
 // 	 instance_id
 // 	 status (online, offline, maintenance)
 routerAdd('POST', '/toggleinstance', async (c) => {
+	const { toggleinstance } = require(`${__hooks}/modules/callbackend.js`)
+	const { execute, select } = require(`${__hooks}/modules/sql.js`)
+	// console.log('toggleinstance got module toggleinstance', toggleinstance)
+	// console.log('toggleinstance got module execute', execute)
 	// read the body via the cached request object
 	// (this method is commonly used in hook handlers because it allows reading the body more than once)
 	const data = $apis.requestInfo(c).data
@@ -23,38 +27,20 @@ routerAdd('POST', '/toggleinstance', async (c) => {
 	if (data?.status !== 'online' && data?.status !== 'offline' && data?.status !== 'maintenance') {
 		return c.json(200, { data: null, error: 'invalid status' })
 	}
-	// console.log('toggleinstance', JSON.stringify(data, null, 2))
-	let instanceData;
-	try {
-		// create the projectData record
-		instanceData = arrayOf(
-			new DynamicModel({
-				id: '',
-				port: 0,
-				site_domain: '',
-				domain: '',
-				owner: '',
-				ownertype: ''
-			})
-		)
-		$app
-			.dao()
-			.db()
-			.newQuery(
-				`select id, port, site_domain, domain, owner, ownertype from instance_view where id = '${data?.instance_id}'`
-			)
-			.all(instanceData) // throw an error on db failure
-		// console.log('toggleinstance instanceData', JSON.stringify(instanceData, null, 2))
-		if (instanceData.length !== 1) {
-			return c.json(200, { data: null, error: 'instance not found' })
-		}
-		if (instanceData[0].owner !== user.id) {
-			return c.json(200, { data: null, error: 'not your project' })
-		}
-	} catch (instanceDataError) {
-		console.log('instanceDataError', instanceDataError)
-		return c.json(200, { data: null, error: instanceDataError?.value?.error() || instanceDataError })
+	console.log('toggleinstance data', JSON.stringify(data, null, 2))
+	const { data: instanceData, error: instanceError } = 
+		select({id: '',port: 0, site_domain: '', domain: '', owner: '', ownertype: ''},
+		`select id, port, site_domain, domain, owner, ownertype from instance_view where id = '${data?.instance_id}'`);
+	console.log('instanceData', JSON.stringify(instanceData, null, 2))
+	console.log('instanceError', JSON.stringify(instanceError, null, 2))
+	if (instanceError) return c.json(200, { data: null, error: instanceError })
+	if (instanceData.length !== 1) {
+		return c.json(200, { data: null, error: 'instance not found' })
 	}
+	if (instanceData[0].owner !== user.id) {
+		return c.json(200, { data: null, error: 'not your project' })
+	}
+
 	// console.log('setting site_domain, domain, port, status')
 	let site_domain = instanceData[0].site_domain;
 	let domain = instanceData[0].domain;
@@ -73,43 +59,19 @@ routerAdd('POST', '/toggleinstance', async (c) => {
 		default:
 			return c.json(200, { data: null, error: 'invalid status' })
 	}
-	// get the site info
-	try {
-		const res = $http.send({
-			url: `http://${site_domain}:5000/toggleinstance`,
-			method: 'POST',
-			body: JSON.stringify({
-				domain: domain + '.' + site_domain,
-				port: port.toString(),
-				status: status, 
-			}),
-			headers: {
-				'content-type': 'application/json',
-				Authorization: 'your_predefined_auth_token',
-			},
-			timeout: 120, // in seconds
-		})
-		if (res.json?.error) {
-			return c.json(200, { data: null, error: res.json.error || res.json })
-		} 
-	} catch (toggleinstanceError) {
-		console.log('toggleinstanceError', toggleinstanceError)
-		return c.json(200, { data: null, error: toggleinstanceError?.value?.error() || toggleinstanceError })		
-	}
+	// take the instance online, offline, or into maintenance mode
+	console.log('calling toggleinstance at ' + domain + '.' + site_domain + ' port ' + port + ' status ' + status)
+	console.log('callback toggleinstance module', toggleinstance)
+	const { data: d1, error: e1 } = toggleinstance(domain, site_domain, port.toString(), status);
+	console.log('toggleinstance d1 data', JSON.stringify(d1, null, 2))
+	console.log('toggleinstance e1 error', JSON.stringify(e1, null, 2))
+	if (e1) return c.json(200, { data: null, error: e1 })
+	
 	// update the instance record
-	try {
-		$app
-			.dao()
-			.db()
-			.newQuery(
-				`update project_instance set instance_status = '${data?.status}' where id = '${data?.instance_id}'`
-			)
-			.execute() // throw an error on db failure
-		return c.json(200, { data: 'ok', error: null })
-	} catch (instanceUpdateError) {
-		console.log('instanceUpdateError', instanceUpdateError)
-		return c.json(200, { data: null, error: instanceUpdateError?.value?.error() || instanceUpdateError })
-	}
+	const { data: updateData, error: updateError } = 
+		execute(`update project_instance set instance_status = '${data?.status}' where id = '${data?.instance_id}'`);
+	if (updateError) return c.json(200, { data: null, error: updateError })
+	else return c.json(200, { data: 'ok', error: null })
 })
 
 
