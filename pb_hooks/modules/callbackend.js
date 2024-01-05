@@ -30,4 +30,34 @@ const toggleinstance = (domain, site_domain, port, status) => {
     }
 }
 
-module.exports = { toggleinstance }
+
+const sync = async (site_domain, port, direction) => {
+    if (typeof port !== 'string') port = port.toString()
+    try {
+        const res = $http.send({
+            url: `http://${site_domain}:5000/sync`,
+            method: 'POST',
+            body: JSON.stringify({
+                direction: direction,
+                port: port,
+                destination: 'la', // los angeles (for now)
+            }),
+            headers: {
+                'content-type': 'application/json',
+                Authorization: 'your_predefined_auth_token',
+            },
+            timeout: 120, // in seconds
+        })
+        if (res.json?.data !== 'Sync operation complete') {
+            return { data: null, error: res.json?.error || res.raw };
+        }
+        else {
+            return { data: res, error: null };        
+        }
+    } catch (httpError) {
+        return { data: null, error: httpError?.value?.error() || httpError };
+    }
+}
+
+
+module.exports = { toggleinstance, sync }
