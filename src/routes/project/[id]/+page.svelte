@@ -2,6 +2,8 @@
 	import '$styles/grid-styles.css'
 	import IonPage from '$ionpage'
 	import { page } from '$app/stores'
+    import * as allIonicIcons from 'ionicons/icons'
+
 	import {
 	addOutline,
 		arrowBackOutline,
@@ -19,6 +21,11 @@
 	import type { Project, ProjectInstance } from '$models/interfaces'
 	import { showConfirm } from '$services/alert.service'
 	import { loadingBox } from '$services/loadingMessage'
+	import { dropdownmenu } from '$components/DropdownMenu'
+	import { version } from '$app/environment'
+
+    const versions = ['v0.20.5','v0.20.4','v0.20.3','v0.20.2','v0.20.1','v0.20.0'];
+    const default_version = versions[0];
 
     let instances: ProjectInstance[] = []
 
@@ -28,7 +35,8 @@
 		name: '',
 		owner: $currentUser?.id,
 		ownertype: 'person',
-        port: 0
+        port: 0,
+        metadata: {}
 	}
 	
 	const ionViewWillEnter = async () => {
@@ -40,6 +48,8 @@
             for (let attr in project) {
                 project[attr] = record[attr]
             }
+            console.log('record', record)
+            console.log('project', project)
         } else {
             toast('Project not found', 'danger')
             goto('/projects')
@@ -138,6 +148,27 @@
 			},
 		})
 	}
+    const changeVersion = async (e: any) => {		
+		let items = []
+		for (let i = 0; i < versions.length; i++) {
+			const version = versions[i]
+			items.push({
+				text: version,
+				iconSrc: '/pb.svg',//allIonicIcons.ellipseOutline,
+				color: 'primary',
+				textcolor: 'dark',
+				handler: async () => {
+					console.log('you chose version', version)
+				},
+			})
+		}
+		const result = await dropdownmenu(e, items)
+		console.log('*** you chose status', result)
+        if (!project.metadata) project.metadata = {}
+        project.metadata.version = result.text
+        console.log('project', project)
+	}
+
 </script>
 
 <IonPage {ionViewWillEnter}>
@@ -201,6 +232,22 @@
                         </ion-item>
                     </ion-col>
                 </ion-row>
+
+                <ion-row>
+                    <ion-col>
+                        <ion-item>
+                            <ion-label slot="start">Pocketbase Version</ion-label>
+                            <ion-button
+                                slot="end"
+                                size="small"
+                                expand="block"
+                                fill="solid"
+                                on:click={changeVersion}>&nbsp;&nbsp;&nbsp;{project.metadata?.version || default_version}&nbsp;&nbsp;&nbsp;
+                                </ion-button>
+                        </ion-item>
+                    </ion-col>
+                </ion-row>
+
                 <ion-row>
                     <ion-col>
                         <ion-list>

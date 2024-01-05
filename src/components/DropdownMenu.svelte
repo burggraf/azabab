@@ -26,6 +26,9 @@
 		{#if item.icon}
         <ion-icon slot="start" icon={item.icon} color={item.color}></ion-icon>
 		{/if}
+		{#if item.iconSrc}
+        <ion-icon slot="start" src={item.iconSrc} color={item.color}></ion-icon>
+		{/if}
         <ion-label color={item.textcolor}>{item.text}</ion-label>
     </ion-item>
 {/each}

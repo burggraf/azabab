@@ -1,5 +1,5 @@
 export interface IObjectKeys {
-    [key: string]: string | number
+    [key: string]: string | number | object | undefined
 }
 
 export interface Project extends IObjectKeys {
@@ -8,7 +8,8 @@ export interface Project extends IObjectKeys {
     name: string
     owner: string
     ownertype: string
-    port: number
+    port: number,
+    metadata?: any
 }
 export interface ProjectInstance extends IObjectKeys {
     name: string

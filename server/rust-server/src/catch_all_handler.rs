@@ -55,7 +55,7 @@ fn clone_request_headers(req: &Request<Body>) -> (String, String, String) {
 async fn create_and_start_docker_container(original_port: &str, pb_version: &str) -> Result<(), shiplift::Error> {
     let docker = Docker::new();
     let base_path = "/home/ubuntu";
-    
+
     let volume_mounts = vec![
         format!("{}/data/{}/pb_data:/home/pocketbase/pb_data", base_path, original_port),
         format!("{}/data/{}/pb_public:/home/pocketbase/pb_public", base_path, original_port),
@@ -77,6 +77,7 @@ async fn create_and_start_docker_container(original_port: &str, pb_version: &str
         .build();
 
     let container = docker.containers().create(&container_options).await?;
+
     docker.containers().get(&container.id).start().await?;
 
     Ok(())
