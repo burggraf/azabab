@@ -1,3 +1,6 @@
+// requires:
+// 	 instance_id
+// 	 status (online, offline, maintenance)
 routerAdd('POST', '/toggleinstance', async (c) => {
 	// read the body via the cached request object
 	// (this method is commonly used in hook handlers because it allows reading the body more than once)
@@ -20,7 +23,7 @@ routerAdd('POST', '/toggleinstance', async (c) => {
 	if (data?.status !== 'online' && data?.status !== 'offline' && data?.status !== 'maintenance') {
 		return c.json(200, { data: null, error: 'invalid status' })
 	}
-	console.log('toggleinstance', JSON.stringify(data, null, 2))
+	// console.log('toggleinstance', JSON.stringify(data, null, 2))
 	let instanceData;
 	try {
 		// create the projectData record
@@ -41,7 +44,7 @@ routerAdd('POST', '/toggleinstance', async (c) => {
 				`select id, port, site_domain, domain, owner, ownertype from instance_view where id = '${data?.instance_id}'`
 			)
 			.all(instanceData) // throw an error on db failure
-		console.log('toggleinstance instanceData', JSON.stringify(instanceData, null, 2))
+		// console.log('toggleinstance instanceData', JSON.stringify(instanceData, null, 2))
 		if (instanceData.length !== 1) {
 			return c.json(200, { data: null, error: 'instance not found' })
 		}
@@ -52,13 +55,10 @@ routerAdd('POST', '/toggleinstance', async (c) => {
 		console.log('instanceDataError', instanceDataError)
 		return c.json(200, { data: null, error: instanceDataError?.value?.error() || instanceDataError })
 	}
-	console.log('setting site_domain, domain, port, status')
+	// console.log('setting site_domain, domain, port, status')
 	let site_domain = instanceData[0].site_domain;
 	let domain = instanceData[0].domain;
 	let port = instanceData[0].port;
-	console.log('site_domain', site_domain)
-	console.log('domain', domain)
-	console.log('port', port)
 	let status = '';
 	switch (data?.status) {
 		case 'online':
@@ -73,9 +73,7 @@ routerAdd('POST', '/toggleinstance', async (c) => {
 		default:
 			return c.json(200, { data: null, error: 'invalid status' })
 	}
-	console.log('status', status)
 	// get the site info
-	console.log('toggleinstance', `http://${site_domain}:5000/toggleinstance`, domain, port, status)
 	try {
 		const res = $http.send({
 			url: `http://${site_domain}:5000/toggleinstance`,
@@ -91,7 +89,6 @@ routerAdd('POST', '/toggleinstance', async (c) => {
 			},
 			timeout: 120, // in seconds
 		})
-		console.log('res', JSON.stringify(res, null, 2))
 		if (res.json?.error) {
 			return c.json(200, { data: null, error: res.json.error || res.json })
 		} 
@@ -100,7 +97,6 @@ routerAdd('POST', '/toggleinstance', async (c) => {
 		return c.json(200, { data: null, error: toggleinstanceError?.value?.error() || toggleinstanceError })		
 	}
 	// update the instance record
-	console.log('update instance (instance_id, status)', data?.instance_id, data?.status)
 	try {
 		$app
 			.dao()
