@@ -12,6 +12,7 @@ mod pitr;
 mod setup_marmot;
 mod sync;
 mod toggle_instance;
+mod change_version;
 
 use std::convert::Infallible;
 use hyper::{Body, Request, Response, Server};
@@ -119,6 +120,9 @@ async fn request_handler(req: Request<Body>) -> Result<Response<Body>, hyper::Er
         },
         ("/toggleinstance", &hyper::Method::POST) => {
             toggle_instance::handle_toggle_instance(req, AUTH_TOKEN).await
+        },
+        ("/changeversion", &hyper::Method::POST) => {
+            change_version::handle_change_version(req, AUTH_TOKEN).await
         },
         _ => catch_all_handler::handle_catch_all(req).await
     }

@@ -163,9 +163,19 @@
 			})
 		}
 		const result = await dropdownmenu(e, items)
-		console.log('*** you chose status', result)
+		console.log('*** you chose version', result)
         if (!project.metadata) project.metadata = {}
         project.metadata.version = result.text
+        console.log('project.metadata', project.metadata)
+        const changeVersionResult = await pb.send(`/changeversion`, {
+            method: 'POST',
+            body: {
+                project_id: project.id,
+                pb_version: result.text
+            }
+        })
+        console.log('changeVersionResult', changeVersionResult)
+        toast('Version changed to ' + result.text, 'success')
         console.log('project', project)
 	}
 
