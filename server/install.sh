@@ -53,7 +53,11 @@ ssh ubuntu@$1 "sudo certbot certonly --non-interactive --email support@$1 --agre
 echo ""
 echo "Copy all necessary files to the server"
 echo ""
-scp files/* ubuntu@$1:~/
+scp -r files/* ubuntu@$1:~/
+echo ""
+echo "Download the exes"
+echo ""
+ssh ubuntu@$1 "cd exe;./download_exes.sh"
 
 echo ""
 echo "*** Generate rsa key pair (if necessary) ***"
@@ -66,12 +70,13 @@ echo ""
 ssh ubuntu@$1 "sudo mv ~/options-ssl-nginx.conf /etc/letsencrypt"
 ssh ubuntu@$1 "sudo chmod 644 /etc/letsencrypt/options-ssl-nginx.conf"
 ssh ubuntu@$1 "sudo chown root:root /etc/letsencrypt/options-ssl-nginx.conf"
-ssh ubuntu@$1 "sudo touch /etc/nginx/domain_ports.shm"
-ssh ubuntu@$1 "sudo chmod 644 /etc/nginx/domain_ports.shm"
-ssh ubuntu@$1 "sudo chown root:root /etc/nginx/domain_ports.shm"
 ssh ubuntu@$1 "sudo touch /etc/nginx/domain_ports.txt"
 ssh ubuntu@$1 "sudo chmod 644 /etc/nginx/domain_ports.txt"
 ssh ubuntu@$1 "sudo chown ubuntu:ubuntu /etc/nginx/domain_ports.txt"
+
+ssh ubuntu@$1 "sudo touch /etc/nginx/domain_pb_version.txt"
+ssh ubuntu@$1 "sudo chmod 644 /etc/nginx/domain_pb_version.txt"
+ssh ubuntu@$1 "sudo chown ubuntu:ubuntu /etc/nginx/domain_pb_version.txt"
 
 # Escape dots in the domain for the second replacement
 

@@ -2,13 +2,12 @@ use hyper::{Body, Client, Request, Response, Uri, body::to_bytes};
 use shiplift::{ContainerOptions, Docker};
 use tokio::time::{interval, Duration};
 use serde_json::Value; // Add serde_json to your Cargo.toml dependencies
-use std::env; // Import the env module
 
 pub async fn handle_catch_all(req: Request<Body>) -> Result<Response<Body>, hyper::Error> {
     // Clone header values before mutating `req`
-    let (original_port, original_uri) = clone_request_headers(&req);
+    let (original_port, original_uri, pb_version) = clone_request_headers(&req);
 
-    match create_and_start_docker_container(&original_port).await {
+    match create_and_start_docker_container(&original_port, &pb_version).await {
         Ok(_) => { /* Container started successfully */ }
 
         Err(docker_error) => {            
@@ -46,31 +45,34 @@ pub async fn handle_catch_all(req: Request<Body>) -> Result<Response<Body>, hype
     //Ok(resp)
 }
 
-fn clone_request_headers(req: &Request<Body>) -> (String, String) {
+fn clone_request_headers(req: &Request<Body>) -> (String, String, String) {
     let original_port = req.headers().get("X-Original-Port").unwrap().to_str().unwrap().to_string();
     let original_uri = req.headers().get("X-Original-URI").unwrap().to_str().unwrap().to_string();
-    (original_port, original_uri)
+    let pb_version = req.headers().get("X-PB-Version").unwrap().to_str().unwrap().to_string();    
+    (original_port, original_uri, pb_version)
 }
 
-async fn create_and_start_docker_container(original_port: &str) -> Result<(), shiplift::Error> {
+async fn create_and_start_docker_container(original_port: &str, pb_version: &str) -> Result<(), shiplift::Error> {
     let docker = Docker::new();
     let base_path = "/home/ubuntu";
+    
     let volume_mounts = vec![
         format!("{}/data/{}/pb_data:/home/pocketbase/pb_data", base_path, original_port),
         format!("{}/data/{}/pb_public:/home/pocketbase/pb_public", base_path, original_port),
         format!("{}/data/{}/pb_migrations:/home/pocketbase/pb_migrations", base_path, original_port),
         format!("{}/data/{}/pb_hooks:/home/pocketbase/pb_hooks", base_path, original_port),
         format!("{}/data/{}/marmot:/marmot", base_path, original_port),
+        format!("{}/exe/{}/:/exe:ro", base_path, pb_version), // Modified to include executable_path
     ];
 
-    let environment_variable = env::var("ENVIRONMENT").unwrap_or_else(|_| "default_value".to_string());
+    // let environment_variable = env::var("ENVIRONMENT").unwrap_or_else(|_| "default_value".to_string());
     let container_options = ContainerOptions::builder("pbdocker")
         .name(&original_port)
         .cpus(0.50)
         .memory(256 * 1024 * 1024) // Memory in bytes
         .expose(8090, "tcp", original_port.parse::<u32>().unwrap())
         .volumes(volume_mounts.iter().map(AsRef::as_ref).collect::<Vec<&str>>())
-        .env(vec![&format!("ENVIRONMENT={}", environment_variable)]) // Set the environment variable
+        //.env(vec![&format!("ENVIRONMENT={}", environment_variable)]) // Set the environment variable
         .auto_remove(true)
         .build();
 
