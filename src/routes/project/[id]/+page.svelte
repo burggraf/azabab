@@ -77,7 +77,8 @@
                     logs_streaming_backup_location: instance.logs_streaming_backup_location,
                     db_streaming_backup_retention: instance.db_streaming_backup_retention,
                     logs_streaming_backup_retention: instance.logs_streaming_backup_retention,
-                    instance_status: instance.instance_status
+                    instance_status: instance.instance_status,
+                    metadata: instance.project_instance_metadata
                 }
                 instances.push(newInstance)
             }
@@ -165,8 +166,9 @@
 		const result = await dropdownmenu(e, items)
 		console.log('*** you chose version', result)
         if (!project.metadata) project.metadata = {}
-        project.metadata.version = result.text
+        project.metadata.pb_version = result.text
         console.log('project.metadata', project.metadata)
+        console.log('calling /changeversion from middleware')
         const changeVersionResult = await pb.send(`/changeversion`, {
             method: 'POST',
             body: {
@@ -252,7 +254,7 @@
                                 size="small"
                                 expand="block"
                                 fill="solid"
-                                on:click={changeVersion}>&nbsp;&nbsp;&nbsp;{project.metadata?.version || default_version}&nbsp;&nbsp;&nbsp;
+                                on:click={changeVersion}>&nbsp;&nbsp;&nbsp;{project.metadata?.pb_version || default_version}&nbsp;&nbsp;&nbsp;
                                 </ion-button>
                         </ion-item>
                     </ion-col>
