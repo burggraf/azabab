@@ -30,7 +30,6 @@
 	
     instanceTab.subscribe(async (value: string) => {
         if (value === 'cli') {
-            console.log('INSTANCE TAB CLI')
             await loadProjectInstanceKeys()
         }
     })
@@ -39,22 +38,17 @@
 			filter: `project_id = "${project_instance.project_id}"`,
 			fields: 'id,project_instance_id,user_keys_id',
 		})
-		console.log('project_instance_keys', project_instance_keys)
 	}
 
 	const toggleKey = async (user_keys_id: string) => {
-		console.log('toggleKey', project_instance.id)
 		// add or remove the key from the project_instance_keys collection
 		const project_instance_key = project_instance_keys.find((project_instance_key) => {
 			return project_instance_key.user_keys_id === user_keys_id
 		})
-		console.log('*** project_instance_key', project_instance_key)
 		if (project_instance_key) {
-			console.log('key was found, remove it, id', project_instance_key.id)
 			// remove it
 			const result = await pb.collection('project_instance_keys').delete(project_instance_key.id)
 		} else {
-			console.log('key was not found, add it')
 			// add it
 			const payload = {
 				project_instance_id: project_instance.id,
@@ -62,12 +56,10 @@
 				user_id: $currentUser.id,
 				project_id: project_instance.project_id,
 			}
-			console.log('payload', payload)
             try {
                 const result = await pb.collection('project_instance_keys').create(payload)
-    			console.log('toggleKey result', result)
-            } catch (error) {
-                console.log('toggleKey error', error)
+            } catch (toggleError) {
+                console.log('toggleKey error', toggleError)
             }
 		}
 		const { data, error } = await pb.send(`/create-ssh-keys/${project_instance.id}`, {

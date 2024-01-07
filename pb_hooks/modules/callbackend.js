@@ -83,36 +83,31 @@ const changeversion = (domain, site_domain, port, pb_version) => {
 
 }
 
-const createuser = (key) => {
-    // key: {username,port,ssh_key_string}
+const createuser = async (key) => {
+    // key: {username,port,ssh_key_string, site}
     if (typeof key.port !== 'string') key.port = key.port.toString();
-	try {
-		let res;
-		try {
-			res = $http.send({
-				url:     `http://${keys[0].site}:5000/createuser`,
-				method:  "POST",
-				body:    JSON.stringify({
-					"username": key.username, 
-					"port": key.port,
-					"ssh_keys": key.ssh_key_string,
-				}),
-				headers: {
-					"content-type": "application/json",
-					"Authorization": "your_predefined_auth_token"
-				},
-				timeout: 120, // in seconds
-			})	
-		} catch (httpError) {
-			// console.log('httpError', httpError)
-			return {data: null, error: httpError.value.error() }
-		}
-		return c.json(res.statusCode, res.json)
+    let res;
+    try {
+        res = await $http.send({
+            url:     `http://${key.site}:5000/createuser`,
+            method:  "POST",
+            body:    JSON.stringify({
+                "username": key.username, 
+                "port": key.port,
+                "ssh_keys": key.ssh_key_string,
+            }),
+            headers: {
+                "content-type": "application/json",
+                "Authorization": "your_predefined_auth_token"
+            },
+            timeout: 120, // in seconds
+        })	
+        return c.json(res.statusCode, JSON.stringify(res.json))
+    } catch (httpError) {
+        console.log('createuser failuser, httpError', JSON.stringify(httpError,null, 2))
+        return {data: null, error: httpError.value.error() }
+    }
 	
-	} catch (e) {
-		return { data: null, error: createUserError.value.error() }
-	}
-
 }
 
-module.exports = { toggleinstance, sync, changeversion }
+module.exports = { toggleinstance, sync, changeversion, createuser }
