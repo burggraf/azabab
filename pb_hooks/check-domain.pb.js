@@ -1,6 +1,8 @@
 /// <reference path="../pb_data/types.d.ts" />
 // **** add ssh keys to an instance ****
 routerAdd('GET', '/check-domain/:domain', (c) => {
+	const { select } = require(`${__hooks}/modules/sql.js`)
+
 	const domain = c.pathParam('domain')
 	if (!domain) {
 		return c.json(200, { data: null, error: 'domain is required' })
@@ -12,29 +14,16 @@ routerAdd('GET', '/check-domain/:domain', (c) => {
 		return c.json(200, { data: null, error: 'not logged in' })
 	}
 
-	try {
-		const domains = arrayOf(
-			new DynamicModel({
-				count: 0,
-			})
-		)
-		$app
-			.dao()
-			.db()
-			.newQuery(
-				`select count(*) as count from projects where domain = '${domain}'`
-			)
-			.all(domains) // throw an error on db failure
-			if (domains.length === 0) {
-				return c.json(200, { data: null, error: 'error looking up domain' })
-			} else {
-				return c.json(200, { data: domains[0].count, error: null })
-			}	
-	} catch (err) {
+	const { data:domains, error:err } = select({count: 0},
+		`select count(*) as count from projects where domain = '${domain}'`
+	)
+	if (err) {
 		return c.json(200, { data: null, error: err?.value?.error() || err })
-
 	}
-
-		
+	if (domains.length === 0) {
+		return c.json(200, { data: null, error: 'error looking up domain' })
+	} else {
+		return c.json(200, { data: domains[0].count, error: null })
+	}	
 })
 
