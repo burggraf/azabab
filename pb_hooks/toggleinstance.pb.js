@@ -27,12 +27,10 @@ routerAdd('POST', '/toggleinstance', async (c) => {
 	if (data?.status !== 'online' && data?.status !== 'offline' && data?.status !== 'maintenance') {
 		return c.json(200, { data: null, error: 'invalid status' })
 	}
-	console.log('toggleinstance data', JSON.stringify(data, null, 2))
+
 	const { data: instanceData, error: instanceError } = 
 		select({id: '',port: 0, site_domain: '', domain: '', owner: '', ownertype: ''},
 		`select id, port, site_domain, domain, owner, ownertype from instance_view where id = '${data?.instance_id}'`);
-	console.log('instanceData', JSON.stringify(instanceData, null, 2))
-	console.log('instanceError', JSON.stringify(instanceError, null, 2))
 	if (instanceError) return c.json(200, { data: null, error: instanceError })
 	if (instanceData.length !== 1) {
 		return c.json(200, { data: null, error: 'instance not found' })
@@ -60,11 +58,7 @@ routerAdd('POST', '/toggleinstance', async (c) => {
 			return c.json(200, { data: null, error: 'invalid status' })
 	}
 	// take the instance online, offline, or into maintenance mode
-	console.log('calling toggleinstance at ' + domain + '.' + site_domain + ' port ' + port + ' status ' + status)
-	console.log('callback toggleinstance module', toggleinstance)
 	const { data: d1, error: e1 } = toggleinstance(domain, site_domain, port.toString(), status);
-	console.log('toggleinstance d1 data', JSON.stringify(d1, null, 2))
-	console.log('toggleinstance e1 error', JSON.stringify(e1, null, 2))
 	if (e1) return c.json(200, { data: null, error: e1 })
 	
 	// update the instance record
