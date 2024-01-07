@@ -1,8 +1,4 @@
 const toggleinstance = (domain, site_domain, port, status) => {
-    console.log('callbackend toggleinstance domain', domain)
-    console.log('callbackend toggleinstance site_domain', site_domain)
-    console.log('callbackend toggleinstance port', port)
-    console.log('callbackend toggleinstance status', status)
     if (typeof port !== 'string') port = port.toString();
     try {
         const res = $http.send({
@@ -61,10 +57,6 @@ const sync = async (site_domain, port, direction) => {
 
 const changeversion = (domain, site_domain, port, pb_version) => {
     if (typeof port !== 'string') port = port.toString();
-    console.log('callbackend changeversion domain', domain)
-    console.log('callbackend changeversion site_domain', site_domain)
-    console.log('callbackend changeversion port', port)
-    console.log('callbackend changeversion pb_version', pb_version)
     try {
         const res = $http.send({
             url: `http://${site_domain}:5000/changeversion`,
@@ -80,7 +72,6 @@ const changeversion = (domain, site_domain, port, pb_version) => {
             },
             timeout: 120, // in seconds
         })
-        console.log('callbackend changeversion res', JSON.stringify(res, null, 2))
         if (res.json?.error) {
             return { data: null, error: res.json.error || res.json || res.raw };
         } else {
@@ -89,6 +80,38 @@ const changeversion = (domain, site_domain, port, pb_version) => {
     } catch (changeversionError) {
         return { data: null, error: changeversionError?.value?.error() || changeversionError }	
     }
+
+}
+
+const createuser = (key) => {
+    // key: {username,port,ssh_key_string}
+    if (typeof key.port !== 'string') key.port = key.port.toString();
+	try {
+		let res;
+		try {
+			res = $http.send({
+				url:     `http://${keys[0].site}:5000/createuser`,
+				method:  "POST",
+				body:    JSON.stringify({
+					"username": key.username, 
+					"port": key.port,
+					"ssh_keys": key.ssh_key_string,
+				}),
+				headers: {
+					"content-type": "application/json",
+					"Authorization": "your_predefined_auth_token"
+				},
+				timeout: 120, // in seconds
+			})	
+		} catch (httpError) {
+			// console.log('httpError', httpError)
+			return {data: null, error: httpError.value.error() }
+		}
+		return c.json(res.statusCode, res.json)
+	
+	} catch (e) {
+		return { data: null, error: createUserError.value.error() }
+	}
 
 }
 
