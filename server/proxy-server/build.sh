@@ -1,1 +1,1 @@
-sudo docker build -t proxy .
+sudo docker build -t proxy-server .
