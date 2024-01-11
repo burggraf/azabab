@@ -43,7 +43,11 @@
 		db_streaming_backup_location: '',
 		logs_streaming_backup_location: '',
 		db_streaming_backup_retention: 0,
-		logs_streaming_backup_retention: 0
+		logs_streaming_backup_retention: 0,
+        instance_status: '',
+        metadata: {
+            fqd: '',
+        },
 	};
 	
 	onMount(async () => {
@@ -117,6 +121,9 @@
 			project[field] = value.toLowerCase().replace(/[^a-z0-9-]/g, '')
 			domainAvailable = await checkDomainAvailability(project)
             project_instance.domain = value
+            if (!project_instance.metadata) project_instance.metadata = {};
+            project_instance.metadata.fqd = `${project.domain}.azabab.com`;
+            console.log('project_instance', project_instance)
 		} else if (field === 'name' && project?.id !== '') {
 			project[field] = value
 			try {
@@ -193,26 +200,51 @@
         
             <ion-row>
                 <ion-col>
-                    <ion-label>Domain</ion-label>
+                    <ion-label>Subdomain</ion-label>
                 </ion-col>
             </ion-row>
-                <ion-row>
-                    <ion-col>
-                        <ion-item class="GridItem" lines="none">
-                            <ion-input
-                                on:ionInput={handleChange}
-                                class="loginInputBoxWithIcon"
-                                type="text"
-                                id="domain"
-                                placeholder="domain"
-                                style="--padding-start: 10px;"
-                                value={project.domain}
-                                debounce={500}
-                            />
-                        </ion-item>
-                    </ion-col>
-                </ion-row>
-        
+            <ion-row>
+                <ion-col>
+                    <ion-item class="GridItem" lines="none">
+                        <ion-input
+                            on:ionInput={handleChange}
+                            class="loginInputBoxWithIcon"
+                            type="text"
+                            id="domain"
+                            placeholder="domain"
+                            style="--padding-start: 10px;"
+                            value={project.domain}
+                            debounce={500}
+                        />
+                    </ion-item>
+                </ion-col>
+            </ion-row>
+
+            <ion-row>
+                <ion-col>
+                    <ion-label>Full Domain</ion-label>
+                </ion-col>
+            </ion-row>
+            <ion-row>
+                <ion-col>
+                    <ion-item class="GridItem" lines="none">
+                        <ion-input
+                            on:ionInput={handleChange}
+                            disabled={true}
+                            class="loginInputBoxWithIcon"
+                            type="text"
+                            id="fqd"
+                            placeholder="Full Domain"
+                            style="--padding-start: 10px;"
+                            value={project_instance.metadata?.fqd}
+                            debounce={500}
+                        />
+                    </ion-item>
+                </ion-col>
+            </ion-row>
+
+            
+
             {#if project?.id === '' && project?.domain.trim().length > 0}
                 <ion-row>
                     <ion-col>

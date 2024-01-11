@@ -225,7 +225,7 @@
         
             <ion-row>
                 <ion-col>
-                    <ion-label>Domain</ion-label>
+                    <ion-label>Subdomain</ion-label>
                 </ion-col>
             </ion-row>
                 <ion-row>
@@ -244,6 +244,29 @@
                         </ion-item>
                     </ion-col>
                 </ion-row>
+
+                <ion-row>
+                    <ion-col>
+                        <ion-label>Full Domain</ion-label>
+                    </ion-col>
+                </ion-row>
+                    <ion-row>
+                        <ion-col>
+                            <ion-item class="GridItem" lines="none">
+                                <ion-input
+                                    on:ionInput={handleChange}
+                                    disabled={true}
+                                    class="loginInputBoxWithIcon"
+                                    type="text"
+                                    id="fqd"
+                                    placeholder="Full Domain Name"
+                                    style="--padding-start: 10px;"
+                                    value={project.metadata?.fqd}
+                                    debounce={500}
+                                />
+                            </ion-item>
+                        </ion-col>
+                    </ion-row>
 
                 <ion-row>
                     <ion-col>
