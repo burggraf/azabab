@@ -48,7 +48,7 @@ echo ""
 echo "Request Wildcard SSL Certificate"
 echo ""
 scp ./private/cloudflare.ini ubuntu@$1:~
-ssh ubuntu@$1 "sudo certbot certonly --non-interactive --email support@$1 --agree-tos --dns-cloudflare --dns-cloudflare-credentials ./cloudflare.ini -d \"*.$2\""
+ssh ubuntu@$1 "sudo certbot certonly --non-interactive --email support@$1 --agree-tos --dns-cloudflare --dns-cloudflare-credentials ./cloudflare.ini -d \"*.azabab.com\" -d \"*.$2\""
 
 echo ""
 echo "Copy all necessary files to the server"
@@ -174,17 +174,9 @@ echo "Start the ssh-server in restart mode"
 echo ""
 ssh ubuntu@$1 "/home/ubuntu/start-ssh-server.sh"
 
-ssh ubuntu@$1 "sudo touch /etc/nginx/domain_ports.txt"
-
-echo ""
-echo "Seed the /etc/nginx/domain_ports.txt file" 
-echo ""
-ssh ubuntu@$1 "sudo touch /etc/nginx/domain_ports.txt"
-
 echo ""
 echo "Reload the domain_ports.txt file without restarting nginx"
 echo ""
-# ssh ubuntu@$1 "sudo kill -HUP $(cat /var/run/nginx.pid)"
 ssh ubuntu@$1  "sudo kill -HUP \$(cat /var/run/nginx.pid)"
 
 echo ""
