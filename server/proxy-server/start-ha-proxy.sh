@@ -4,4 +4,5 @@ sudo docker run \
     -p 80:80 \
     -p 443:443 \
     -p 9000:9000 \
+    -p 5001:5000 \
     proxy-server
