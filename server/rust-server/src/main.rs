@@ -13,6 +13,7 @@ mod setup_marmot;
 mod sync;
 mod toggle_instance;
 mod change_version;
+mod update_route;
 
 use std::convert::Infallible;
 use hyper::{Body, Request, Response, Server};
@@ -80,7 +81,7 @@ async fn main() {
 // }
 
 async fn request_handler(req: Request<Body>) -> Result<Response<Body>, hyper::Error> {
-    // println!("req.uri().path(): {}",req.uri().path());
+    println!("req.uri().path(): {}",req.uri().path());
     match (req.uri().path(), req.method()) {
         ("/createproject", &hyper::Method::POST) => {
             create_project::handle_create_project(req, AUTH_TOKEN).await
@@ -123,6 +124,9 @@ async fn request_handler(req: Request<Body>) -> Result<Response<Body>, hyper::Er
         },
         ("/changeversion", &hyper::Method::POST) => {
             change_version::handle_change_version(req, AUTH_TOKEN).await
+        },
+        ("/updateroute", &hyper::Method::POST) => {
+            update_route::handle_update_route(req).await
         },
         _ => catch_all_handler::handle_catch_all(req).await
     }

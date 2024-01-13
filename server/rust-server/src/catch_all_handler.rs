@@ -6,7 +6,8 @@ use serde_json::Value; // Add serde_json to your Cargo.toml dependencies
 pub async fn handle_catch_all(req: Request<Body>) -> Result<Response<Body>, hyper::Error> {
     // Clone header values before mutating `req`
     let (original_port, original_uri, pb_version) = clone_request_headers(&req);
-
+    // println!("**** handle_catch_all ****");
+    // println!("original_port {}, original_uri {}, pb_version {}",original_port, original_uri, pb_version);
     match create_and_start_docker_container(&original_port, &pb_version).await {
         Ok(_) => { /* Container started successfully */ }
 
