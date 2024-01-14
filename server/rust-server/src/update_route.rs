@@ -51,17 +51,6 @@ pub async fn handle_update_route(mut req: Request<Body>) -> Result<Response<Body
 
     let pid = String::from_utf8_lossy(&pid_output.stdout).trim().to_string();
 
-    // if !pid.is_empty() {
-    //     let _ = Command::new("sudo")
-    //         .arg("kill")
-    //         .arg("-HUP")
-    //         .arg(pid)
-    //         .output()
-    //         .unwrap();
-    // } else {
-    //     println!("HAProxy master process not found.");
-    // }
-
     if !pid.is_empty() {
         match Command::new("sudo")
             .arg("kill")
