@@ -1,6 +1,11 @@
 routerAdd('POST', '/createproject', (c) => {
-
-	const { updateroutes } = require(`${__hooks}/modules/callbackend.js`)
+	console.log('createproject 01')
+	// try {
+		const { updateroutes } = require(`${__hooks}/modules/callbackend.js`)
+	// } catch (e) {
+	// 	console.log('setup updateroutes error', e)
+	// }
+	console.log('createproject 02')
 
 	// read the body via the cached request object
 	// (this method is commonly used in hook handlers because it allows reading the body more than once)
@@ -38,6 +43,8 @@ routerAdd('POST', '/createproject', (c) => {
 	) {
 		return c.json(200, { data: null, error: 'type must be "primary" or "replica"' })
 	}
+	console.log('createproject 03')
+
 	try {
 		// create the project record
 		const projectInsert = arrayOf(
@@ -46,7 +53,7 @@ routerAdd('POST', '/createproject', (c) => {
 				port: 0
 			})
 		)
-		let startingPort = "10001";
+		let startingPort = "10002";
 		if ($os.getenv("ENVIRONMENT") === "dev") {
 			startingPort = "50001";
 		}
@@ -60,6 +67,7 @@ routerAdd('POST', '/createproject', (c) => {
                     returning id, port`
 			)
 			.all(projectInsert) // throw an error on db failure
+		console.log('createproject: projectInsert', JSON.stringify(projectInsert, null, 2))
 		if (projectInsert.length !== 1) {
 			return c.json(200, { data: null, error: 'project insert failed' })
 		}
@@ -67,6 +75,9 @@ routerAdd('POST', '/createproject', (c) => {
 		const newId = projectInsert[0].id
 		const newPort = projectInsert[0].port
 		// create the project_instance record
+		console.log('createproject 04')
+		console.log('newId', newId)
+		console.log('newPort', newPort)
 		const project_instancesInsert = arrayOf(
 			new DynamicModel({
 				id: '',
@@ -86,6 +97,8 @@ routerAdd('POST', '/createproject', (c) => {
                     returning id`
 			)
 			.all(project_instancesInsert) // throw an error on db failure
+		console.log('createproject 05')
+
 		if (project_instancesInsert.length !== 1) {
 			return c.json(200, { data: null, error: 'project_instances insert failed' })
 		}
@@ -106,6 +119,8 @@ routerAdd('POST', '/createproject', (c) => {
 		const output = String.fromCharCode(...cmd.output())
         */
 
+		console.log('createproject 06')
+		console.log('calling updateroutes', newId, user?.id)
 		const { data: updateroutesData, error: updateroutesError } = updateroutes(newId, user?.id)
 		console.log('updateroutesData', JSON.stringify(updateroutesData,null,2))
 		console.log('updateroutesError', JSON.stringify(updateroutesError,null,2))

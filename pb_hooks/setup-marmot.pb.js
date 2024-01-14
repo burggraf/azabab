@@ -2,7 +2,7 @@
 
 // **** add ssh keys to an instance ****
 routerAdd('GET', '/setup-marmot/:project_id', (c) => {
-	console.log('**** setup-marmot ****')
+	// console.log('**** setup-marmot ****')
 	const project_id = c.pathParam('project_id')
 	if (!project_id) {
 		return c.json(200, { data: null, error: 'project_id is required' })
@@ -34,7 +34,7 @@ routerAdd('GET', '/setup-marmot/:project_id', (c) => {
 				where project_id = '${project_id}' order by type, site_domain` 
 			)
 			.all(projectData) // throw an error on db failure
-			console.log('projectData', JSON.stringify(projectData,null,2))
+			//console.log('projectData', JSON.stringify(projectData,null,2))
 		if (projectData.length === 0) {
 			return c.json(200, { data: null, error: 'project not found' })
 		}
@@ -73,13 +73,6 @@ stream_prefix="changes-<PORT>"
 			config_file = config_file.replace(/<NODE>/g, instance.node.toString())
 			config_file = config_file.replace(/<READWRITE>/g, (instance.type === 'read write replica' || instance.type === 'primary') ? 'true' : 'false')
 
-			console.log('*********************************************')
-			console.log(`calling: http://${instance.site_domain}:5000/setupmarmot`)
-			console.log('POST DATA:')
-			console.log('typeof config_file', typeof config_file)
-			console.log('config_file.length', config_file.length)
-			console.log('port', instance.port.toString())
-			console.log('*********************************************')
 			if (projectData.length === 1) {
 				config_file = ''
 				// remove sync files now
@@ -101,7 +94,7 @@ stream_prefix="changes-<PORT>"
 						},
 						timeout: 120, // in seconds
 					})
-					console.log('deleteResponse', JSON.stringify(deleteResponse,null,2))	
+					// console.log('deleteResponse', JSON.stringify(deleteResponse,null,2))	
 				} catch (deleteError) {
 					console.log(`ERROR deleting sync data for ${port} at destination "la":`, deleteError)
 				}
@@ -120,7 +113,7 @@ stream_prefix="changes-<PORT>"
 					},
 					timeout: 120, // in seconds
 				})	
-				console.log('res', JSON.stringify(res,null,2))
+				//console.log('res', JSON.stringify(res,null,2))
 				if (res.statusCode === 200) {
 					counter++
 				} else {

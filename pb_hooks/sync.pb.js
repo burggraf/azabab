@@ -2,9 +2,9 @@
 
 // **** add ssh keys to an instance ****
 routerAdd('GET', '/sync/:instance_id/:direction', (c) => {
-	console.log('**** sync ****')
 	const instance_id = c.pathParam('instance_id')
 	const direction = c.pathParam('direction')
+	console.log('**** sync ****', instance_id, direction)
 	if (!instance_id) {
 		return c.json(200, { data: null, error: 'instance_id is required' })
 	}
@@ -45,6 +45,10 @@ routerAdd('GET', '/sync/:instance_id/:direction', (c) => {
 		const instance = instanceData[0]
 		let res;
 		try {
+			console.log(`http://${instance.site_domain}:5000/sync`);
+			console.log('direction', direction)
+			console.log('port', instance.port.toString())
+			console.log('destination', 'la')
 			res = $http.send({
 				url:     `http://${instance.site_domain}:5000/sync`,
 				method:  "POST",

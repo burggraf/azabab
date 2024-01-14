@@ -1,80 +1,123 @@
 const updateroutes = (project_id, current_user_id) => {
-    let ts = +new Date();
 	const { select } = require(`${__hooks}/modules/sql.js`)
+    console.log('updateroutes 01')
 	const { data: instanceData, error: instanceError } = 
 		select({port: 0, site_domain: '', domain: '', owner: '', ownertype: '', project_metadata: {}},
 		`select port, site_domain, domain, owner, ownertype, project_metadata 
          from instance_view 
          where project_id = '${project_id}' 
          order by type`);
-	if (instanceError) return { data: null, error: instanceError };
+    console.log('updateroutes 02')
+    console.log('instanceData', JSON.stringify(instanceData, null, 2))
+    console.log('instanceError', JSON.stringify(instanceError, null, 2))
+    if (instanceError) return { data: null, error: instanceError };
 	if (instanceData.length === 0) return { data: null, error: 'instance(s) not found' };
 	if (instanceData[0].owner !== current_user_id) return { data: null, error: 'not your project' };	
+    console.log('updateroutes 03')
     for (let i = 0; i < instanceData.length; i++) {
         const instance = instanceData[i];
-        let frontendRoute = frontendRouteTemplate;
-        let backendRoute = backendRouteTemplate;
-        frontendRoute = frontendRoute.replace(/\[PORT\]/g, instance.port.toString());
-        frontendRoute = frontendRoute.replace(/\[LOCAL_FQD\]/g, instance.domain + '.' + instance.site_domain);
-        frontendRoute = frontendRoute.replace(/\[GLOBAL_FQD\]/g, instance.domain + '.' + 'azabab.com');
-        frontendRoute = frontendRoute.replace(/\[PB_VERSION\]/g, instance.project_metadata?.pb_version || 'v0.20.6');
-        backendRoute = backendRoute.replace(/\[PORT\]/g, instance.port.toString());
-        backendRoute = backendRoute.replace(/\[LOCAL_FQD\]/g, instance.domain + '.' + instance.site_domain);
-        backendRoute = backendRoute.replace(/\[GLOBAL_FQD\]/g, instance.domain + '.' + 'azabab.com');
-        backendRoute = backendRoute.replace(/\[PB_VERSION\]/g, instance.project_metadata?.pb_version || 'v0.20.6');
-        let otherServers = '';
+        const port = instance.port.toString();
+        const domain = instance.domain;
+        const site_domain = instance.site_domain;
+        const pb_version = instance.project_metadata?.pb_version || 'v0.20.6';
+        const otherServers = [];
         for (let j = 0; j < instanceData.length; j++) {
             const otherInstance = instanceData[j];
             if (otherInstance.site_domain !== instance.site_domain) {
-                otherServers += 
-                `server ${otherInstance.site_domain}_${otherInstance.port} ${otherInstance.domain}.${otherInstance.site_domain}:443 check ssl verify none\n`;
+                otherServers.push({
+                    domain: otherInstance.domain,
+                    site_domain: otherInstance.site_domain,
+                    port: otherInstance.port,
+                })
             }
-        }
-        frontendRoute = frontendRoute.replace(/\[OTHER_SERVERS\]/g, otherServers);
-        backendRoute = backendRoute.replace(/\[OTHER_SERVERS\]/g, otherServers);
-            
-        // put the routing file on the server
-        try {
-            const res = $http.send({
-                url: `http://${instance.site_domain}:5000/updateroute`,
-                method: 'POST',
-                body: JSON.stringify({
-                    port: instance.port.toString(),
-                    frontend: frontendRoute,
-                    backend: backendRoute,
-                }),
-                headers: {
-                    'content-type': 'application/json',
-                    Authorization: 'your_predefined_auth_token',
-                },
-                timeout: 120, // in seconds
-            })
-            if (res.json?.error) {
-                return { data: null, error: res.json.error || res.json || res.raw };                
-            }  else {
-                let tries = 0;
-                while (tries < 5) {
-                    const result = checkHealth(instance.domain + '.' + instance.site_domain);
-                    if (result === 200) {
-                        return { data: res, error: null };
-                    }
-                    tries++;
-                }
-                return { data: null, error: 'health check failed' };
-            }
-        } catch (updaterouteError) {
-            return { data: null, error: updaterouteError?.value?.error() || updaterouteError };		
-        }
-    }
-
+        }    
+        console.log('calling updateroute', port, domain, site_domain, pb_version, otherServers)
+        const { data, error } = updateroute(port, domain, site_domain, pb_version, otherServers);
+        if (error) return { data: null, error: error };
+    } 
     return { data: 'OK', error: null };
 }
+const updateroute = (port, domain, site_domain, pb_version, otherServers) => {
+    let frontendRoute = frontendRouteTemplate;
+    let backendRoute = backendRouteTemplate;
+    frontendRoute = frontendRoute.replace(/\[PORT\]/g, port);
+    frontendRoute = frontendRoute.replace(/\[LOCAL_FQD\]/g, domain + '.' + site_domain);
+    frontendRoute = frontendRoute.replace(/\[GLOBAL_FQD\]/g, domain + '.' + 'azabab.com');
+    frontendRoute = frontendRoute.replace(/\[PB_VERSION\]/g, pb_version);
+    backendRoute = backendRoute.replace(/\[PORT\]/g, port);
+    backendRoute = backendRoute.replace(/\[LOCAL_FQD\]/g, domain + '.' + site_domain);
+    backendRoute = backendRoute.replace(/\[GLOBAL_FQD\]/g, domain + '.' + 'azabab.com');
+    backendRoute = backendRoute.replace(/\[PB_VERSION\]/g, pb_version);
+    let otherServersString = '';
+    for (let i = 0; i < otherServers.length; i++) {
+        const otherServer = otherServers[i];
+        otherServersString += 
+        `server ${otherServer.site_domain}_${otherServer.port} ${otherServer.domain}.${otherServer.site_domain}:443 check ssl verify none\n`;
+    }
+    frontendRoute = frontendRoute.replace(/\[OTHER_SERVERS\]/g, otherServersString);
+    backendRoute = backendRoute.replace(/\[OTHER_SERVERS\]/g, otherServersString);
+
+    console.log(`calling http://${site_domain}:5000/updateroute`)
+    // put the routing file on the server
+    try {
+        const res = $http.send({
+            url: `http://${site_domain}:5000/updateroute`,
+            method: 'POST',
+            body: JSON.stringify({
+                port: port,
+                frontend: frontendRoute,
+                backend: backendRoute,
+            }),
+            headers: {
+                'content-type': 'application/json',
+                Authorization: 'your_predefined_auth_token',
+            },
+            timeout: 120, // in seconds
+        })
+        console.log('updateroute res', JSON.stringify(res, null, 2));
+        if (res.json?.error) {
+            return { data: null, error: res.json.error || res.json || res.raw };                
+        }  else {
+            const ts = +new Date();
+            let healthy = false;
+            let tries = 0;
+            while (!healthy && ts - (+new Date()) < 10000) {
+                // only perform check once per second for 10 seconds
+                const elapsed = (+new Date()) - ts;
+                if (elapsed > (tries * 1000)) {
+                    console.log('check health', tries);
+                    const result = checkHealth(domain + '.' + site_domain);
+                    if (result === 200) {
+                        console.log('health check passed, continuing...')
+                        healthy = true;
+                        // return { data: res, error: null };
+                    }
+                    tries++;    
+                }
+            }
+            if (!healthy) {
+                console.log('health check failed, returning...');
+                return { data: null, error: 'health check failed' };    
+            } else {
+                console.log('we should now move on to the next instance...')
+                return { data: res, error: null };
+            }
+        }
+    } catch (updaterouteError) {
+        console.log('updaterouteError', updaterouteError);
+        return { data: null, error: updaterouteError?.value?.error() || updaterouteError };		
+    }
+
+}
+
 const checkHealth = (domain) => {
+    console.log('**** checkHealth domain', domain)
     const test = $http.send({
         url: `https://${domain}/api/health`,
         method: 'GET',
         timeout: 120, // in seconds                    
     })
+    console.log('**** checkHealth test results', JSON.stringify(test, null, 2))
     return test.statusCode;
 }
 const frontendRouteTemplate = `
@@ -118,6 +161,10 @@ backend backend_[PORT]_global
 const toggleinstance = (domain, site_domain, port, status) => {
     if (typeof port !== 'string') port = port.toString();
     try {
+        console.log(`http://${site_domain}:5000/toggleinstance`)
+        console.log('domain', domain)
+        console.log('port', port)
+        console.log('status', status)
         const res = $http.send({
             url: `http://${site_domain}:5000/toggleinstance`,
             method: 'POST',

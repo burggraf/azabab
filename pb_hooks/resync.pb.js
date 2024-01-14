@@ -69,55 +69,61 @@ routerAdd('GET', '/resync/:project_id', (c) => {
 			`update project_instance set instance_status = '${status}' where id = '${instance_id}'`
 		)
 		if (updateError) return c.json(200, { data: null, error: updateError })
-
-		// sync the primary instance to S3
-		const sync_all_instances = async () => {
-			try {
-				// take all instances offline
-				for (let i = 0; i < instances.length; i++) {
-					const instance = instances[i]
-					toggleStatus(instance.site_domain, instance.port, 'offline', instance.id)
-				}
-			} catch (toggleinstanceError) {
-				return c.json(200, {
-					data: null,
-					error: toggleinstanceError?.value?.error() || toggleinstanceError,
-				})
-			}
-			try {
-				const { data: primarySyncData, error: primarySyncError } = sync(primary.site_domain, primary.port, 'up')
-				if (primarySyncError) {
-					return c.json(200, { data: null, error: primarySyncError })
-				}
-				for (let i = 1; i < instances.length; i++) {
-					const instance = instances[i]
-					if (instance.type === 'primary') {
-						continue
-					}
-					const { data: syncData, error: syncError } = 
-						sync(instance.site_domain, instance.port, 'down')
-					if (syncError) {
-						return c.json(200, { data: null, error: syncError })
-					}
-				}
-			} catch (err) {
-				return c.json(200, { data: null, error: err?.value?.error() || err })
-			}
-			try {
-				// take all instances offline
-				for (let i = 0; i < instances.length; i++) {
-					const instance = instances[i]
-					toggleStatus(instance.site_domain, instance.port, 'online', instance.id)
-				}
-			} catch (toggleinstanceError) {
-				return c.json(200, {
-					data: null,
-					error: toggleinstanceError?.value?.error() || toggleinstanceError,
-				})
-			}
-
-			return c.json(200, { data: `resynced ${instances.length} instances`, error: null })
-		}
-		sync_all_instances()
 	}
+	// sync the primary instance to S3
+	const sync_all_instances = async () => {
+		try {
+			// take all instances offline
+			for (let i = 0; i < instances.length; i++) {
+				const instance = instances[i]
+				toggleStatus(instance.site_domain, instance.port, 'offline', instance.id)
+			}
+		} catch (toggleinstanceError) {
+			return c.json(200, {
+				data: null,
+				error: toggleinstanceError?.value?.error() || toggleinstanceError,
+			})
+		}
+		try {
+			const { data: primarySyncData, error: primarySyncError } = sync(
+				primary.site_domain,
+				primary.port,
+				'up'
+			)
+			if (primarySyncError) {
+				return c.json(200, { data: null, error: primarySyncError })
+			}
+			for (let i = 1; i < instances.length; i++) {
+				const instance = instances[i]
+				if (instance.type === 'primary') {
+					continue
+				}
+				const { data: syncData, error: syncError } = sync(
+					instance.site_domain,
+					instance.port,
+					'down'
+				)
+				if (syncError) {
+					return c.json(200, { data: null, error: syncError })
+				}
+			}
+		} catch (err) {
+			return c.json(200, { data: null, error: err?.value?.error() || err })
+		}
+		try {
+			// take all instances offline
+			for (let i = 0; i < instances.length; i++) {
+				const instance = instances[i]
+				toggleStatus(instance.site_domain, instance.port, 'online', instance.id)
+			}
+		} catch (toggleinstanceError) {
+			return c.json(200, {
+				data: null,
+				error: toggleinstanceError?.value?.error() || toggleinstanceError,
+			})
+		}
+
+		return c.json(200, { data: `resynced ${instances.length} instances`, error: null })
+	}
+	sync_all_instances()
 })

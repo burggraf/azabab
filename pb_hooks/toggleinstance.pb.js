@@ -27,7 +27,7 @@ routerAdd('POST', '/toggleinstance', async (c) => {
 	if (data?.status !== 'online' && data?.status !== 'offline' && data?.status !== 'maintenance') {
 		return c.json(200, { data: null, error: 'invalid status' })
 	}
-
+	console.log('toggleinstance', data?.instance_id, data?.status)
 	const { data: instanceData, error: instanceError } = 
 		select({id: '',port: 0, site_domain: '', domain: '', owner: '', ownertype: ''},
 		`select id, port, site_domain, domain, owner, ownertype from instance_view where id = '${data?.instance_id}'`);
@@ -38,7 +38,7 @@ routerAdd('POST', '/toggleinstance', async (c) => {
 	if (instanceData[0].owner !== user.id) {
 		return c.json(200, { data: null, error: 'not your project' })
 	}
-
+	console.log('toggleinstance instanceData', JSON.stringify(instanceData, null, 2))
 	// console.log('setting site_domain, domain, port, status')
 	let site_domain = instanceData[0].site_domain;
 	let domain = instanceData[0].domain;

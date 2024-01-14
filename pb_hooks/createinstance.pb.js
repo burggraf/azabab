@@ -1,7 +1,9 @@
 routerAdd('POST', '/createinstance', async (c) => {
-
+	console.log('*************************')
+	console.log('*** createinstance    ***')
+	console.log('*************************')
 	const { updateroutes } = require(`${__hooks}/modules/callbackend.js`)
-
+	console.log('*** createinstance 01')
 	// read the body via the cached request object
 	// (this method is commonly used in hook handlers because it allows reading the body more than once)
 	const data = $apis.requestInfo(c).data
@@ -11,6 +13,8 @@ routerAdd('POST', '/createinstance', async (c) => {
 	const user = info.authRecord // empty if not authenticated as regular auth record
 	// console.log('info', JSON.stringify(info, null, 2));
 	// console.log('admin', JSON.stringify(admin, null, 2));
+	console.log('*** createinstance 02')
+
 	if (!user) {
 		return c.json(200, { data: null, error: 'not logged in' })
 	}
@@ -27,6 +31,8 @@ routerAdd('POST', '/createinstance', async (c) => {
 		data?.project_instance?.type !== 'read only replica') {
 		return c.json(200, { data: null, error: 'invalid project type' })
 	}
+	console.log('*** createinstance 03')
+
 	try {
 		// create the projectData record
 		const projectData = arrayOf(
@@ -46,6 +52,9 @@ routerAdd('POST', '/createinstance', async (c) => {
 				`select id, port, domain, name, owner, ownertype from projects where id = '${data?.project_instance?.project_id}'`
 			)
 			.all(projectData) // throw an error on db failure
+		console.log('*** createinstance 04')
+		console.log('projectData', JSON.stringify(projectData, null, 2))
+
 		if (projectData.length !== 1) {
 			return c.json(200, { data: null, error: 'project not found' })
 		}
@@ -68,10 +77,13 @@ routerAdd('POST', '/createinstance', async (c) => {
 		console.log('projectDataError', projectDataError)
 		return c.json(200, { data: null, error: projectDataError?.value?.error() || projectDataError })
 	}
+	console.log('*** createinstance 05')
+
 	let site_domain = '';
 	// get the site info
+	let siteData;
 	try {
-		const siteData = arrayOf(
+		siteData = arrayOf(
 			new DynamicModel({
 				domain: '',
 				code: '',
@@ -97,6 +109,12 @@ routerAdd('POST', '/createinstance', async (c) => {
 		console.log('siteDataError', siteDataError)
 		return c.json(200, { data: null, error: siteDataError?.value?.error() || siteDataError })
 	}
+	console.log('*** createinstance 06')
+
+	console.log('*************************')
+	console.log('siteData', JSON.stringify(siteData, null, 2))
+	console.log('*************************')
+
 	let newId = '';
 	try {
 		// create the project_instance record
@@ -133,11 +151,25 @@ routerAdd('POST', '/createinstance', async (c) => {
 		console.log('projectInsertError', projectInsertError)
 		return c.json(200, { data: null, error: projectInsertError?.value?.error() || projectInsertError })
 	}
+	console.log('*** createinstance 07')
+
+	console.log('*************************')
+	console.log('newId', newId)
+	console.log('*************************')
+
+
+	console.log('creatinstance now calling updateroutes')
+	console.log('*** createinstance 08')
+
+	console.log('data?.project_instance?.project_id', data?.project_instance?.project_id)
+	console.log('*** createinstance 09')
+	console.log('user?.id', user?.id)
+	console.log('*** createinstance 10')
 
 	const { data: updateroutesData, error: updateroutesError } = 
 		updateroutes(data?.project_instance?.project_id, user?.id)
-	console.log('updateroutesData', updateroutesData)
-	console.log('updateroutesError', updateroutesError)
+	console.log('createinstance updateroutesData', JSON.stringify(updateroutesData,null,2))
+	console.log('createinstance updateroutesError', JSON.stringify(updateroutesError,null,2))
 	if (updateroutesError) {
 		return c.json(200, { data: null, error: updateroutesError })
 	} else {

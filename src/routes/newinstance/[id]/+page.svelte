@@ -23,9 +23,10 @@
 		ownertype: 'person',
 		port: 0,
 	}
-	let project_instance: ProjectInstance = {
+	let project_instance: ProjectInstance = 
+	{
 		name: '',
-		project_id: project_id,
+		project_id: '',
 		owner: '',
 		ownertype: '',
 		code: '',
@@ -40,7 +41,8 @@
 		logs_streaming_backup_location: '',
 		db_streaming_backup_retention: 0,
 		logs_streaming_backup_retention: 0,
-	}
+		instance_status: ''
+	};
 
 	onMount(async () => {
 		console.log('*** newproject onMount')
@@ -101,7 +103,8 @@
 			},
 		})
         loader.dismiss();
-		console.log('data, error', data, error)
+		console.log('createinstance data', data)
+		console.log('createinstance error', error)
 		if (error) {
 			console.log('/createinstance error', error)
 			toast(JSON.stringify(error), 'danger')
