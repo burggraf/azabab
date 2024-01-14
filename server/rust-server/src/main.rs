@@ -13,6 +13,7 @@ mod setup_marmot;
 mod sync;
 mod change_version;
 mod update_route;
+mod configure_server;
 
 use std::convert::Infallible;
 use hyper::{Body, Request, Response, Server};
@@ -123,6 +124,9 @@ async fn request_handler(req: Request<Body>) -> Result<Response<Body>, hyper::Er
         },
         ("/updateroute", &hyper::Method::POST) => {
             update_route::handle_update_route(req).await
+        },
+        ("/configureserver", &hyper::Method::POST) => {
+            configure_server::handle_configure_server(req).await
         },
         _ => catch_all_handler::handle_catch_all(req).await
     }

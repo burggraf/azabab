@@ -258,5 +258,32 @@ const createuser = async (key) => {
     }
 	
 }
+const configureserver = async (fqd, rclone_conf, nats_server_conf) => {
+    console.log('callbackend configureserver 01', fqd, rclone_conf.length, nats_server_conf.length)
+    // key: {username,port,ssh_key_string, site}
+    let res;
+    console.log(`http://${fqd}:5000/configureserver`);
+    try {
+        res = await $http.send({
+            url:     `http://${fqd}:5000/configureserver`,
+            method:  "POST",
+            body:    JSON.stringify({
+                rclone_conf: rclone_conf,
+                nats_server_conf: nats_server_conf,
+            }),
+            headers: {
+                "content-type": "application/json",
+                "Authorization": "your_predefined_auth_token"
+            },
+            timeout: 120, // in seconds
+        })	
+        console.log('res', JSON.stringify(res, null, 2))
+        console.log('returning: ', JSON.stringify({data: res.raw, error: null}, null, 2))
+        return {data: res.raw, error: null}
+    } catch (httpError) {
+        console.log('configureserver, httpError', JSON.stringify(httpError,null, 2))
+        return {data: null, error: httpError.value.error() }
+    }
+}
 
-module.exports = { updateroutes, sync, changeversion, createuser }
+module.exports = { updateroutes, sync, changeversion, createuser, configureserver }
