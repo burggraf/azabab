@@ -36,7 +36,7 @@
     })
     const loadProjectInstanceKeys = async () => {
 		project_instance_keys = await pb.collection('project_instance_keys').getFullList({
-			filter: `project_id = "${project_instance.project_id}"`,
+			filter: `project_instance_id = "${project_instance.id}"`,
 			fields: 'id,project_instance_id,user_keys_id',
 		})
 	}
