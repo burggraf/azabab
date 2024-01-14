@@ -12,6 +12,8 @@ struct UpdateData {
 }
 
 pub async fn handle_update_route(mut req: Request<Body>) -> Result<Response<Body>, hyper::Error> {
+    println!("handle_udpate_route");
+
     // Parse request body
     let body_bytes = hyper::body::to_bytes(req.body_mut()).await?;
     let body_str = String::from_utf8(body_bytes.to_vec()).unwrap();
@@ -19,14 +21,19 @@ pub async fn handle_update_route(mut req: Request<Body>) -> Result<Response<Body
 
     // Create or overwrite the frontend file
     let frontend_file_path = format!("/home/ubuntu/proxy-server/routes/frontend.{}.txt", update_data.port);
+    println!("frontend_file_path: {}", frontend_file_path);
     let mut frontend_file = File::create(&frontend_file_path).await.unwrap();
     frontend_file.write_all(update_data.frontend.as_bytes()).await.unwrap();
 
     // Create or overwrite the backend file
     let backend_file_path = format!("/home/ubuntu/proxy-server/routes/backend.{}.txt", update_data.port);
+    println!("backend_file_path: {}", backend_file_path);
     let mut backend_file = File::create(&backend_file_path).await.unwrap();
     backend_file.write_all(update_data.backend.as_bytes()).await.unwrap();
+    
+    println!("update_data.port: {}", update_data.port);
 
+    
     // Concatenate files to create haproxy.cfg
     let concat_command = "cat /home/ubuntu/proxy-server/routes/haproxy.header.cfg /home/ubuntu/proxy-server/routes/frontend.*.txt /home/ubuntu/proxy-server/routes/backend.*.txt > /home/ubuntu/proxy-server/haproxy.cfg";
     let _concat_output = Command::new("sh")

@@ -6,7 +6,7 @@ use std::env;
 use crate::AUTH_TOKEN;
 
 pub async fn handle_sync(mut req: Request<Body>, _auth_token: &str) -> Result<Response<Body>, hyper::Error> {
-    // println!("handle_sync");
+    println!("handle_sync");
 
     // Check for authorization
     if let Some(auth_header) = req.headers().get(hyper::header::AUTHORIZATION) {
@@ -31,6 +31,7 @@ pub async fn handle_sync(mut req: Request<Body>, _auth_token: &str) -> Result<Re
     let port = body_params["port"].as_str().unwrap_or_default();
     let direction = body_params["direction"].as_str().unwrap_or_default();
     let destination = body_params["destination"].as_str().unwrap_or_default();
+    println!("sync - port {}, direction {}, destination {}", port, direction, destination);
 
     // Set current folder
     env::set_current_dir("/home/ubuntu/data").unwrap();
@@ -39,7 +40,7 @@ pub async fn handle_sync(mut req: Request<Body>, _auth_token: &str) -> Result<Re
         "up" => {
             // Execute rclone sync for "up" direction
             let sync_command = format!("rclone sync {} {}:azabab/sync/{} --exclude marmot/marmot.toml", port, destination, port);
-            // println!("sync_command: {}", sync_command);
+            println!("sync_command: {}", sync_command);
             Command::new("sh")
                 .arg("-c")
                 .arg(&sync_command)
@@ -54,7 +55,7 @@ pub async fn handle_sync(mut req: Request<Body>, _auth_token: &str) -> Result<Re
                 .output();
 
             let sync_command = format!("rclone sync {}:azabab/sync/{} {} --exclude marmot/marmot.toml", destination, port, port);
-            // println!("sync_command: {}", sync_command);
+            println!("sync_command: {}", sync_command);
             Command::new("sh")
                 .arg("-c")
                 .arg(&sync_command)
@@ -65,7 +66,7 @@ pub async fn handle_sync(mut req: Request<Body>, _auth_token: &str) -> Result<Re
         "delete" => {
             // New code for "delete" direction
             let delete_command = format!("rclone delete {}:azabab/sync/{}", destination, port);
-            // println!("delete_command: {}", delete_command);
+            println!("delete_command: {}", delete_command);
             Command::new("sh")
                 .arg("-c")
                 .arg(&delete_command)
@@ -75,7 +76,7 @@ pub async fn handle_sync(mut req: Request<Body>, _auth_token: &str) -> Result<Re
         },        
         _ => println!("Invalid direction: {} for port {}", direction, port),
     }
-    // println!("Sync operation complete");
+    println!("Sync operation complete");
     // Return success response
     Ok(Response::builder()
         .status(StatusCode::OK)

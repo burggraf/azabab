@@ -153,7 +153,7 @@
 		})
 		console.log('toggleinstance hook error', error)
 		console.log('toggleinstance hook data', data)
-		if (data === 'ok') {
+		if (data === 'OK') {
 			project_instance.instance_status = status
 		}
 	}

@@ -2,8 +2,8 @@ const updateroutes = (project_id, current_user_id) => {
 	const { select } = require(`${__hooks}/modules/sql.js`)
     console.log('updateroutes 01')
 	const { data: instanceData, error: instanceError } = 
-		select({port: 0, site_domain: '', domain: '', owner: '', ownertype: '', project_metadata: {}},
-		`select port, site_domain, domain, owner, ownertype, project_metadata 
+		select({port: 0, site_domain: '', domain: '', owner: '', ownertype: '', project_metadata: {}, instance_status: ''},
+		`select port, site_domain, domain, owner, ownertype, project_metadata, instance_status 
          from instance_view 
          where project_id = '${project_id}' 
          order by type`);
@@ -21,6 +21,7 @@ const updateroutes = (project_id, current_user_id) => {
         const site_domain = instance.site_domain;
         const pb_version = instance.project_metadata?.pb_version || 'v0.20.6';
         const otherServers = [];
+        const instance_status = instance.instance_status;
         for (let j = 0; j < instanceData.length; j++) {
             const otherInstance = instanceData[j];
             if (otherInstance.site_domain !== instance.site_domain) {
@@ -31,20 +32,33 @@ const updateroutes = (project_id, current_user_id) => {
                 })
             }
         }    
-        console.log('calling updateroute', port, domain, site_domain, pb_version, otherServers)
-        const { data, error } = updateroute(port, domain, site_domain, pb_version, otherServers);
+        console.log('calling updateroute', port, domain, site_domain, pb_version, otherServers, instance_status)
+        const { data, error } = updateroute(port, domain, site_domain, pb_version, otherServers, instance_status);
         if (error) return { data: null, error: error };
     } 
     return { data: 'OK', error: null };
 }
-const updateroute = (port, domain, site_domain, pb_version, otherServers) => {
+const updateroute = (port, domain, site_domain, pb_version, otherServers, instance_status) => {
     let frontendRoute = frontendRouteTemplate;
     let backendRoute = backendRouteTemplate;
+    let statusPort = port; // the standard port
+    switch (instance_status) {
+        case 'maintenance':
+            statusPort = '9998';
+            break;
+        case 'offline':
+            statusPort = '9999';
+            break;
+        default:
+            statusPort = port;
+    }
     frontendRoute = frontendRoute.replace(/\[PORT\]/g, port);
+    frontendRoute = frontendRoute.replace(/\[STATUSPORT\]/g, statusPort);
     frontendRoute = frontendRoute.replace(/\[LOCAL_FQD\]/g, domain + '.' + site_domain);
     frontendRoute = frontendRoute.replace(/\[GLOBAL_FQD\]/g, domain + '.' + 'azabab.com');
     frontendRoute = frontendRoute.replace(/\[PB_VERSION\]/g, pb_version);
     backendRoute = backendRoute.replace(/\[PORT\]/g, port);
+    backendRoute = backendRoute.replace(/\[STATUSPORT\]/g, statusPort);
     backendRoute = backendRoute.replace(/\[LOCAL_FQD\]/g, domain + '.' + site_domain);
     backendRoute = backendRoute.replace(/\[GLOBAL_FQD\]/g, domain + '.' + 'azabab.com');
     backendRoute = backendRoute.replace(/\[PB_VERSION\]/g, pb_version);
@@ -138,7 +152,7 @@ backend backend_[PORT]_local
     http-request set-header X-Original-URI %[url]
     http-request set-header X-Original-Port [PORT]
     http-request set-header X-PB-Version v0.20.6
-    server local_app_[PORT] 127.0.0.1:[PORT] check
+    server local_app_[PORT] 127.0.0.1:[STATUSPORT] check
     server local_error_handler_[PORT] 127.0.0.1:5000 backup
 
 # Backend for backend_[PORT]_global
@@ -149,7 +163,7 @@ backend backend_[PORT]_global
     balance roundrobin
     stick-table type string len 50 size 200k expire 30m
     stick on cookie(SERVERID)
-    server global_app_[PORT] 127.0.0.1:[PORT] check
+    server global_app_[PORT] 127.0.0.1:[STATUSPORT] check
     server global_error_handler_[PORT] 127.0.0.1:5000 backup
 
     # add any other servers below
@@ -157,37 +171,6 @@ backend backend_[PORT]_global
     #server west-3_[PORT] alpha.west-3.azabab.com:443 check ssl verify none
     #server west-4_[PORT] alpha.west-4.azabab.com:443 check ssl verify none
 `;
-
-const toggleinstance = (domain, site_domain, port, status) => {
-    if (typeof port !== 'string') port = port.toString();
-    try {
-        console.log(`http://${site_domain}:5000/toggleinstance`)
-        console.log('domain', domain)
-        console.log('port', port)
-        console.log('status', status)
-        const res = $http.send({
-            url: `http://${site_domain}:5000/toggleinstance`,
-            method: 'POST',
-            body: JSON.stringify({
-                domain: domain + '.' + site_domain,
-                port: port,
-                status: status, 
-            }),
-            headers: {
-                'content-type': 'application/json',
-                Authorization: 'your_predefined_auth_token',
-            },
-            timeout: 120, // in seconds
-        })
-        if (res.json?.error) {
-            return { data: null, error: res.json.error || res.json || res.raw };
-        }  else {
-            return { data: res, error: null };
-        }
-    } catch (toggleinstanceError) {
-        return { data: null, error: toggleinstanceError?.value?.error() || toggleinstanceError };		
-    }
-}
 
 const sync = async (site_domain, port, direction) => {
     if (typeof port !== 'string') port = port.toString()
@@ -272,4 +255,4 @@ const createuser = async (key) => {
 	
 }
 
-module.exports = { updateroutes, toggleinstance, sync, changeversion, createuser }
+module.exports = { updateroutes, sync, changeversion, createuser }

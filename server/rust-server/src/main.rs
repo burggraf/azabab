@@ -11,7 +11,6 @@ mod get_litestream_generations;
 mod pitr;
 mod setup_marmot;
 mod sync;
-mod toggle_instance;
 mod change_version;
 mod update_route;
 
@@ -118,9 +117,6 @@ async fn request_handler(req: Request<Body>) -> Result<Response<Body>, hyper::Er
         },
         ("/sync", &hyper::Method::POST) => {
             sync::handle_sync(req, AUTH_TOKEN).await
-        },
-        ("/toggleinstance", &hyper::Method::POST) => {
-            toggle_instance::handle_toggle_instance(req, AUTH_TOKEN).await
         },
         ("/changeversion", &hyper::Method::POST) => {
             change_version::handle_change_version(req, AUTH_TOKEN).await

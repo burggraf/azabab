@@ -2,19 +2,14 @@
 // 	 instance_id
 // 	 status (online, offline, maintenance)
 routerAdd('POST', '/toggleinstance', async (c) => {
-	const { toggleinstance } = require(`${__hooks}/modules/callbackend.js`)
-	const { execute, select } = require(`${__hooks}/modules/sql.js`)
-	// console.log('toggleinstance got module toggleinstance', toggleinstance)
-	// console.log('toggleinstance got module execute', execute)
-	// read the body via the cached request object
-	// (this method is commonly used in hook handlers because it allows reading the body more than once)
-	const data = $apis.requestInfo(c).data
+	console.log('toggleinstance 00')
 
+	const { updateroutes } = require(`${__hooks}/modules/callbackend.js`)
+	const { execute, select } = require(`${__hooks}/modules/sql.js`)
+	const data = $apis.requestInfo(c).data
+	console.log('toggleinstance 01')
 	const info = $apis.requestInfo(c)
-	// const admin  = info.admin;      // empty if not authenticated as admin
 	const user = info.authRecord // empty if not authenticated as regular auth record
-	// console.log('info', JSON.stringify(info, null, 2));
-	// console.log('admin', JSON.stringify(admin, null, 2));
 	if (!user) {
 		return c.json(200, { data: null, error: 'not logged in' })
 	}
@@ -29,8 +24,8 @@ routerAdd('POST', '/toggleinstance', async (c) => {
 	}
 	console.log('toggleinstance', data?.instance_id, data?.status)
 	const { data: instanceData, error: instanceError } = 
-		select({id: '',port: 0, site_domain: '', domain: '', owner: '', ownertype: ''},
-		`select id, port, site_domain, domain, owner, ownertype from instance_view where id = '${data?.instance_id}'`);
+		select({id: '',port: 0, site_domain: '', domain: '', owner: '', ownertype: '', project_id: ''},
+		`select id, port, site_domain, domain, owner, ownertype, project_id from instance_view where id = '${data?.instance_id}'`);
 	if (instanceError) return c.json(200, { data: null, error: instanceError })
 	if (instanceData.length !== 1) {
 		return c.json(200, { data: null, error: 'instance not found' })
@@ -43,6 +38,7 @@ routerAdd('POST', '/toggleinstance', async (c) => {
 	let site_domain = instanceData[0].site_domain;
 	let domain = instanceData[0].domain;
 	let port = instanceData[0].port;
+	let project_id = instanceData[0].project_id;
 	let status = '';
 	switch (data?.status) {
 		case 'online':
@@ -56,16 +52,18 @@ routerAdd('POST', '/toggleinstance', async (c) => {
 			break;
 		default:
 			return c.json(200, { data: null, error: 'invalid status' })
-	}
-	// take the instance online, offline, or into maintenance mode
-	const { data: d1, error: e1 } = toggleinstance(domain, site_domain, port.toString(), status);
-	if (e1) return c.json(200, { data: null, error: e1 })
-	
+	}	
 	// update the instance record
 	const { data: updateData, error: updateError } = 
 		execute(`update project_instance set instance_status = '${data?.status}' where id = '${data?.instance_id}'`);
 	if (updateError) return c.json(200, { data: null, error: updateError })
-	else return c.json(200, { data: 'ok', error: null })
+
+	// updateroutes = (project_id, current_user_id)
+	// take the instance online, offline, or into maintenance mode
+	const { data: d1, error: e1 } = updateroutes(project_id, user?.id);
+	if (e1) return c.json(200, { data: null, error: e1 })
+	else return c.json(200, { data: d1, error: null })
+	
 })
 
 
