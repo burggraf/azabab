@@ -173,7 +173,7 @@ routerAdd('POST', '/createinstance', async (c) => {
 	if (updateroutesError) {
 		return c.json(200, { data: null, error: updateroutesError })
 	} else {
-		return c.json(200, { data: newProjectInstanceId, error: null })
+		return c.json(200, { data: newId, error: null })
 	}
 
 })

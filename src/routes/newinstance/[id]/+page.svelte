@@ -93,7 +93,11 @@
 
 	const save = async () => {
 		console.log('save')
-		console.log('project_instance', project_instance)
+		console.log('project_instance 1', project_instance)
+		if (project_instance.project_id === '') {
+			project_instance.project_id = project_id
+		}
+		console.log('project_instance 2', project_instance)
 		let loader = await loadingBox('Creating new instance...')
 
         const { data, error } = await pb.send('/createinstance', {
