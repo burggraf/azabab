@@ -1,4 +1,7 @@
-routerAdd('POST', '/createproject', async (c) => {
+routerAdd('POST', '/createproject', (c) => {
+
+	const { updateroutes } = require(`${__hooks}/modules/callbackend.js`)
+
 	// read the body via the cached request object
 	// (this method is commonly used in hook handlers because it allows reading the body more than once)
 	const data = $apis.requestInfo(c).data
@@ -102,27 +105,16 @@ routerAdd('POST', '/createproject', async (c) => {
 		console.log(JSON.stringify(cmd, null, 2))
 		const output = String.fromCharCode(...cmd.output())
         */
-		const res = $http.send({
-			url: `http://${data?.project_instance?.site_domain}:5000/createproject`,
-			method: 'POST',
-			body: JSON.stringify({
-				domain: data?.project_instance?.domain + '.' + data?.project_instance?.site_domain,
-				port: newPort.toString(),
-			}),
-			headers: {
-				'content-type': 'application/json',
-				Authorization: 'your_predefined_auth_token',
-			},
-			timeout: 120, // in seconds
-		})
-		console.log('res', JSON.stringify(res, null, 2))
-		if (res.json?.error) {
-			return c.json(200, { data: null, error: res.json.error })
+
+		const { data: updateroutesData, error: updateroutesError } = updateroutes(newId, user?.id)
+		console.log('updateroutesData', JSON.stringify(updateroutesData,null,2))
+		console.log('updateroutesError', JSON.stringify(updateroutesError,null,2))
+		if (updateroutesError) {
+			return c.json(200, { data: null, error: updateroutesError })
 		} else {
 			return c.json(200, { data: newProjectInstanceId, error: null })
 		}
-		// reload domain_ports.txt file to update domain port mappings
-		// ssh ubuntu@$1  "sudo kill -HUP \$(cat /var/run/nginx.pid)"
+
 	} catch (projectInsertError) {
 		console.log('projectInsertError', projectInsertError)
 		return c.json(200, { data: null, error: projectInsertError?.value?.error() || projectInsertError })

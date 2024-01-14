@@ -23,7 +23,6 @@ routerAdd('POST', '/changeversion', async (c) => {
 		return c.json(200, { data: null, error: 'pb_version is required' })
 	}
 	const pb_version = data?.pb_version;
-
 	const { data: instanceData, error: instanceError } = 
 		select({id: '', port: 0, site_domain: '', domain: '', owner: '', ownertype: ''},
 		`select id, port, site_domain, domain, owner, ownertype from instance_view where project_id = '${data?.project_id}'`);
@@ -39,9 +38,9 @@ routerAdd('POST', '/changeversion', async (c) => {
 		let site_domain = instance.site_domain;
 		let domain = instance.domain;
 		let port = instance.port.toString();
-
 		const { data, error } = changeversion(domain, site_domain, port, pb_version)
 		if (error) {
+			console.log(`changeversion error ${domain}, ${site_domain}, ${port}, ${pb_version}`, JSON.stringify(error, null, 2))
 			return c.json(200, { data: null, error: error })
 		}
 	}
@@ -50,7 +49,6 @@ routerAdd('POST', '/changeversion', async (c) => {
 		execute(`update projects set metadata = JSON_SET(coalesce(metadata,'{}'), '$.pb_version', '${pb_version}') where id = '${data?.project_id}'`);
 	if (updateError) return c.json(200, { data: null, error: updateError })
 	else {
-		console.log('changeversion updateData', JSON.stringify(updateData))
 		return c.json(200, { data: 'ok', error: null })
 	}
 })

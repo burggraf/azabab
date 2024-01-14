@@ -1,4 +1,7 @@
 routerAdd('POST', '/createinstance', async (c) => {
+
+	const { updateroutes } = require(`${__hooks}/modules/callbackend.js`)
+
 	// read the body via the cached request object
 	// (this method is commonly used in hook handlers because it allows reading the body more than once)
 	const data = $apis.requestInfo(c).data
@@ -130,6 +133,22 @@ routerAdd('POST', '/createinstance', async (c) => {
 		console.log('projectInsertError', projectInsertError)
 		return c.json(200, { data: null, error: projectInsertError?.value?.error() || projectInsertError })
 	}
+
+	const { data: updateroutesData, error: updateroutesError } = 
+		updateroutes(data?.project_instance?.project_id, user?.id)
+	console.log('updateroutesData', updateroutesData)
+	console.log('updateroutesError', updateroutesError)
+	if (updateroutesError) {
+		return c.json(200, { data: null, error: updateroutesError })
+	} else {
+		return c.json(200, { data: newProjectInstanceId, error: null })
+	}
+
+	// ************************** DEPRECTATED **************************
+	// ************************** DEPRECTATED **************************
+	// ************************** DEPRECTATED **************************
+
+
 	try {
 		const res = $http.send({
 			url: `http://${site_domain}:5000/createinstance`,

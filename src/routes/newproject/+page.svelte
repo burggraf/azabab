@@ -14,6 +14,7 @@
 	import { onMount } from 'svelte'
     import { checkDomainAvailability } from '$services/project-utils.service'
 	import { dropdownmenu } from '$components/DropdownMenu'
+	import { loadingBox } from '$services/loadingMessage'
 
 	import type { Project, ProjectInstance, Site, Key, ProjectInstanceKey } from '$models/interfaces'
 
@@ -90,6 +91,7 @@
 		} else {
         }
 		const site = sites.find((site) => site.id === project_instance.id)
+        const loader = await loadingBox('Creating new project...')
         const { data, error } = await pb.send('/createproject', {
             method: 'POST',
             body: {
@@ -98,6 +100,7 @@
                 site,
             },
         })
+        loader.dismiss()
         if (error) {
             if (error === 'constraint failed: UNIQUE constraint failed: projects.domain (2067)')
                 toast('Project domain already exists', 'danger')
