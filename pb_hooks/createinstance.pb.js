@@ -144,40 +144,6 @@ routerAdd('POST', '/createinstance', async (c) => {
 		return c.json(200, { data: newProjectInstanceId, error: null })
 	}
 
-	// ************************** DEPRECTATED **************************
-	// ************************** DEPRECTATED **************************
-	// ************************** DEPRECTATED **************************
-
-
-	try {
-		const res = $http.send({
-			url: `http://${site_domain}:5000/createinstance`,
-			method: 'POST',
-			body: JSON.stringify({
-				domain: data?.project_instance?.domain + '.' + data?.project_instance?.site_domain,
-				port: data?.project_instance?.port.toString(),
-				type: data?.project_instance?.type, 
-			}),
-			headers: {
-				'content-type': 'application/json',
-				Authorization: 'your_predefined_auth_token',
-			},
-			timeout: 120, // in seconds
-		})
-		console.log('res', JSON.stringify(res, null, 2))
-		if (res.json?.error) {
-			return c.json(200, { data: null, error: res.json.error || res.json })
-		} else {
-			return c.json(200, { data: newId, error: null })
-		}
-		// reload domain_ports.txt file to update domain port mappings
-		// ssh ubuntu@$1  "sudo kill -HUP \$(cat /var/run/nginx.pid)"
-
-	} catch (createInstanceError) {
-		console.log('createInstanceError', createInstanceError)
-		return c.json(200, { data: null, error: createInstanceError?.value?.error() || createInstanceError })
-	}
-
 })
 
 
