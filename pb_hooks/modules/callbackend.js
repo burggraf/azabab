@@ -17,11 +17,11 @@ const updateroutes = (project_id, current_user_id) => {
         frontendRoute = frontendRoute.replace(/\[PORT\]/g, instance.port.toString());
         frontendRoute = frontendRoute.replace(/\[LOCAL_FQD\]/g, instance.domain + '.' + instance.site_domain);
         frontendRoute = frontendRoute.replace(/\[GLOBAL_FQD\]/g, instance.domain + '.' + 'azabab.com');
-        frontendRoute = frontendRoute.replace(/\[PB_VERSION\]/g, instance.project_metadata?.pb_version || 'v0.20.5');
+        frontendRoute = frontendRoute.replace(/\[PB_VERSION\]/g, instance.project_metadata?.pb_version || 'v0.20.6');
         backendRoute = backendRoute.replace(/\[PORT\]/g, instance.port.toString());
         backendRoute = backendRoute.replace(/\[LOCAL_FQD\]/g, instance.domain + '.' + instance.site_domain);
         backendRoute = backendRoute.replace(/\[GLOBAL_FQD\]/g, instance.domain + '.' + 'azabab.com');
-        backendRoute = backendRoute.replace(/\[PB_VERSION\]/g, instance.project_metadata?.pb_version || 'v0.20.5');
+        backendRoute = backendRoute.replace(/\[PB_VERSION\]/g, instance.project_metadata?.pb_version || 'v0.20.6');
         let otherServers = '';
         for (let j = 0; j < instanceData.length; j++) {
             const otherInstance = instanceData[j];
@@ -94,7 +94,7 @@ const backendRouteTemplate = `
 backend backend_[PORT]_local
     http-request set-header X-Original-URI %[url]
     http-request set-header X-Original-Port [PORT]
-    http-request set-header X-PB-Version v0.20.5
+    http-request set-header X-PB-Version v0.20.6
     server local_app_[PORT] 127.0.0.1:[PORT] check
     server local_error_handler_[PORT] 127.0.0.1:5000 backup
 
@@ -102,7 +102,7 @@ backend backend_[PORT]_local
 backend backend_[PORT]_global
     http-request set-header X-Original-URI %[url]
     http-request set-header X-Original-Port [PORT]
-    http-request set-header X-PB-Version v0.20.5
+    http-request set-header X-PB-Version v0.20.6
     balance roundrobin
     stick-table type string len 50 size 200k expire 30m
     stick on cookie(SERVERID)

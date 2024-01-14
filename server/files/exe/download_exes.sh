@@ -2,6 +2,7 @@
 
 # List of download links
 links=(
+    "https://github.com/pocketbase/pocketbase/releases/download/v0.20.6/pocketbase_0.20.6_linux_amd64.zip"
     "https://github.com/pocketbase/pocketbase/releases/download/v0.20.5/pocketbase_0.20.5_linux_amd64.zip"
     "https://github.com/pocketbase/pocketbase/releases/download/v0.20.4/pocketbase_0.20.4_linux_amd64.zip"
     "https://github.com/pocketbase/pocketbase/releases/download/v0.20.3/pocketbase_0.20.3_linux_amd64.zip"
