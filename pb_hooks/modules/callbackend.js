@@ -173,8 +173,11 @@ backend backend_[PORT]_global
 `;
 
 const sync = async (site_domain, port, direction) => {
+    console.log('callbackend sync 01', site_domain, port, direction)
     if (typeof port !== 'string') port = port.toString()
     try {
+        console.log('callbackend sync 02', `http://${site_domain}:5000/sync`)
+
         const res = $http.send({
             url: `http://${site_domain}:5000/sync`,
             method: 'POST',
@@ -189,6 +192,7 @@ const sync = async (site_domain, port, direction) => {
             },
             timeout: 120, // in seconds
         })
+        console.log('callbackend sync 03', JSON.stringify(res, null, 2))
         if (res.json?.data !== 'Sync operation complete') {
             return { data: null, error: res.json?.error || res.raw };
         }
