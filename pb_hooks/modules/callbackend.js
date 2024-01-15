@@ -66,7 +66,7 @@ const updateroute = (port, domain, site_domain, pb_version, otherServers, instan
     for (let i = 0; i < otherServers.length; i++) {
         const otherServer = otherServers[i];
         otherServersString += 
-        `server ${otherServer.site_domain}_${otherServer.port} ${otherServer.domain}.${otherServer.site_domain}:443 check ssl verify none\n`;
+        `    server ${otherServer.site_domain}_${otherServer.port} ${otherServer.domain}.${otherServer.site_domain}:443 check ssl verify none cookie s${i+3}\n`;
     }
     frontendRoute = frontendRoute.replace(/\[OTHER_SERVERS\]/g, otherServersString);
     backendRoute = backendRoute.replace(/\[OTHER_SERVERS\]/g, otherServersString);
@@ -163,13 +163,10 @@ backend backend_[PORT]_global
     balance roundrobin
     stick-table type string len 50 size 200k expire 30m
     stick on cookie(SERVERID)
-    server global_app_[PORT] 127.0.0.1:[STATUSPORT] check
-    server global_error_handler_[PORT] 127.0.0.1:5000 backup
-
-    # add any other servers below
-    [OTHER_SERVERS]
-    #server west-3_[PORT] alpha.west-3.azabab.com:443 check ssl verify none
-    #server west-4_[PORT] alpha.west-4.azabab.com:443 check ssl verify none
+    server global_app_[PORT] 127.0.0.1:[STATUSPORT] check cookie s1
+    server global_error_handler_[PORT] 127.0.0.1:5000 backup cookie s2
+    # other servers below
+[OTHER_SERVERS]
 `;
 
 const sync = async (site_domain, port, direction) => {
@@ -279,10 +276,10 @@ const configureserver = async (fqd, rclone_conf, nats_server_conf) => {
         })	
         console.log('res', JSON.stringify(res, null, 2))
         console.log('returning: ', JSON.stringify({data: res.raw, error: null}, null, 2))
-        return {data: res.raw, error: null}
+        return {data: res.raw, error: null};
     } catch (httpError) {
         console.log('configureserver, httpError', JSON.stringify(httpError,null, 2))
-        return {data: null, error: httpError.value.error() }
+        return {data: null, error: httpError.value.error() };
     }
 }
 
