@@ -66,7 +66,9 @@ const updateroute = (port, domain, site_domain, pb_version, otherServers, instan
     for (let i = 0; i < otherServers.length; i++) {
         const otherServer = otherServers[i];
         otherServersString += 
-        `    server ${otherServer.site_domain}_${otherServer.port} ${otherServer.domain}.${otherServer.site_domain}:443 check ssl verify none cookie ${otherServer.domain}.${otherServer.site_domain}\n`;
+        `    ###server ${otherServer.site_domain}_${otherServer.port} ${otherServer.domain}.${otherServer.site_domain}:443 check ssl verify none cookie ${otherServer.domain}.${otherServer.site_domain}\n`;
+        otherServersString += 
+        `    server ${otherServer.site_domain}_${otherServer.port} ${otherServer.domain}.${otherServer.site_domain}:443 check ssl verify none\n`;
     }
     frontendRoute = frontendRoute.replace(/\[OTHER_SERVERS\]/g, otherServersString);
     backendRoute = backendRoute.replace(/\[OTHER_SERVERS\]/g, otherServersString);
@@ -160,12 +162,21 @@ backend backend_[PORT]_global
     http-request set-header X-Original-URI %[url]
     http-request set-header X-Original-Port [PORT]
     http-request set-header X-PB-Version v0.20.6
-    balance roundrobin
-    stick-table type string len 50 size 200k expire 30m
-    stick on cookie(SERVERID)
-    cookie SERVERID insert indirect nocache
-    server global_app_[PORT] 127.0.0.1:[STATUSPORT] check cookie [LOCAL_FQD]
-    server global_error_handler_[PORT] 127.0.0.1:5000 backup cookie [LOCAL_FQD]
+    ###balance roundrobin
+    ###stick-table type string len 50 size 200k expire 30m
+    ###stick on cookie(SERVERID)
+    ###cookie SERVERID insert indirect nocache
+    
+    balance leastconn
+    stick-table type string len 50 size 30k expire 30m 
+    stick on src
+    #option redispatch
+    #retries 3
+
+    ###server global_app_[PORT] 127.0.0.1:[STATUSPORT] check cookie [LOCAL_FQD]
+    server global_app_[PORT] 127.0.0.1:[STATUSPORT] check
+    ###server global_error_handler_[PORT] 127.0.0.1:5000 backup cookie [LOCAL_FQD]
+    server global_error_handler_[PORT] 127.0.0.1:5000 backup
     # other servers below
 [OTHER_SERVERS]
 `;
