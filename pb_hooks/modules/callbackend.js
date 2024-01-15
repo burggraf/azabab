@@ -167,7 +167,8 @@ backend backend_[PORT]_global
     ###stick on cookie(SERVERID)
     ###cookie SERVERID insert indirect nocache
     
-    balance leastconn
+    ###balance leastconn
+    balance roundrobin
     stick-table type string len 50 size 30k expire 30m 
     stick on src
     #option redispatch
