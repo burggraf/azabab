@@ -66,7 +66,7 @@ const updateroute = (port, domain, site_domain, pb_version, otherServers, instan
     for (let i = 0; i < otherServers.length; i++) {
         const otherServer = otherServers[i];
         otherServersString += 
-        `    server ${otherServer.site_domain}_${otherServer.port} ${otherServer.domain}.${otherServer.site_domain}:443 check ssl verify none cookie s${i+3}\n`;
+        `    server ${otherServer.site_domain}_${otherServer.port} ${otherServer.domain}.${otherServer.site_domain}:443 check ssl verify none cookie ${otherServer.domain}.${otherServer.site_domain}\n`;
     }
     frontendRoute = frontendRoute.replace(/\[OTHER_SERVERS\]/g, otherServersString);
     backendRoute = backendRoute.replace(/\[OTHER_SERVERS\]/g, otherServersString);
@@ -95,7 +95,7 @@ const updateroute = (port, domain, site_domain, pb_version, otherServers, instan
             const ts = +new Date();
             let healthy = false;
             let tries = 0;
-            while (!healthy && ts - (+new Date()) < 10000) {
+            while (!healthy && (+new Date()) - ts < 10000) {
                 // only perform check once per second for 10 seconds
                 const elapsed = (+new Date()) - ts;
                 if (elapsed > (tries * 1000)) {
@@ -152,8 +152,8 @@ backend backend_[PORT]_local
     http-request set-header X-Original-URI %[url]
     http-request set-header X-Original-Port [PORT]
     http-request set-header X-PB-Version v0.20.6
-    server local_app_[PORT] 127.0.0.1:[STATUSPORT] check
-    server local_error_handler_[PORT] 127.0.0.1:5000 backup
+    server local_app_[PORT] 127.0.0.1:[STATUSPORT] check cookie [LOCAL_FQD]
+    server local_error_handler_[PORT] 127.0.0.1:5000 backup cookie [LOCAL_FQD]
 
 # Backend for backend_[PORT]_global
 backend backend_[PORT]_global
@@ -163,8 +163,9 @@ backend backend_[PORT]_global
     balance roundrobin
     stick-table type string len 50 size 200k expire 30m
     stick on cookie(SERVERID)
-    server global_app_[PORT] 127.0.0.1:[STATUSPORT] check cookie s1
-    server global_error_handler_[PORT] 127.0.0.1:5000 backup cookie s2
+    cookie SERVERID insert indirect nocache
+    server global_app_[PORT] 127.0.0.1:[STATUSPORT] check cookie [LOCAL_FQD]
+    server global_error_handler_[PORT] 127.0.0.1:5000 backup cookie [LOCAL_FQD]
     # other servers below
 [OTHER_SERVERS]
 `;

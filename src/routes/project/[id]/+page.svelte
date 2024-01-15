@@ -149,6 +149,29 @@
 			},
 		})
 	}
+	const updateRoutes = async () => {
+        if (instances.length < 2) {
+            toast('You must have at least two instances to update routes', 'danger')
+            return
+        }
+		await showConfirm({
+			header: 'Update Routing Rules',
+			message: `This will sync all routing rules on the primary and replica instances.  Are you SURE?`,
+			okHandler: async () => {
+                const loader = await loadingBox('Updating routes...')
+                loader.present()
+				const { data, error } = await pb.send(`/update-routes/${project.id}`, {
+					method: 'GET',
+				})
+                loader.dismiss()
+                if (error) {
+                    toast('Error: ' + JSON.stringify(error), 'danger')
+                } else {
+                    toast('Routes updated', 'success')
+                }
+			},
+		})
+	}
     const changeVersion = async (e: any) => {		
 		let items = []
 		for (let i = 0; i < versions.length; i++) {
@@ -344,6 +367,12 @@
                     <ion-icon slot="icon-only" icon={syncCircleOutline} />
                     &nbsp;&nbsp;Re-Sync Instances
                 </ion-button>
+
+                <ion-button size="small" color="primary" on:click={updateRoutes}>
+                    <ion-icon slot="icon-only" icon={syncCircleOutline} />
+                    &nbsp;&nbsp;Update Routes
+                </ion-button>
+
                 {/if}
             </ion-buttons>
             <ion-buttons slot="end">
