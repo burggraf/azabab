@@ -24,6 +24,10 @@
             await loadData();
         }
 	})
+	if (localStorage.getItem('instance.tab') === 'logs') {
+        setTimeout(async () => {await loadData();}, 1000)   
+    }
+
 
 	let sortDirection = 'forward'
 	let limit = 50

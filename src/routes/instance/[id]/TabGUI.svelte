@@ -44,6 +44,11 @@
 			await getDir()
         }
     })
+	if (localStorage.getItem('instance.tab') === 'gui') {
+		console.log('>>>>>>>>> instance.tab is gui <<<<<<<<<<')
+        setTimeout(async () => {await getDir();}, 1000)   
+    }
+
 
 	const callback = async (item: any) => {
 		console.log('handler', item)

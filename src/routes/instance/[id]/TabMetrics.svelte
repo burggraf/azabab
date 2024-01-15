@@ -38,6 +38,10 @@
         console.log('loadData: resultList', resultList)   
         stats = resultList.items
     }
+    if (localStorage.getItem('instance.tab') === 'metrics') {
+        setTimeout(async () => {await loadData();}, 1000)   
+    }
+
 
 </script>
 <div class="ion-padding" style="overflow: scroll;height: 100%">

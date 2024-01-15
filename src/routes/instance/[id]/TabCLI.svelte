@@ -74,9 +74,6 @@
 		loadProjectInstanceKeys()
 	}
     if (localStorage.getItem('instance.tab') === 'cli') {
-        console.log('**************************************')
-        console.log('**** initializing loadProjectInstanceKeys because default tab is cli')
-        console.log('**************************************')
         setTimeout(async () => {await loadProjectInstanceKeys();}, 1000)   
     }
 

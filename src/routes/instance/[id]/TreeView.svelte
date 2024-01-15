@@ -5,21 +5,25 @@
 	}
 </script>
 <script lang="ts">
-	export let tree;
-    export let callback;
-	import { documentOutline, folderOutline, folderOpenOutline, folder } from "ionicons/icons"
+    export let tree: any;
+    export let callback: Function;
+    import { documentOutline, folderOutline, folderOpenOutline, folder } from "ionicons/icons";
 
-	// import { slide } from 'svelte/transition'
-	const {label, fullpath, children, typ, len} = tree;
+    let localTree = tree; // Create a local copy of tree
+    $: ({ label, fullpath, children, typ, len } = localTree); // Reactive assignment
 
-	let expanded = _expansionState[label] || false
-	const toggleExpansion = () => {
-		expanded = _expansionState[label] = !expanded
-	}
-	$: arrowDown = expanded
-    const handler = (e) => {
+    let expanded = _expansionState[tree.label] || false;
+    const toggleExpansion = () => {
+        expanded = _expansionState[tree.label] = !expanded;
+    };
+    $: arrowDown = expanded;
+    const handler = (e: any) => {
         if (typ !== 'f') return;
-        callback({label, fullpath, typ, len});
+        callback({ label, fullpath, typ, len });
+    };
+
+    $: if (tree !== localTree) {
+        localTree = tree; // Update localTree when tree changes
     }
 </script>
 
