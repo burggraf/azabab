@@ -96,24 +96,6 @@
         console.log('*** handleChange', event)
         console.log(event.target.id)
         form[event.target.id as keyof typeof form] = event.target.value
-		// const field = event.target.id
-		// const value = event.target.value || ''
-		// // if field is domain, strip out anything other than a-z 0-9 and -
-		// if (field === 'domain') {
-		// 	project[field] = value.toLowerCase().replace(/[^a-z0-9-]/g, '')
-		// 	domainAvailable = await checkDomainAvailability(project)
-        //     project_instance.domain = value
-		// } else if (field === 'name' && project?.id !== '') {
-		// 	project[field] = value
-		// 	try {
-		// 		const result = await pb.collection('projects').update(project?.id, {name: value});			
-		// 	} catch (err) {
-		// 		console.error('error updating project name', err)
-		// 	}
-		// } 
-		// else {
-		// 	project[field] = value
-		// }
 	}
     const createNewInstance = async () => {
         for (let i = 0; i < instances.length; i++) {
@@ -206,6 +188,21 @@
     const notready = () => {
         toast('This feature is not ready yet', 'danger')
     }
+    const change_project_name = async () => {
+        const { data, error } = await pb.send(`/change-project-name`, {
+            method: 'POST',
+            body: {
+                project_id: project.id,
+                project_name: form.project_name
+            }
+        })
+        if (error) {
+            toast('Error: ' + JSON.stringify(error), 'danger')
+        } else {
+            project.name = form.project_name 
+            toast('Project name changed', 'success')
+        }
+    }
 
 </script>
 
@@ -252,7 +249,7 @@
                         expand="block"
                         fill="solid"
                         disabled={project.name === form.project_name}
-                        on:click={notready}>Change
+                        on:click={change_project_name}>Change
                         </ion-button>
                         </ion-input>
                     </ion-item>
