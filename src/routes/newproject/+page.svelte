@@ -67,7 +67,7 @@
 		})
 	}
 	const save = async () => {
-		const domainAvailable = await checkDomainAvailability(project)
+		const domainAvailable = await checkDomainAvailability(project.domain)
 		if (project.name.trim().length === 0) {
 			toast('Project name is required', 'danger')
 			return
@@ -122,7 +122,7 @@
 		// if field is domain, strip out anything other than a-z 0-9 and -
 		if (field === 'domain') {
 			project[field] = value.toLowerCase().replace(/[^a-z0-9-]/g, '')
-			domainAvailable = await checkDomainAvailability(project)
+			domainAvailable = await checkDomainAvailability(project.domain)
             project_instance.domain = value
             if (!project_instance.metadata) project_instance.metadata = {};
             project_instance.metadata.fqd = `${project.domain}.azabab.com`;

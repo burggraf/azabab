@@ -8,7 +8,9 @@
 	addOutline,
 		arrowBackOutline,
 		arrowForwardOutline,
+		checkmarkCircleOutline,
 		checkmarkOutline,
+		closeCircleOutline,
 		codeDownloadSharp,
 		ellipseSharp,
 		syncCircleOutline,
@@ -23,11 +25,13 @@
 	import { loadingBox } from '$services/loadingMessage'
 	import { dropdownmenu } from '$components/DropdownMenu'
 	import { version } from '$app/environment'
+    import { checkDomainAvailability } from '$services/project-utils.service'
 
     const versions = ['v0.20.6','v0.20.5','v0.20.4','v0.20.3','v0.20.2','v0.20.1','v0.20.0'];
     const default_version = versions[0];
 
     let instances: ProjectInstance[] = []
+	$: domainAvailable = false
 
 	const project: Project = {
 		id: '',
@@ -96,6 +100,9 @@
         console.log('*** handleChange', event)
         console.log(event.target.id)
         form[event.target.id as keyof typeof form] = event.target.value
+        if (event.target.id === 'domain') {
+            domainAvailable = await checkDomainAvailability(form.domain)
+        }
 	}
     const createNewInstance = async () => {
         for (let i = 0; i < instances.length; i++) {
@@ -174,21 +181,28 @@
         project.metadata.pb_version = result.text
         console.log('project.metadata', project.metadata)
         console.log('calling /changeversion from middleware')
-        const changeVersionResult = await pb.send(`/changeversion`, {
+        const loader = await loadingBox('Updating version...')
+        const { data, error } = await pb.send(`/changeversion`, {
             method: 'POST',
             body: {
                 project_id: project.id,
                 pb_version: result.text
             }
         })
-        console.log('changeVersionResult', changeVersionResult)
-        toast('Version changed to ' + result.text, 'success')
+        loader.dismiss();
+        if (error) {
+            toast('Error: ' + JSON.stringify(error), 'danger')
+            return
+        }   
+        console.log('changeVersionResult', data)
+        toast('Version changed', 'success')
         console.log('project', project)
 	}
     const notready = () => {
         toast('This feature is not ready yet', 'danger')
     }
     const change_project_name = async () => {
+        const loader = await loadingBox('Changing project name...')
         const { data, error } = await pb.send(`/change-project-name`, {
             method: 'POST',
             body: {
@@ -196,11 +210,30 @@
                 project_name: form.project_name
             }
         })
+        loader.dismiss()
         if (error) {
             toast('Error: ' + JSON.stringify(error), 'danger')
         } else {
             project.name = form.project_name 
             toast('Project name changed', 'success')
+        }
+    }
+    const change_domain = async () => {
+        const loader = await loadingBox('Changing domain...')
+        const { data, error } = await pb.send(`/change-domain`, {
+            method: 'POST',
+            body: {
+                project_id: project.id,
+                domain: form.domain
+            }
+        })
+        loader.dismiss()
+        if (error) {
+            toast('Error: ' + JSON.stringify(error), 'danger')
+        } else {
+            console.log('change_domain data', data)
+            project.domain = form.domain 
+            toast('Domain changed', 'success')
         }
     }
 
@@ -281,12 +314,26 @@
                             expand="block"
                             fill="solid"
                             disabled={project.domain === form.domain}
-                            on:click={notready}>Change
+                            on:click={change_domain}>Change
                             </ion-button>
                     </ion-input>
                         </ion-item>
                     </ion-col>
                 </ion-row>
+                {#if project.domain !== form.domain}
+                <ion-row>
+                    <ion-col>
+                        <ion-label color={domainAvailable ? 'success' : 'danger'} style="padding-left: 20px;">
+                            {domainAvailable ? `${form.domain} is available` : `Domain is not available`}
+                            <ion-icon
+                                color={domainAvailable ? 'success' : 'danger'}
+                                icon={domainAvailable ? checkmarkCircleOutline : closeCircleOutline}
+                                style=""
+                            />
+                        </ion-label>
+                    </ion-col>
+                </ion-row>
+                {/if}
 
                 <ion-row>
                     <ion-col>
