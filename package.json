@@ -42,7 +42,7 @@
   },
   "type": "module",
   "dependencies": {
-    "@ionic/core": "^7.6.2",
+    "@ionic/core": "^7.6.4",
     "@mapbox/mapbox-gl-geocoder": "^5.0.1",
     "@supabase/supabase-js": "^2.38.5",
     "@sveltejs/adapter-node": "^1.3.1",

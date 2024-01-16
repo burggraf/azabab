@@ -38,6 +38,7 @@
         port: 0,
         metadata: {}
 	}
+    let form = { project_name: '', domain: ''}
 	
 	const ionViewWillEnter = async () => {
 		if (!$currentUser) {
@@ -84,11 +85,8 @@
             }
             instances = instances; // stupid svelte
         }
-
-	}
-	const save = async () => {
-		console.log('save')
-        console.log('**** NOT FINISHED YET')
+        form.project_name = project.name;
+        form.domain = project.domain
 	}
 	const back = async () => {
 		goto('/projects')
@@ -96,6 +94,8 @@
 
 	const handleChange = async (event: any) => {
         console.log('*** handleChange', event)
+        console.log(event.target.id)
+        form[event.target.id as keyof typeof form] = event.target.value
 		// const field = event.target.id
 		// const value = event.target.value || ''
 		// // if field is domain, strip out anything other than a-z 0-9 and -
@@ -203,6 +203,9 @@
         toast('Version changed to ' + result.text, 'success')
         console.log('project', project)
 	}
+    const notready = () => {
+        toast('This feature is not ready yet', 'danger')
+    }
 
 </script>
 
@@ -215,11 +218,11 @@
 				</ion-button>
 			</ion-buttons>
 			<ion-title>{project.name || "Project"}</ion-title>
-			<ion-buttons slot="end">
+			<!-- <ion-buttons slot="end">
 					<ion-button on:click={save}>
 						<ion-icon slot="icon-only" icon={checkmarkOutline} />
 					</ion-button>
-			</ion-buttons>
+			</ion-buttons> -->
         </ion-toolbar>
 	</ion-header>
 	<ion-content class="ion-padding">
@@ -236,12 +239,22 @@
                             on:ionInput={handleChange}
                             class="loginInputBoxWithIcon"
                             type="text"
-                            id="name"
+                            id="project_name"
+                            name="project_name"
                             placeholder="Project Name"
-                            style="--padding-start: 10px;"
-                            value={project.name}
+                            style="--padding-start: 10px;--padding-end: 10px;"                            
+                            value={form.project_name}
                             debounce={500}
-                        />
+                        >
+                        <ion-button
+                        slot="end"
+                        size="small"
+                        expand="block"
+                        fill="solid"
+                        disabled={project.name === form.project_name}
+                        on:click={notready}>Change
+                        </ion-button>
+                        </ion-input>
                     </ion-item>
                 </ion-col>
             </ion-row>
@@ -259,11 +272,21 @@
                                 class="loginInputBoxWithIcon"
                                 type="text"
                                 id="domain"
+                                name="domain"
                                 placeholder="domain"
-                                style="--padding-start: 10px;"
-                                value={project.domain}
+                                style="--padding-start: 10px;--padding-end: 10px;"
+                                value={form.domain}
                                 debounce={500}
-                            />
+                            >
+                            <ion-button
+                            slot="end"
+                            size="small"
+                            expand="block"
+                            fill="solid"
+                            disabled={project.domain === form.domain}
+                            on:click={notready}>Change
+                            </ion-button>
+                    </ion-input>
                         </ion-item>
                     </ion-col>
                 </ion-row>
@@ -278,15 +301,22 @@
                             <ion-item class="GridItem" lines="none">
                                 <ion-input
                                     on:ionInput={handleChange}
-                                    disabled={true}
                                     class="loginInputBoxWithIcon"
                                     type="text"
                                     id="fqd"
                                     placeholder="Full Domain Name"
-                                    style="--padding-start: 10px;"
+                                    style="--padding-start: 10px;--padding-end: 10px;"
                                     value={project.metadata?.fqd}
                                     debounce={500}
-                                />
+                                >
+                                <ion-button
+                                slot="end"
+                                size="small"
+                                expand="block"
+                                fill="solid"
+                                on:click={notready}>Change
+                                </ion-button>
+                            </ion-input>
                             </ion-item>
                         </ion-col>
                     </ion-row>
