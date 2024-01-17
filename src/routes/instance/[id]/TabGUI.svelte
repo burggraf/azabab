@@ -29,9 +29,13 @@
             'javascript'
         );
         editor.setModel(model);
+		window.addEventListener('resize', resizeContainer);
+        // Initial resize to set the correct height
+        resizeContainer();
     });
 
     onDestroy(() => {
+		window.removeEventListener('resize', resizeContainer);
         monaco?.editor.getModels().forEach((model) => model.dispose());
         editor?.dispose();
     });
@@ -184,6 +188,14 @@
 
 		return [{ label: 'root', children: root }]
 	}
+	const resizeContainer = () => {
+		console.log('resizeContainer()')
+        if (editorContainer && editorContainer?.parentElement?.parentElement) {
+            // Set the height of the container to the height of the parent element
+            editorContainer.style.height = `${editorContainer.parentElement.parentElement.offsetHeight}px`;
+			editor.layout();
+        }
+    }
 </script>
 
 <ion-content class="ion-padding">
