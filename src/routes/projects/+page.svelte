@@ -130,7 +130,12 @@
 						}}
 						>
 							<ion-card-title>{project.name}</ion-card-title>
-							<ion-card-subtitle>{project.domain}</ion-card-subtitle>
+							<ion-card-subtitle>
+								<ion-grid><ion-row>
+									<ion-col>{project.domain}</ion-col>
+									<ion-col class="ion-text-right">{project.type}</ion-col>
+								</ion-row></ion-grid>								
+							</ion-card-subtitle>
 						</ion-card-header>
 
 						<ion-card-content>

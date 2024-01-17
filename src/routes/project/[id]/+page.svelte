@@ -40,9 +40,10 @@
 		owner: $currentUser?.id,
 		ownertype: 'person',
         port: 0,
-        metadata: {}
+        metadata: {},
+        type: 'production'
 	}
-    let form = { project_name: '', domain: ''}
+    let form = { project_name: '', domain: '', project_type: ''}
 	
 	const ionViewWillEnter = async () => {
 		if (!$currentUser) {
@@ -90,7 +91,8 @@
             instances = instances; // stupid svelte
         }
         form.project_name = project.name;
-        form.domain = project.domain
+        form.domain = project.domain;
+        form.project_type = project.type;
 	}
 	const back = async () => {
 		goto('/projects')
@@ -216,6 +218,23 @@
         } else {
             project.name = form.project_name 
             toast('Project name changed', 'success')
+        }
+    }
+    const change_project_type = async () => {
+        const loader = await loadingBox('Changing project type...')
+        const { data, error } = await pb.send(`/change-project-type`, {
+            method: 'POST',
+            body: {
+                project_id: project.id,
+                project_type: form.project_type
+            }
+        })
+        loader.dismiss()
+        if (error) {
+            toast('Error: ' + JSON.stringify(error), 'danger')
+        } else {
+            project.type = form.project_type 
+            toast('Project type changed', 'success')
         }
     }
     const change_domain = async () => {
@@ -364,6 +383,41 @@
                             </ion-item>
                         </ion-col>
                     </ion-row>
+
+
+                    <ion-row>
+                        <ion-col>
+                            <ion-label>Project Type</ion-label>
+                        </ion-col>
+                    </ion-row>
+                    <ion-row>
+                        <ion-col>
+                            <ion-item class="GridItem" lines="none">
+                                <ion-input
+                                    on:ionInput={handleChange}
+                                    class="loginInputBoxWithIcon"
+                                    type="text"
+                                    id="project_type"
+                                    name="project_type"
+                                    placeholder="Project Type"
+                                    style="--padding-start: 10px;--padding-end: 10px;"                            
+                                    value={form.project_type}
+                                    debounce={500}
+                                >
+                                <ion-button
+                                slot="end"
+                                size="small"
+                                expand="block"
+                                fill="solid"
+                                disabled={project.type === form.project_type}
+                                on:click={change_project_type}>Change
+                                </ion-button>
+                                </ion-input>
+                            </ion-item>
+                        </ion-col>
+                    </ion-row>
+        
+
 
                 <ion-row>
                     <ion-col>
