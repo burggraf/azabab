@@ -6,21 +6,43 @@
 	import { instanceTab } from './instanceTabStore'
 	import { Split } from '@geoffcox/svelte-splitter'
 	import { toast } from '$services/toast'
-	/**
-    code: string
-    domain: string
-    id: string
-    port: number
-    site_domain: string
-    site_name: string
-    site_id: string
-    type: string
-	db_streaming_backup_location: string
-	logs_streaming_backup_location: string    
-    db_streaming_backup_retention: number
-    logs_streaming_backup_retention: number
+    import loader from '@monaco-editor/loader';
+    import { onDestroy, onMount } from 'svelte';
+    import type * as Monaco from 'monaco-editor/esm/vs/editor/editor.api';
 
- */
+    let editor: Monaco.editor.IStandaloneCodeEditor;
+    let monaco: typeof Monaco;
+    let editorContainer: HTMLElement;
+
+    onMount(async () => {
+        // Remove the next two lines to load the monaco editor from a CDN
+        // see https://www.npmjs.com/package/@monaco-editor/loader#config
+        const monacoEditor = await import('monaco-editor');
+        loader.config({ monaco: monacoEditor.default });
+
+        monaco = await loader.init();
+
+        // Your monaco instance is ready, let's display some code!
+        editor = monaco.editor.create(editorContainer);
+        const model = monaco.editor.createModel(
+            "console.log('Hello from Monaco! (the editor, not the city...)')",
+            'javascript'
+        );
+        editor.setModel(model);
+    });
+
+    onDestroy(() => {
+        monaco?.editor.getModels().forEach((model) => model.dispose());
+        editor?.dispose();
+    });
+
+	const loadFileIntoEditor = (text: string) => {
+		const model = monaco.editor.createModel(
+                    text,
+                    'javascript' // Update this with the correct language for your file
+                );
+                editor.setModel(model);		
+	}
 	export let project_instance: ProjectInstance = {
 		name: '',
 		project_id: '',
@@ -87,11 +109,14 @@
 		})
 		console.log('*** getinstancefile: data, error', data, error)
 		if (data?.raw) {
-			console.log('data.raw', data.raw)
-			const el = document.getElementById('preview')
-			if (el) el.innerText = data.raw
-			const el2 = document.getElementById('previewTitle')
-			if (el2) el2.innerHTML = item.fullpath.replace('./', '')
+			console.log('loadFileIntoEditor(data.raw)', data.raw.length + ' bytes')
+			loadFileIntoEditor(data.raw);
+			return;
+			// console.log('data.raw', data.raw)
+			// const el = document.getElementById('preview')
+			// if (el) el.innerText = data.raw
+			// const el2 = document.getElementById('previewTitle')
+			// if (el2) el2.innerHTML = item.fullpath.replace('./', '')
 		}
 	}
 
@@ -168,7 +193,8 @@
 				<TreeView {tree} {callback} />
 			</div>
 			<div slot="secondary">
-				<div
+				<div class="container" bind:this={editorContainer} />
+				<!-- <div
 					id="previewTitle"
 					style="padding: 5px; background-color: var(--ion-color-dark);color: var(--ion-color-dark-contrast);"
 				>
@@ -178,7 +204,7 @@
 					id="preview"
 					class="ion-text-wrap"
 					style="padding-left: 10px;padding-right: 10px;">select a file</pre>
-				<div />
+				<div /> -->
 			</div></Split
 		>
 	{:else}
@@ -216,7 +242,8 @@
 		display: grid;
 		grid-template-columns: 1fr 1fr;
 		grid-template-rows: 1fr 1fr;
-		height: 100%; /* Full height of ion-content */
+		/* height: 100%; */ /* Full height of ion-content */
+        height: 600px;
 		width: 100%; /* Full width */
 	}
 
