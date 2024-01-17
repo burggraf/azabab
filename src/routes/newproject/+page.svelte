@@ -25,7 +25,8 @@
 		name: '',
 		owner: $currentUser?.id,
 		ownertype: 'person',
-        port: 0
+        port: 0,
+		type: 'production',
 	}
 	let project_instance: ProjectInstance = 
 	{
@@ -277,6 +278,30 @@
                         >
                     </ion-col>
                 </ion-row>
+
+				<ion-row>
+					<ion-col>
+						<ion-label>Project Type</ion-label>
+					</ion-col>
+				</ion-row>
+				<ion-row>
+					<ion-col>
+						<ion-item class="GridItem" lines="none">
+							<ion-input
+								on:ionInput={handleChange}
+								class="loginInputBoxWithIcon"
+								type="text"
+								id="type"
+								placeholder="production"
+								style="--padding-start: 10px;"
+								value={project.type}
+								debounce={500}
+							/>
+						</ion-item>
+					</ion-col>
+				</ion-row>
+	
+
                 <ion-row>
                     <ion-col>
                     <ion-button size="default" 

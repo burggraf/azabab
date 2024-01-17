@@ -22,6 +22,7 @@
 		owner: '',
 		ownertype: 'person',
 		port: 0,
+		type: 'production'
 	}
 	let project_instance: ProjectInstance = 
 	{
@@ -56,7 +57,7 @@
 			goto('/');
 		}
 		const record = await pb.collection('projects').getOne(project_id, {
-			expand: 'id,domain,name,owner,ownertype,port',
+			expand: 'id,domain,name,owner,ownertype,port,type',
 		})
 		if (record) {
 			for (let attr in project) {

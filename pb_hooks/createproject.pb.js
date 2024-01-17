@@ -61,9 +61,10 @@ routerAdd('POST', '/createproject', (c) => {
 			.dao()
 			.db()
 			.newQuery(
-				`insert into projects (name, owner, ownertype, domain, port) 
+				`insert into projects (name, owner, ownertype, domain, port, type) 
                     values ('${data?.project?.name}', '${data?.project?.owner}', '${data?.project?.ownertype}', '${data?.project?.domain}',
-					(select coalesce(max(port)+1,${startingPort}) from projects))
+					(select coalesce(max(port)+1,${startingPort}) from projects),
+					'${data?.project?.type || "production"}')
                     returning id, port`
 			)
 			.all(projectInsert) // throw an error on db failure
