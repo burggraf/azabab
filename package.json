@@ -42,6 +42,7 @@
   },
   "type": "module",
   "dependencies": {
+    "@geoffcox/svelte-splitter": "^1.0.1",
     "@ionic/core": "^7.6.4",
     "@mapbox/mapbox-gl-geocoder": "^5.0.1",
     "@supabase/supabase-js": "^2.38.5",

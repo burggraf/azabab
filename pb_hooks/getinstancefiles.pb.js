@@ -1,7 +1,9 @@
 /// <reference path="../pb_data/types.d.ts" />
 // **** add ssh keys to an instance ****
 routerAdd('GET', '/getinstancefiles/:project_instance_id', (c) => {
+	console.log('getinstancefiles 01')
 	const project_instance_id = c.pathParam('project_instance_id')
+	console.log('project_instance_id', project_instance_id)
 	if (!project_instance_id) {
 		return c.json(200, { data: null, error: 'project_instance_id is required' })
 	}
@@ -11,7 +13,7 @@ routerAdd('GET', '/getinstancefiles/:project_instance_id', (c) => {
 	if (!user) {
 		return c.json(200, { data: null, error: 'not logged in' })
 	}
-
+	console.log('getinstancefiles 02')	
 	console.log(`SELECT sites.domain as site,port 
 	from project_instance 
 	join sites on project_instance.site_id = sites.id

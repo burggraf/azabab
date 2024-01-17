@@ -1,12 +1,12 @@
 <script lang="ts">
 	import TreeView from './TreeView.svelte'
 	import { pb } from '$services/backend.service'
-    import { textFileExtensions } from '$services/utils.service'
+	import { textFileExtensions } from '$services/utils.service'
 	import type { ProjectInstance } from '$models/interfaces'
 	import { instanceTab } from './instanceTabStore'
-
+	import { Split } from '@geoffcox/svelte-splitter'
 	import { toast } from '$services/toast'
-/**
+	/**
     code: string
     domain: string
     id: string
@@ -21,34 +21,40 @@
     logs_streaming_backup_retention: number
 
  */
-	export let project_instance: ProjectInstance = 
-		{
-			code: '',
-			domain: '',
-			id: '',
-			port: 0,
-			site_domain: '',
-			site_name: 'Select a site',
-			site_id: '',
-			type: 'primary',
-			db_streaming_backup_location: '',
-			logs_streaming_backup_location:  '',    
-			db_streaming_backup_retention: 0,
-			logs_streaming_backup_retention: 0
-		};
+	export let project_instance: ProjectInstance = {
+		name: '',
+		project_id: '',
+		owner: '',
+		ownertype: '',
+		code: '',
+		domain: '',
+		id: '',
+		port: 0,
+		site_domain: '',
+		site_name: 'Select a site',
+		site_id: '',
+		type: 'Select instance type',
+		db_streaming_backup_location: '',
+		logs_streaming_backup_location: '',
+		db_streaming_backup_retention: 0,
+		logs_streaming_backup_retention: 0,
+		instance_status: '',
+	}
 	let dir: string[] = []
 	let tree: any
-    instanceTab.subscribe(async (value: string) => {
-        if (value === 'gui') {
-            console.log('INSTANCE TAB GUI')
+	instanceTab.subscribe(async (value: string) => {
+		if (value === 'gui') {
+			console.log('INSTANCE TAB GUI')
 			await getDir()
-        }
-    })
+		}
+	})
 	if (localStorage.getItem('instance.tab') === 'gui') {
 		console.log('>>>>>>>>> instance.tab is gui <<<<<<<<<<')
-        setTimeout(async () => {await getDir();}, 1000)   
-    }
-
+		setTimeout(async () => {
+			console.log('SET TIMEOUT FIRED, getDir()...')
+			await getDir()
+		}, 1000)
+	}
 
 	const callback = async (item: any) => {
 		console.log('handler', item)
@@ -59,52 +65,54 @@
 		console.log('modifiedPath', modifiedPath)
 		console.log('TabGUI => project_instance.id', project_instance.id)
 
-		if (false && modifiedPath.startsWith('pb_public')) {
-			// old code removed            
+		// get the file extension
+		const ext = '.' + modifiedPath.split('.').pop()
+		if (textFileExtensions.indexOf(ext) === -1) {
+			const el = document.getElementById('preview')
+			if (el) el.innerText = `not a text file`
+			const el2 = document.getElementById('previewTitle')
+			if (el2) el2.innerHTML = modifiedPath //item.fullpath.replace('./', '')
 
-		} else {
-            // get the file extension
-            const ext = '.' + modifiedPath.split('.').pop();
-            if (textFileExtensions.indexOf(ext) === -1) {
-                const el = document.getElementById('preview');                
-                if (el) el.innerText = `not a text file`
-                const el2 = document.getElementById('previewTitle');
-                if (el2) el2.innerHTML = modifiedPath //item.fullpath.replace('./', '')
+			return
+		}
 
-                return;
-            }
-            
-			const { data, error } = await pb.send(`/getinstancefile`, {
-				method: 'POST',
-				body: {
-					project_instance_id: project_instance.id,
-					path: modifiedPath,
-				},
-				//instance_id
-				//path: fullpath
-			})
-			console.log('*** getinstancefile: data, error', data, error)
-			if (data?.raw) {
-				console.log('data.raw', data.raw)
-                const el = document.getElementById('preview');                
-                if (el) el.innerText = data.raw;
-                const el2 = document.getElementById('previewTitle');
-                if (el2) el2.innerHTML = item.fullpath.replace('./', '')
-			}
+		const { data, error } = await pb.send(`/getinstancefile`, {
+			method: 'POST',
+			body: {
+				project_instance_id: project_instance.id,
+				path: modifiedPath,
+			},
+			//instance_id
+			//path: fullpath
+		})
+		console.log('*** getinstancefile: data, error', data, error)
+		if (data?.raw) {
+			console.log('data.raw', data.raw)
+			const el = document.getElementById('preview')
+			if (el) el.innerText = data.raw
+			const el2 = document.getElementById('previewTitle')
+			if (el2) el2.innerHTML = item.fullpath.replace('./', '')
 		}
 	}
 
 	const getDir = async () => {
 		console.log('getDir project_instance.id: ', project_instance.id)
+		console.log('getDir project_instance: ', project_instance)
 		const { data, error } = await pb.send(`/getinstancefiles/${project_instance.id}`, {
 			method: 'GET',
 		})
 		if (data)
 			dir = data
 				.split('\n')
-				.filter((item: string) => !item.startsWith('./.ssh') && !item.startsWith('./marmot') && !item.startsWith('./.data.db-litestream') && !item.startsWith('./ '))
+				.filter(
+					(item: string) =>
+						!item.startsWith('./.ssh') &&
+						!item.startsWith('./marmot') &&
+						!item.startsWith('./.data.db-litestream') &&
+						!item.startsWith('./ ')
+				)
 				.sort()
-		else console.log('error', error)
+		else console.log('getinstancefiles error', error)
 
 		// remove any array entries that start with './.ssh'
 
@@ -112,7 +120,6 @@
 		tree = buildTree(dir)[0]
 		// console.log('tree', tree);
 	}
-
 
 	interface TreeNode {
 		label: string
@@ -156,17 +163,24 @@
 
 <ion-content class="ion-padding">
 	{#if tree}
-        <ion-grid>
-            <ion-row>
-                <ion-col size={"6"}>
-                    <TreeView {tree} {callback} />
-                </ion-col>
-                <ion-col size={"6"} style="border: 1px solid;">
-                    <div id="previewTitle" style="padding: 5px; background-color: var(--ion-color-dark);color: var(--ion-color-dark-contrast);">Preview</div>
-                    <pre id="preview" class="ion-text-wrap" style="padding-left: 10px;padding-right: 10px;">select a file</pre>                    
-                </ion-col>
-            </ion-row>
-        </ion-grid>
+		<Split initialPrimarySize="30%" resetOnDoubleClick>
+			<div slot="primary">
+				<TreeView {tree} {callback} />
+			</div>
+			<div slot="secondary">
+				<div
+					id="previewTitle"
+					style="padding: 5px; background-color: var(--ion-color-dark);color: var(--ion-color-dark-contrast);"
+				>
+					Preview
+				</div>
+				<pre
+					id="preview"
+					class="ion-text-wrap"
+					style="padding-left: 10px;padding-right: 10px;">select a file</pre>
+				<div />
+			</div></Split
+		>
 	{:else}
 		<div class="ion-text-center ion-padding">
 			<ion-spinner name="crescent" /><br />
