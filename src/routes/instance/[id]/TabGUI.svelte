@@ -41,7 +41,7 @@
 			resizeContainer();
 			console.log('onMount 09')
 
-		}, 250)
+		}, 1000)
     });
 
     onDestroy(() => {
