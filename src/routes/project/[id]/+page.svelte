@@ -117,6 +117,31 @@
         }
         goto(`/newinstance/${project.id}`)
     }
+    const sync = async (direction: string) => {
+        if (instances.length < 2) {
+            toast('You must have at least two instances to sync', 'danger')
+            return
+        }
+        // /sync/:instance_id/:direction
+		await showConfirm({
+			header: 'Sync Project ' + direction.toLocaleUpperCase(),
+			message: `This will sync the entire project ${direction.toUpperCase()}.  Are you SURE?`,
+			okHandler: async () => {
+                const loader = await loadingBox(`Syncing project ${direction.toUpperCase()}...`)
+                loader.present()
+				const { data, error } = await pb.send(`/sync/${project.id}/${direction}`, {
+					method: 'GET',
+				})
+                loader.dismiss()
+                if (error) {
+                    toast('Error: ' + JSON.stringify(error), 'danger')
+                } else {
+                    toast('Sync complete', 'success')
+                }
+			},
+		})
+        
+    }
 	const resync = async () => {
         if (instances.length < 2) {
             toast('You must have at least two instances to resync', 'danger')
@@ -255,6 +280,70 @@
             toast('Domain changed', 'success')
         }
     }
+    /**
+                <!-- {#if projectInstances.length > 1}
+                    <ion-button
+                        size="small"
+                        color="primary"
+                        on:click={() => {
+                            sync('up')
+                        }}
+                    >
+                        <ion-icon slot="icon-only" icon={cloudUploadOutline} />
+                    </ion-button>&nbsp;&nbsp;
+                    <ion-button
+                        size="small"
+                        color="primary"
+                        on:click={() => {
+                            sync('down')
+                        }}
+                    >
+                        <ion-icon slot="icon-only" icon={cloudDownloadOutline} />
+                    </ion-button>
+                {/if} -->
+
+    */
+	const actionMenu = async (e: any) => {
+		const items = [
+			{
+				text: 'Update Routes',
+				icon: allIonicIcons.globeOutline,
+				handler: () => {
+                    updateRoutes();
+                },
+			},
+			{
+				text: 'Re-Sync Instances',
+				icon: allIonicIcons.syncOutline,
+				handler: () => {
+                    resync();
+                },
+			},
+			{
+				text: 'Sync Upload',
+				icon: allIonicIcons.cloudUploadOutline,
+				handler: () => {
+                    sync('up')
+                },
+			},
+			{
+				text: 'Sync Down',
+				icon: allIonicIcons.cloudDownloadOutline,
+				handler: () => {
+                    sync('down')
+                },
+			},
+			{
+				text: 'Cancel',
+				icon: allIonicIcons.closeOutline,
+				handler: () => {
+					console.log('Cancel clicked')
+				},
+			},
+		]
+		const result = await dropdownmenu(e, items)
+		// console.log('result', result)
+	}
 
 </script>
 
@@ -267,6 +356,11 @@
 				</ion-button>
 			</ion-buttons>
 			<ion-title>{project.name || "Project"}</ion-title>
+			<ion-buttons slot="end">
+				<ion-button on:click={actionMenu}>
+					<ion-icon slot="icon-only" icon={allIonicIcons.ellipsisVerticalOutline} />
+				</ion-button>
+			</ion-buttons>
 			<!-- <ion-buttons slot="end">
 					<ion-button on:click={save}>
 						<ion-icon slot="icon-only" icon={checkmarkOutline} />
@@ -487,44 +581,4 @@
         </ion-grid>
         
 	</ion-content>
-    <ion-footer>
-        <ion-toolbar color="light">
-            <ion-buttons slot="start">
-                {#if instances.length > 1}
-                <ion-button size="small" color="primary" on:click={resync}>
-                    <ion-icon slot="icon-only" icon={syncCircleOutline} />
-                    &nbsp;&nbsp;Re-Sync Instances
-                </ion-button>
-
-                <ion-button size="small" color="primary" on:click={updateRoutes}>
-                    <ion-icon slot="icon-only" icon={syncCircleOutline} />
-                    &nbsp;&nbsp;Update Routes
-                </ion-button>
-
-                {/if}
-            </ion-buttons>
-            <ion-buttons slot="end">
-                <!-- {#if projectInstances.length > 1}
-                    <ion-button
-                        size="small"
-                        color="primary"
-                        on:click={() => {
-                            sync('up')
-                        }}
-                    >
-                        <ion-icon slot="icon-only" icon={cloudUploadOutline} />
-                    </ion-button>&nbsp;&nbsp;
-                    <ion-button
-                        size="small"
-                        color="primary"
-                        on:click={() => {
-                            sync('down')
-                        }}
-                    >
-                        <ion-icon slot="icon-only" icon={cloudDownloadOutline} />
-                    </ion-button>
-                {/if} -->
-            </ion-buttons>
-        </ion-toolbar>
-    </ion-footer>
     </IonPage>
