@@ -17,21 +17,31 @@
     onMount(async () => {
         // Remove the next two lines to load the monaco editor from a CDN
         // see https://www.npmjs.com/package/@monaco-editor/loader#config
+		console.log('onMount 01')
         const monacoEditor = await import('monaco-editor');
+		console.log('onMount 02')
         loader.config({ monaco: monacoEditor.default });
-
+		console.log('onMount 03')
         monaco = await loader.init();
-
+		console.log('onMount 04')
         // Your monaco instance is ready, let's display some code!
-        editor = monaco.editor.create(editorContainer);
-        const model = monaco.editor.createModel(
-            "console.log('Hello from Monaco! (the editor, not the city...)')",
-            'javascript'
-        );
-        editor.setModel(model);
-		window.addEventListener('resize', resizeContainer);
-        // Initial resize to set the correct height
-        resizeContainer();
+		setTimeout(() =>{
+			editor = monaco.editor.create(editorContainer);
+			console.log('onMount 05')
+			const model = monaco.editor.createModel(
+				"console.log('Hello from Monaco! (the editor, not the city...)')",
+				'javascript'
+			);
+			console.log('onMount 06')
+			editor.setModel(model);
+			console.log('onMount 07')
+			window.addEventListener('resize', resizeContainer);
+			console.log('onMount 08')
+			// Initial resize to set the correct height
+			resizeContainer();
+			console.log('onMount 09')
+
+		}, 250)
     });
 
     onDestroy(() => {
@@ -68,6 +78,32 @@
 	}
 	let dir: string[] = []
 	let tree: any
+	const getDir = async () => {
+		console.log('getDir project_instance.id: ', project_instance.id)
+		console.log('getDir project_instance: ', project_instance)
+		const { data, error } = await pb.send(`/getinstancefiles/${project_instance.id}`, {
+			method: 'GET',
+		})
+		if (data)
+			dir = data
+				.split('\n')
+				.filter(
+					(item: string) =>
+						!item.startsWith('./.ssh') &&
+						!item.startsWith('./marmot') &&
+						!item.startsWith('./.data.db-litestream') &&
+						!item.startsWith('./ ')
+				)
+				.sort()
+		else console.log('getinstancefiles error', error)
+
+		// remove any array entries that start with './.ssh'
+
+		// console.log(JSON.stringify(dir, null, 2))
+		tree = buildTree(dir)[0]
+		// console.log('tree', tree);
+	}
+
 	instanceTab.subscribe(async (value: string) => {
 		if (value === 'gui') {
 			console.log('INSTANCE TAB GUI')
@@ -124,31 +160,6 @@
 		}
 	}
 
-	const getDir = async () => {
-		console.log('getDir project_instance.id: ', project_instance.id)
-		console.log('getDir project_instance: ', project_instance)
-		const { data, error } = await pb.send(`/getinstancefiles/${project_instance.id}`, {
-			method: 'GET',
-		})
-		if (data)
-			dir = data
-				.split('\n')
-				.filter(
-					(item: string) =>
-						!item.startsWith('./.ssh') &&
-						!item.startsWith('./marmot') &&
-						!item.startsWith('./.data.db-litestream') &&
-						!item.startsWith('./ ')
-				)
-				.sort()
-		else console.log('getinstancefiles error', error)
-
-		// remove any array entries that start with './.ssh'
-
-		// console.log(JSON.stringify(dir, null, 2))
-		tree = buildTree(dir)[0]
-		// console.log('tree', tree);
-	}
 
 	interface TreeNode {
 		label: string
@@ -206,19 +217,8 @@
 			</div>
 			<div slot="secondary">
 				<div class="container" bind:this={editorContainer} />
-				<!-- <div
-					id="previewTitle"
-					style="padding: 5px; background-color: var(--ion-color-dark);color: var(--ion-color-dark-contrast);"
-				>
-					Preview
-				</div>
-				<pre
-					id="preview"
-					class="ion-text-wrap"
-					style="padding-left: 10px;padding-right: 10px;">select a file</pre>
-				<div /> -->
-			</div></Split
-		>
+			</div>
+		</Split>
 	{:else}
 		<div class="ion-text-center ion-padding">
 			<ion-spinner name="crescent" /><br />
