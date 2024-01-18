@@ -205,6 +205,20 @@
 		}
 		const items = [
 			{
+				text: 'Launch Site',
+				iconSrc: '/launch.svg',
+				handler: () => {
+                    gotoSite();
+                },
+			},
+			{
+				text: 'PB Admin',
+				iconSrc: '/pb.svg',
+				handler: () => {
+                    gotoAdminPage();
+                },
+			},
+			{
 				text: 'Delete',
 				icon: allIonicIcons.trashOutline,
 				color: 'danger',
@@ -240,12 +254,12 @@
 			</ion-buttons>
 			<ion-title>{project_instance?.name || '<untitled project>'}: {project_instance?.site_name}</ion-title>
 			<ion-buttons slot="end">
-					<ion-button on:click={gotoSite}>
+					<!-- <ion-button on:click={gotoSite}>
 						<ion-icon slot="icon-only" src="/launch.svg" />
 					</ion-button>
 					<ion-button on:click={gotoAdminPage}>
 							<ion-icon slot="icon-only" src="/pb.svg" />
-					</ion-button>
+					</ion-button> -->
 					<ion-button on:click={actionMenu}>
 						<ion-icon slot="icon-only" icon={allIonicIcons.ellipsisVerticalOutline} />
 					</ion-button>
