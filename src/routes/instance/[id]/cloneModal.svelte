@@ -14,7 +14,7 @@
         [key: string]: string | number;
     }
     let instances: ProjectInstance[] = [];
-	export const instance: ProjectInstance = 
+	export let instance: ProjectInstance = 
 	{
 		name: '',
 		project_id: '',
@@ -35,6 +35,7 @@
 		instance_status: ''
 	};
     let destination: any;
+    let destination_id: string = '';
 	onMount(async () => {
 		if (!$currentUser) {
 			toast('You must be logged in to clone a project instance', 'danger')
@@ -46,7 +47,6 @@
             fields: '*'//'id,name,project_id,owner,ownertype,code,domain,port,site_domain,site_name,site_id,type,db_streaming_backup_location,logs_streaming_backup_location,db_streaming_backup_retention,logs_streaming_backup_retention,instance_status',
         });
         // delete this instance from the list
-        records.splice(records.findIndex((i: any) => i.id === instance.id), 1)
         console.log('instances', records)
         instances = records;
         if (instances.length === 0) {
@@ -72,32 +72,41 @@
         })
 	}
 	const chooseInstance = async (e: any) => {
+        console.log('instances', instances)
+        console.log('instance', instance)
         const items = [];
         for (let i = 0; i < instances.length; i++) {
             const instanceItem: ProjectInstance = instances[i];
+            if (instanceItem.id === instance.id) continue;
             items.push({
-                item: {contents: `${instanceItem.name} (${instanceItem.site_name})<br/>
+                item: {contents: `<div style="color: ${instanceItem.type==='primary'?'var(--ion-color-primary)':'var(--ion-color-medium)'};">
+                <b>${instanceItem.name}</b> (${instanceItem.site_name})<br/>
                 <small>domain: <b>${instanceItem.domain}.${instanceItem.site_domain}</b></small><br/>
                 <small>project type: <b>${instanceItem.project_type}</b></small><br/>
-                <small>instance type: <b>${instanceItem.type}</b></small><br/>`,
-                value: instanceItem.id
+                <small>instance type: <b>${instanceItem.type}</b></small></div>`,
+                value: instanceItem.id,
+                instance_type: instanceItem.type,
                 },
                 icon: 'globeOutline',
                 color: instanceItem.type === 'primary' ? 'primary' : 'medium',
-				// text: `${instances[i].name}\n<small>${instances[i].site_domain}</small>`,
-				// iconSrc: 'globeOutline',
-				// handler: () => {
-                //     //gotoSite();
-                //     console.log('clicked on item' + i)
-                // },
             })
         }
-		//const result = await dropdownmenu(e, items)
-		//console.log('you chose: ', result)
         const {data} = await selectItemFromList({title:'Choose Instance', items: items, currentItem: ""})
         if (data.item) {
-            console.log('result', data.item)
-            destination = data.item;
+            if (data.item?.instance_type !== 'primary') {
+                await showConfirm({
+                    header: 'Not a primary instance',
+                    message: `It is not recommended to clone a replica instance.  Replicas are designed to be replicated directly from a primary instance only.  Are you sure you want to continue?`,
+                    okHandler: async () => {
+                        // saveKey()
+                        destination = data.item;
+                        destination_id = data.item.value;
+                    }
+                })
+            } else {
+                destination = data.item;
+                destination_id = data.item.value;
+            }
         }
 	}    
 </script>
