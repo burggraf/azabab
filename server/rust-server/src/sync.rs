@@ -63,7 +63,7 @@ pub async fn handle_sync(mut req: Request<Body>, _auth_token: &str) -> Result<Re
         },
         "delete" => {
             // New code for "delete" direction
-            let delete_command = format!("rclone delete {}:azabab/sync/{}", destination, port);
+            let delete_command = format!("rclone delete {}:azabab/{}/{}", destination, folder, port);
             println!("delete_command: {}", delete_command);
             Command::new("sh")
                 .arg("-c")
