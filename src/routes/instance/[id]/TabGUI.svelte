@@ -50,10 +50,21 @@
         editor?.dispose();
     });
 
-	const loadFileIntoEditor = (text: string) => {
+	const loadFileIntoEditor = (text: string, path: string) => {
+		// const model = monaco.editor.createModel(
+		// value,
+		// undefined, // language
+		// monaco.Uri.file(filename) // uri
+		// )
+
+		// editor.setModel(model)
+
+		monaco?.editor.getModels().forEach((model) => model.dispose());
 		const model = monaco.editor.createModel(
                     text,
-                    'javascript' // Update this with the correct language for your file
+					undefined,
+					monaco.Uri.file(path)
+                    // 'javascript' // Update this with the correct language for your file
                 );
                 editor.setModel(model);		
 	}
@@ -130,10 +141,10 @@
 		// get the file extension
 		const ext = '.' + modifiedPath.split('.').pop()
 		if (textFileExtensions.indexOf(ext) === -1) {
-			const el = document.getElementById('preview')
-			if (el) el.innerText = `not a text file`
-			const el2 = document.getElementById('previewTitle')
-			if (el2) el2.innerHTML = modifiedPath //item.fullpath.replace('./', '')
+			// const el = document.getElementById('preview')
+			// if (el) el.innerText = `not a text file`
+			// const el2 = document.getElementById('previewTitle')
+			// if (el2) el2.innerHTML = modifiedPath //item.fullpath.replace('./', '')
 
 			return
 		}
@@ -150,7 +161,7 @@
 		console.log('*** getinstancefile: data, error', data, error)
 		if (data?.raw) {
 			console.log('loadFileIntoEditor(data.raw)', data.raw.length + ' bytes')
-			loadFileIntoEditor(data.raw);
+			loadFileIntoEditor(data.raw, modifiedPath);
 			return;
 			// console.log('data.raw', data.raw)
 			// const el = document.getElementById('preview')
