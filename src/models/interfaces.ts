@@ -31,6 +31,7 @@ export interface ProjectInstance extends IObjectKeys {
     logs_streaming_backup_retention: number
     instance_status: string
     metadata?: any
+    project_type?: string
 }
 export interface Site {
     id: string

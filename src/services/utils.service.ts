@@ -1,6 +1,8 @@
 // import { modalController } from '$app/navigation';
 // import { showConfirm } from '$services/alert.service';
 import { modalController } from '$ionic/svelte'
+import SelectFromListModal from '$components/SelectItemFromListModal.svelte'
+
 
 export const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -56,6 +58,25 @@ export const resizeModal = async (openLoginModalController: HTMLIonModalElement)
 
 export const isModal = async () => {
   return (await modalController.getTop() !== undefined);
+}
+
+export const selectItemFromList = async (obj: any) => {
+  const openModal = await modalController.create({
+    component: SelectFromListModal,
+    componentProps: {
+      // dark: false //this.dark
+      title: obj.title || "Select Item",
+      items: obj.items || [],
+      currentItem: obj.currentItem || "",
+      allow_write_in: obj.allow_write_in || false,
+      add_new_text: obj.add_new_text || "Add New",
+    },
+    showBackdrop: true,
+    backdropDismiss: true,
+  });
+  await openModal.present()
+  const { data } = await openModal.onWillDismiss();
+  return {data};
 }
 
 export const textFileExtensions = [
