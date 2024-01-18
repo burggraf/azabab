@@ -117,31 +117,6 @@
         }
         goto(`/newinstance/${project.id}`)
     }
-    const sync = async (direction: string) => {
-        if (instances.length < 2) {
-            toast('You must have at least two instances to sync', 'danger')
-            return
-        }
-        // /sync/:instance_id/:direction
-		await showConfirm({
-			header: 'Sync Project ' + direction.toLocaleUpperCase(),
-			message: `This will sync the entire project ${direction.toUpperCase()}.  Are you SURE?`,
-			okHandler: async () => {
-                const loader = await loadingBox(`Syncing project ${direction.toUpperCase()}...`)
-                loader.present()
-				const { data, error } = await pb.send(`/sync/${project.id}/${direction}`, {
-					method: 'GET',
-				})
-                loader.dismiss()
-                if (error) {
-                    toast('Error: ' + JSON.stringify(error), 'danger')
-                } else {
-                    toast('Sync complete', 'success')
-                }
-			},
-		})
-        
-    }
 	const resync = async () => {
         if (instances.length < 2) {
             toast('You must have at least two instances to resync', 'danger')
@@ -280,29 +255,6 @@
             toast('Domain changed', 'success')
         }
     }
-    /**
-                <!-- {#if projectInstances.length > 1}
-                    <ion-button
-                        size="small"
-                        color="primary"
-                        on:click={() => {
-                            sync('up')
-                        }}
-                    >
-                        <ion-icon slot="icon-only" icon={cloudUploadOutline} />
-                    </ion-button>&nbsp;&nbsp;
-                    <ion-button
-                        size="small"
-                        color="primary"
-                        on:click={() => {
-                            sync('down')
-                        }}
-                    >
-                        <ion-icon slot="icon-only" icon={cloudDownloadOutline} />
-                    </ion-button>
-                {/if} -->
-
-    */
 	const actionMenu = async (e: any) => {
 		const items = [
 			{
@@ -317,20 +269,6 @@
 				icon: allIonicIcons.syncOutline,
 				handler: () => {
                     resync();
-                },
-			},
-			{
-				text: 'Sync Upload',
-				icon: allIonicIcons.cloudUploadOutline,
-				handler: () => {
-                    sync('up')
-                },
-			},
-			{
-				text: 'Sync Down',
-				icon: allIonicIcons.cloudDownloadOutline,
-				handler: () => {
-                    sync('down')
                 },
 			},
 			{

@@ -7,6 +7,8 @@
 	import '$styles/grid-styles.css'
 	import IonPage from '$ionpage'
 	import { page } from '$app/stores'
+	import { dropdownmenu } from '$components/DropdownMenu'
+	import * as allIonicIcons from 'ionicons/icons'
 	import {
 		arrowBackOutline,
 	} from 'ionicons/icons'
@@ -18,6 +20,8 @@
 	// const instance_id = $page.params.id
 	import type { Project, ProjectInstance, Site, Key, ProjectInstanceKey, StreamingBackupSite } from '$models/interfaces'
 	import { onMount } from 'svelte'
+	import { showConfirm } from '$services/alert.service'
+	import { loadingBox } from '$services/loadingMessage'
 
 	let keys: Key[] = []
 	let project_instance_keys: ProjectInstanceKey[] = []
@@ -99,6 +103,130 @@
 	const gotoSite = async () => {
 		window.open(`https://${project_instance.domain}.${project_instance.site_domain}/`, '_blank')
 	}
+	const removeinstance = async () => {
+		console.log('removeinstance')
+		console.log('project_instance', project_instance)
+		console.log('sites', sites)
+		if (projectInstances.length > 1 && project_instance.type === 'primary') {
+			toast('You cannot remove the primary instance if there are existing replicas', 'danger')
+			return
+		}
+		if (project_instance.db_streaming_backup_location || 
+			project_instance.logs_streaming_backup_location) {
+			toast('You cannot remove an instance with streaming backups enabled', 'danger')
+			return
+		}
+		await showConfirm({
+			header: 'Remove Project Instance',
+			message: `Are you SURE?  This cannot be undone.  If this is the last instance, the project will also be removed.`,
+			okHandler: async () => {
+				console.log('calling /removeproject')
+				const { data, error } = await pb.send('/removeproject', {
+					method: 'POST',
+					body: {
+						project_instance: project_instance,
+					},
+				})
+
+				// we need to call setup-marmot to reconfigure marmot
+				// this will delete marmot if there is only one instance left
+				// it will also remove sync files if there is only one instance left
+				console.log('********************');
+				console.log(`/setup-marmot/${project_instance.project_id}`)
+				console.log('********************');
+				const { data:setupMarmotData, error:setupMarmotError } = 
+					await pb.send(`/setup-marmot/${project_instance.project_id}`, {
+					method: 'GET',
+				})
+				if (setupMarmotError) {
+					console.log('/setup-marmot error', setupMarmotError)
+					toast(JSON.stringify(setupMarmotError), 'danger')
+				} else {
+					console.log('/setup-marmot data', setupMarmotData)
+				}
+
+				console.log('data', data)
+				console.log('typeof data', typeof data)
+				console.log('error', error)
+				if (error) {
+					toast('Error: ' + JSON.stringify(error), 'danger')
+				} else {
+					if (data === '0') {
+						toast(`Project ${project_instance.name} removed`, 'success')
+						goto('/projects')
+					} else {
+						toast(`Project instance removed, ${data} instances remain`, 'success')
+						goto('/project/' + project_instance.project_id)
+					}
+				}
+			},
+		})
+	}
+    const sync = async (direction: string) => {
+		await showConfirm({
+			header: 'Sync Project ' + direction.toLocaleUpperCase(),
+			message: `This will sync the entire project ${direction.toUpperCase()}.  Are you SURE?`,
+			okHandler: async () => {
+                const loader = await loadingBox(`Syncing project ${direction.toUpperCase()}...`)
+                loader.present()
+				const { data, error } = await pb.send(`/sync/${project_instance.id}/${direction}`, {
+					method: 'GET',
+				})
+                loader.dismiss()
+                if (error) {
+                    toast('Error: ' + JSON.stringify(error), 'danger')
+                } else {
+                    toast('Sync complete', 'success')
+                }
+			},
+		})
+        
+    }
+
+	const actionMenu = async (e: any) => {
+		let firstItem: any;
+		if (project_instance.type === 'primary') {
+			firstItem = {
+				text: 'Sync Up',
+				icon: allIonicIcons.cloudUploadOutline,
+				handler: () => {
+                    sync('up')
+                },
+			};
+		} else {
+			firstItem = 
+			{
+				text: 'Sync Down',
+				icon: allIonicIcons.cloudDownloadOutline,
+				handler: () => {
+                    sync('down')
+                },
+			}
+		}
+		const items = [
+			{
+				text: 'Delete',
+				icon: allIonicIcons.trashOutline,
+				color: 'danger',
+				textcolor: 'danger',
+				handler: () => {
+                    removeinstance();
+                },
+			},
+			{
+				text: 'Cancel',
+				icon: allIonicIcons.closeOutline,
+				handler: () => {
+					console.log('Cancel clicked')
+				},
+			},
+		]
+		if (projectInstances.length > 1) {
+			items.unshift(firstItem)
+		}
+		const result = await dropdownmenu(e, items)
+		// console.log('result', result)
+	}
 
 </script>
 
@@ -118,8 +246,11 @@
 					<ion-button on:click={gotoAdminPage}>
 							<ion-icon slot="icon-only" src="/pb.svg" />
 					</ion-button>
-			</ion-buttons></ion-toolbar
-		>
+					<ion-button on:click={actionMenu}>
+						<ion-icon slot="icon-only" icon={allIonicIcons.ellipsisVerticalOutline} />
+					</ion-button>
+			</ion-buttons>
+		</ion-toolbar>
 	</ion-header>	
 	<ion-content class="ion-padding">
 		<ion-tabs id="ion-tabs"
