@@ -22,6 +22,8 @@
 	import { onMount } from 'svelte'
 	import { showConfirm } from '$services/alert.service'
 	import { loadingBox } from '$services/loadingMessage'
+	import { modalController } from '$ionic/svelte'
+	import cloneModal from './cloneModal.svelte'
 
 	let keys: Key[] = []
 	let project_instance_keys: ProjectInstanceKey[] = []
@@ -182,11 +184,27 @@
 		})
         
     }
+	const clone = async (key?: any) => {
+		const modal = await modalController.create({
+			component: cloneModal,
+			componentProps: {instance: project_instance},
+			showBackdrop: true,
+			backdropDismiss: false,
+		})
 
+		modal.onDidDismiss().then((value) => {
+			//if (value.role === 'backdrop') console.log('Backdrop clicked');
+			// loadKeys()
+		})
+
+		await modal.present()
+	}
+
+	
 	const actionMenu = async (e: any) => {
-		let firstItem: any;
+		let syncItem: any;
 		if (project_instance.type === 'primary') {
-			firstItem = {
+			syncItem = {
 				text: 'Sync Up',
 				icon: allIonicIcons.cloudUploadOutline,
 				handler: () => {
@@ -194,7 +212,7 @@
                 },
 			};
 		} else {
-			firstItem = 
+			syncItem = 
 			{
 				text: 'Sync Down',
 				icon: allIonicIcons.cloudDownloadOutline,
@@ -219,6 +237,13 @@
                 },
 			},
 			{
+				text: 'Clone',
+				icon: allIonicIcons.copyOutline,
+				handler: () => {
+                    clone();
+                },
+			},
+			{
 				text: 'Delete',
 				icon: allIonicIcons.trashOutline,
 				color: 'danger',
@@ -235,8 +260,9 @@
 				},
 			},
 		]
-		if (projectInstances.length > 1) {
-			items.unshift(firstItem)
+		if (projectInstances.length > 1 && syncItem) {
+			// insert into third from last position
+			items.splice(items.length - 2, 0, syncItem)
 		}
 		const result = await dropdownmenu(e, items)
 		// console.log('result', result)
