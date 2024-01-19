@@ -1,7 +1,7 @@
 <script lang="ts">
 	import IonPage from '$ionpage'
 	import { modalController } from '$ionic/svelte'
-	import { checkmarkOutline, closeOutline, trashOutline } from 'ionicons/icons'
+	import { checkmarkOutline, closeOutline, folder, trashOutline } from 'ionicons/icons'
 	import { currentUser, pb } from '$services/backend.service'
 	import { toast } from '$services/toast'
 	import { onMount } from 'svelte'
@@ -108,7 +108,35 @@
                 destination_id = data.item.value;
             }
         }
-	}    
+        checkReadyToClone();
+	}
+    interface Folder {
+        selected: string;
+        name: string;
+        folder: string;
+        indent: number;
+    }   
+    const folders: Folder[] = [
+        {selected: "on", name:"Data", folder:"/pb_data&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;", indent: 0},
+        {selected: "on", name:"Backups", folder:"/pb_data/backups", indent: 25},
+        {selected: "on", name:"Storage", folder:"/pb_data/storage", indent: 25},
+        {selected: "on", name:"Hooks", folder:"/pb_hooks&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;", indent: 0},
+        {selected: "on", name:"Migrations", folder:"/pb_migrations&nbsp;&nbsp;", indent: 0},
+        {selected: "on", name:"Public", folder:"/pb_public&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;", indent: 0},
+    ] 
+    const toggleFolder = (e: any) => {
+        const i = parseInt(e.target.id.split('-')[1]);
+        folders[i].selected = folders[i].selected === 'on' ? 'off' : 'on';
+        checkReadyToClone();
+    }
+    const startClone = async () => {
+        toast('not implemented yet', 'danger')
+    }
+    let notReadyToClone = true;
+    const checkReadyToClone = () => {
+        if (destination_id.length === 0) { notReadyToClone = true; return; }
+        notReadyToClone = folders.map((f) => f.selected).join(' ').indexOf('on') === -1;
+    }
 </script>
 
 <IonPage>
@@ -128,15 +156,29 @@
 		</ion-toolbar>
 	</ion-header>
 	<ion-content>
-		<div class="ion-padding">
-            {#if destination}
-            <div style="margin: 15px;">Destination:</div>
-            <div on:click={chooseInstance} class="destinationBox">{@html destination?.contents}</div>
-            {:else}
-            <ion-button expand="block" color="primary" on:click={chooseInstance}>Choose Destination:</ion-button>
-            {/if}
+    <div class="ion-padding">
+        {#if destination}
+        <div style="margin: 15px;">Destination:</div>
+        <div on:click={chooseInstance} class="destinationBox">{@html destination?.contents}</div>
+        <div style="margin: 15px;">
+            <ion-list>
+                <ion-item-divider>Include Folders:</ion-item-divider>
+                {#each folders as folder, i}
+                    <ion-item>
+                        <ion-label style={`padding-left: ${folder.indent}px`}>{folder.name}</ion-label>
+                        <ion-text class="mono" slot="end">{@html folder.folder}</ion-text>
+                        <ion-toggle aria-label={`folder-${i}`} slot="end" checked={true} value={folders[i].selected} id={`folder-${i}`} on:ionChange={toggleFolder}/>
+                    </ion-item>
+                {/each}
+            </ion-list>
+            <ion-button expand="block" color="primary" disabled={notReadyToClone} on:click={startClone}>Clone Instance</ion-button>
+        </div>
+        {:else}
+        <ion-button expand="block" color="primary" on:click={chooseInstance}>Choose Destination:</ion-button>
+        {/if}
+        
 
-		</div>
+    </div>
 	</ion-content>
 </IonPage>
 <style>
@@ -144,5 +186,9 @@
         border: 1px solid;
         padding: 10px;
         margin: 10px;
+    }
+    .mono {
+        font-family: monospace;
+        padding-right: 10px;
     }
 </style>
