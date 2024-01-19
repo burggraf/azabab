@@ -131,9 +131,9 @@ routerAdd('POST', '/clone', (c) => {
 		// this will use the port of the SOURCE
 		console.log('clone 14')
 		console.log('skipping clone data delete')
-		// const { data: deleteData, error: deleteError } = 
-		// 	await sync(source.site_domain, source.port, 'delete', 'clone', excludes);
-		// if (deleteError) return c.json(200, { data: null, error: deleteError })
+		const { data: deleteData, error: deleteError } = 
+			await sync(source.site_domain, source.port, 'delete', 'clone', excludes);
+		if (deleteError) return c.json(200, { data: null, error: deleteError })
 
 		// take the source and destination instance online
 		console.log('clone 15')
