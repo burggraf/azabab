@@ -2,12 +2,9 @@
 // 	 instance_id
 // 	 status (online, offline, maintenance)
 routerAdd('POST', '/toggleinstance', async (c) => {
-	console.log('toggleinstance 00')
-
 	const { updateroutes } = require(`${__hooks}/modules/callbackend.js`)
 	const { execute, select } = require(`${__hooks}/modules/sql.js`)
 	const data = $apis.requestInfo(c).data
-	console.log('toggleinstance 01')
 	const info = $apis.requestInfo(c)
 	const user = info.authRecord // empty if not authenticated as regular auth record
 	if (!user) {
@@ -22,7 +19,6 @@ routerAdd('POST', '/toggleinstance', async (c) => {
 	if (data?.status !== 'online' && data?.status !== 'offline' && data?.status !== 'maintenance') {
 		return c.json(200, { data: null, error: 'invalid status' })
 	}
-	console.log('toggleinstance', data?.instance_id, data?.status)
 	const { data: instanceData, error: instanceError } = 
 		select({id: '',port: 0, site_domain: '', domain: '', owner: '', ownertype: '', project_id: ''},
 		`select id, port, site_domain, domain, owner, ownertype, project_id from instance_view where id = '${data?.instance_id}'`);
@@ -33,10 +29,8 @@ routerAdd('POST', '/toggleinstance', async (c) => {
 	if (instanceData[0].owner !== user.id) {
 		return c.json(200, { data: null, error: 'not your project' })
 	}
-	console.log('toggleinstance instanceData', JSON.stringify(instanceData, null, 2))
-	// console.log('setting site_domain, domain, port, status')
-	let site_domain = instanceData[0].site_domain;
-	let domain = instanceData[0].domain;
+	// let site_domain = instanceData[0].site_domain;
+	// let domain = instanceData[0].domain;
 	let port = instanceData[0].port;
 	let project_id = instanceData[0].project_id;
 	let status = '';

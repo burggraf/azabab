@@ -156,18 +156,23 @@ backend backend_[PORT]_global
 [OTHER_SERVERS]
 `;
 
-const sync = async (site_domain, port, direction) => {
-    if (typeof port !== 'string') port = port.toString()
+const sync = async (site_domain, port, direction, folder, excludes, destination_port) => {
+    if (typeof port !== 'string') port = port.toString();
+    if (destination_port && typeof destination_port !== 'string') destination_port = destination_port.toString();
     try {
-
+        const data = {
+            direction: direction,
+            port: port,
+            destination: 'la', // los angeles (for now)
+        };
+        if (folder) data.folder = folder;
+        if (excludes) data.excludes = excludes;
+        if (destination_port) data.destination_port = destination_port;
+        console.log('sync data', JSON.stringify(data, null, 2));
         const res = $http.send({
             url: `http://${site_domain}:5000/sync`,
             method: 'POST',
-            body: JSON.stringify({
-                direction: direction,
-                port: port,
-                destination: 'la', // los angeles (for now)
-            }),
+            body: JSON.stringify(data),
             headers: {
                 'content-type': 'application/json',
                 Authorization: 'your_predefined_auth_token',

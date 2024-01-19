@@ -29,6 +29,12 @@ pub async fn handle_sync(mut req: Request<Body>, _auth_token: &str) -> Result<Re
     let port = body_params["port"].as_str().unwrap_or_default();
     let direction = body_params["direction"].as_str().unwrap_or_default();
     let destination = body_params["destination"].as_str().unwrap_or_default();
+    let destination_port = body_params["destination_port"].as_str().unwrap_or(port);
+
+    println!("sync port {}", port);
+    println!("sync direction {}", direction);
+    println!("sync destination {}", destination);
+    println!("sync destination_port {}", destination_port);
 
     // Get the folder parameter, defaulting to "sync" if not provided
     let folder = body_params["folder"].as_str().unwrap_or("sync");
@@ -52,9 +58,9 @@ pub async fn handle_sync(mut req: Request<Body>, _auth_token: &str) -> Result<Re
             let sync_command = if direction == "up" {
                 format!("rclone sync {} {}:azabab/{}/{} {} --exclude marmot/marmot.toml", port, destination, folder, port, exclude_str)
             } else {
-                format!("rclone sync {}:azabab/{}/{} {} {} --exclude marmot/marmot.toml", destination, folder, port, port, exclude_str)
+                format!("rclone sync {}:azabab/{}/{} {} {} --exclude marmot/marmot.toml", destination, folder, port, destination_port, exclude_str)
             };
-
+            println!("{}", sync_command);
             Command::new("sh")
                 .arg("-c")
                 .arg(&sync_command)

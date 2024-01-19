@@ -9,6 +9,7 @@
     import { selectItemFromList } from '$services/utils.service'
 	import { showConfirm } from '$services/alert.service'
     import type { Project, ProjectInstance, Site, Key, ProjectInstanceKey, StreamingBackupSite } from '$models/interfaces'
+	import { loadingBox } from '$services/loadingMessage'
 
     interface IObjectKeys {
         [key: string]: string | number;
@@ -131,6 +132,9 @@
         notReadyToClone = folders.map((f) => f.selected).join(' ').indexOf('on') === -1;
     }
     const doClone = async () => {
+        const loader = await loadingBox('Cloning instance...')
+        loader.present()
+
         let excludes = folders.filter((f) => f.selected === 'off').map((f) => f.folder.replace(/&nbsp;/g, ''));
         for (let i = 0; i < excludes.length; i++) {
             if (excludes[i] === '/pb_data') excludes[i] += '/*';
@@ -139,9 +143,21 @@
         const cloneData = {
             destination_id,
             excludes,
-            instance_id: instance.id,
+            source_id: instance.id,
+            direction: 'up'
         }
         console.log('cloneData', cloneData)
+        const { data, error } = await pb.send('/clone', {
+					method: 'POST',
+					body: cloneData,
+				})
+        loader.dismiss()
+        if (error) {
+            toast(JSON.stringify(error), 'danger')
+        } else {
+            toast('Clone process completed', 'success')
+            closeModal()
+        }
     }
 </script>
 
