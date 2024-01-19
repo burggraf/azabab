@@ -58,19 +58,6 @@
 	const closeModal = async () => {
 		modalController.dismiss()
 	}
-	const handleChange = async (event: any) => {
-		const { id, value } = event.target
-		// data[id] = value
-	}
-	const save = async () => {
-        await showConfirm({
-            header: 'Confirm header here',
-            message: `message here`,
-            okHandler: async () => {
-                // saveKey()
-            },
-        })
-	}
 	const chooseInstance = async (e: any) => {
         console.log('instances', instances)
         console.log('instance', instance)
@@ -129,13 +116,32 @@
         folders[i].selected = folders[i].selected === 'on' ? 'off' : 'on';
         checkReadyToClone();
     }
-    const startClone = async () => {
-        toast('not implemented yet', 'danger')
+    const confirmClone = async () => {
+        await showConfirm({
+            header: 'Confirm Clone Process',
+            message: `This process will OVERWRITE the selected files in the destination instance.  This can not be un-done.  Are you SURE you want to continue?`,
+            okHandler: async () => {
+                doClone();
+            },
+        })
     }
     let notReadyToClone = true;
     const checkReadyToClone = () => {
         if (destination_id.length === 0) { notReadyToClone = true; return; }
         notReadyToClone = folders.map((f) => f.selected).join(' ').indexOf('on') === -1;
+    }
+    const doClone = async () => {
+        let excludes = folders.filter((f) => f.selected === 'off').map((f) => f.folder.replace(/&nbsp;/g, ''));
+        for (let i = 0; i < excludes.length; i++) {
+            if (excludes[i] === '/pb_data') excludes[i] += '/*';
+            else excludes[i] += '/**';
+        }
+        const cloneData = {
+            destination_id,
+            excludes,
+            instance_id: instance.id,
+        }
+        console.log('cloneData', cloneData)
     }
 </script>
 
@@ -148,11 +154,6 @@
 				</ion-button>
 			</ion-buttons>
 			<ion-title>Clone Project Instance</ion-title>
-			<ion-buttons slot="end">
-				<ion-button on:click={save}>
-					<ion-icon slot="icon-only" icon={checkmarkOutline} />
-				</ion-button>
-			</ion-buttons>
 		</ion-toolbar>
 	</ion-header>
 	<ion-content>
@@ -171,7 +172,7 @@
                     </ion-item>
                 {/each}
             </ion-list>
-            <ion-button expand="block" color="primary" disabled={notReadyToClone} on:click={startClone}>Clone Instance</ion-button>
+            <ion-button expand="block" color="primary" disabled={notReadyToClone} on:click={confirmClone}>Clone Instance</ion-button>
         </div>
         {:else}
         <ion-button expand="block" color="primary" on:click={chooseInstance}>Choose Destination:</ion-button>
