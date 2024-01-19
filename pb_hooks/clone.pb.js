@@ -117,6 +117,9 @@ routerAdd('POST', '/clone', (c) => {
 	}
 	console.log('clone 11')
 	const doSyncs = async () => {
+		// add to excludes
+		excludes.push('/.ssh/**');
+		excludes.push('/marmot/**');
 		// copy source UP
 		console.log('clone 12')
 		const { data: syncUpData, error: syncUpError } = 
