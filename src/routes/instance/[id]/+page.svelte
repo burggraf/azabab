@@ -24,6 +24,7 @@
 	import { loadingBox } from '$services/loadingMessage'
 	import { modalController } from '$ionic/svelte'
 	import cloneModal from './cloneModal.svelte'
+	import { currentState } from '$services/state.service'
 
 	let keys: Key[] = []
 	let project_instance_keys: ProjectInstanceKey[] = []
@@ -62,6 +63,10 @@
 			console.log('tb is ', tb)
 			if (tb) tb.select(initTab || 'settings')
 		}, 100)
+		// console.log('*** setting currentState.selectedMenuItem to window.location.pathname', window.location.pathname)
+		// currentState.set({ selectedMenuItem: window.location.pathname })
+		localStorage.setItem('page', window.location.pathname)
+		
 	})
 	const ionViewWillEnter = async () => {
 		console.log('*** ionViewWillEnter, id', id)

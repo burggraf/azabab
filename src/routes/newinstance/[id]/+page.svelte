@@ -52,10 +52,11 @@
 	let existingInstanceRecords: any[] = []
 	let primary_instance_id = ''
 	const ionViewWillEnter = async () => {
-		console.log('*** ionViewWillEnter')
+		console.log('*** ionViewWillEnter')		
 		if (!$currentUser) {
 			goto('/');
 		}
+		localStorage.setItem('page', window.location.pathname)
 		const record = await pb.collection('projects').getOne(project_id, {
 			expand: 'id,domain,name,owner,ownertype,port,type',
 		})
@@ -171,8 +172,8 @@
 		}
 	}
 	const back = async () => {
-		window.history.back()
-		// goto('/projects')
+		// window.history.back()
+		goto(`/project/${project_id}`)
 	}
 	//$: domainAvailable = false
 

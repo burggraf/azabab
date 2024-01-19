@@ -41,6 +41,7 @@
 		if (!$currentUser) {
 			goto('/');
 		}
+        localStorage.setItem('page', window.location.pathname)
         const inst = await pb.collection('instance_view').getOne(id)
         console.log('inst is', inst);
         if (inst) {
@@ -63,7 +64,8 @@
         const regularGrid = document.getElementById('regularGrid');
         if (restoreGrid && regularGrid) {
             if (restoreGrid.style.display === 'none') {
-                window.history.back()
+                // window.history.back()
+                goto(`/instance/${id}`)
             } else {
                 restoreGrid.style.display = 'none';
                 regularGrid.style.display = 'block';

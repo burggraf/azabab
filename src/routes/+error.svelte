@@ -9,7 +9,7 @@
     // pushPathStack();
 
     // goto('/components/Splash');
-    goto('/projects');
+    goto('/');
 </script>
 <IonPage>
 <ion-header>

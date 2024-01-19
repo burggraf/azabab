@@ -49,6 +49,7 @@
 		if (!$currentUser) {
 			goto('/');
 		}
+        localStorage.setItem('page', window.location.pathname)
         const record = await pb.collection('projects').getOne(id, {});
         if (record) {
             for (let attr in project) {
