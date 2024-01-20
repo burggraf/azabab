@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount } from 'svelte'
+	// import { onMount } from 'svelte'
 	// import TableColumnSort from './TableColumnSort.svelte';
 	// import './TableGrid.css';
 	import * as allIonicIcons from 'ionicons/icons'
@@ -64,6 +64,8 @@
 		}
 		currentSort = sort
 	}
+
+
 </script>
 
 <div>

@@ -7,10 +7,7 @@
 
 	import AccordionMenu from './AccordionMenu.svelte'
 
-	import { pwaBeforeInstallPrompt, canInstall } from '$lib/services/pwa'
-
 	import { menuController, modalController, registerMenu } from '$ionic/svelte'
-	import { isPlatform } from '@ionic/core'
 	import * as allIonicIcons from 'ionicons/icons'
 
 	import IOSInstall from '$lib/components/IOSInstall.svelte'
@@ -135,11 +132,8 @@
 		hideMenu = false
 	}, 100)
 
-	let iosInstall = isPlatform('ios') && !isPlatform('pwa')
-
 	const showIOSinstall = async () => {
 		const modal = await modalController.create({
-			component: IOSInstall,
 			componentProps: {},
 			showBackdrop: true,
 			backdropDismiss: false,
@@ -211,26 +205,6 @@
 
 		<ion-list>
 			<ion-item lines="none" />
-			{#if iosInstall}
-				<ion-item on:click={showIOSinstall} lines="none">
-					<ion-icon icon={allIonicIcons['download']} slot="start" />
-					<ion-label>Install this app as PWA</ion-label>
-				</ion-item>
-				<ion-item lines="none" />
-			{/if}
-			{#if $canInstall}
-				<ion-item
-					lines="none"
-					on:click={() => {
-						const prompt = $pwaBeforeInstallPrompt
-						prompt.prompt()
-					}}
-				>
-					<ion-icon icon={allIonicIcons['download']} slot="start" />
-					<ion-label>Install this app as PWA</ion-label>
-				</ion-item>
-				<ion-item lines="none" />
-			{/if}
 		</ion-list>
 	</ion-content>
 	<ion-footer class="ion-padding">
