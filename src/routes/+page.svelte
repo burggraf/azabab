@@ -84,7 +84,7 @@
 				</ion-grid>
 			</div>
 				<div class="center">
-					Welcome back <b>{"user name"}</b>.
+					Welcome back <b>{$currentUser?.name || $currentUser?.email}</b>
 				</div><br/>
 				<ion-button on:click={()=>{goto('/newproject')}} color="secondary" size="large" expand="block">
 					<ion-icon slot="start" icon={allIonicIcons.documentOutline}></ion-icon>
@@ -115,7 +115,7 @@
 		<ion-button expand="block" on:click={openLoginBox}>Get Started</ion-button>
 	</div>
 	<div class="flex-container">
-		<div class="flex-item primary">
+		<div class="flex-item secondary">
 			<h3>What is Azabab?</h3>
 			<ul>
 				<li>Pocketbase Hosting in 5 seconds</li>
@@ -125,7 +125,7 @@
 				<li>Easy Management Tools</li>
 			</ul>
 		</div>
-		<div class="flex-item secondary">
+		<div class="flex-item tertiary">
 			<h3>Highly Available Pocketbase</h3>
 			<ul>
 				<li>Setup Globally Distributed Replicas</li>
@@ -135,7 +135,7 @@
 				<li>Direct Access to Regional Instances</li>
 			</ul>			
 		</div>
-		<div class="flex-item tertiary">
+		<div class="flex-item primary">
 			<h3>Standard Features</h3>
 			<ul>
 				<li>Create & Manage Projects</li>
@@ -145,7 +145,7 @@
 				<li>Online Management Tools</li>
 			</ul>
 		</div>
-		<div class="flex-item primary">
+		<div class="flex-item secondary">
 			<h3>Advanced Features</h3>
 			<ul>
 				<li>Manage Instance Status</li>
@@ -155,7 +155,7 @@
 				<li>Site Metrics: cpu, memory, disk, network</li>
 			</ul>
 		</div>
-		<div class="flex-item secondary">
+		<div class="flex-item tertiary">
 			<h3>Pocketbase Features</h3>
 			<ul>
 				<li>Database with Automatic API</li>
@@ -169,7 +169,8 @@
 			<h3>What else?</h3>
 			<p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Eius id cupiditate exercitationem itaque modi sequi debitis quidem ratione minus placeat beatae quos laudantium iure consequatur possimus rerum tempore, dolore in.</p>
 		</div> -->
-	</div><br/>
+	</div>
+	<!-- <br/> -->
 	<!-- <br/><br/><br/><br/>&nbsp; -->
 	</ion-content>
 	<ion-footer>
