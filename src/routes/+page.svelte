@@ -117,48 +117,60 @@
 	<div class="flex-container">
 		<div class="flex-item primary">
 			<h3>What is Azabab?</h3>
-			<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Nesciunt vitae incidunt asperiores quos, saepe eum excepturi consequuntur atque culpa voluptatum rem.</p>
+			<ul>
+				<li>Pocketbase Hosting in 5 seconds</li>
+				<li>High Availabilty</li>
+				<li>Globally Distributed</li>
+				<li>Read-Only or Read-Write Replicas</li>
+				<li>Easy Management Tools</li>
+			</ul>
 		</div>
 		<div class="flex-item secondary">
-			<h3>Host Pocketbase</h3>
-			<p>Setup an unlimited number of free Pocketbase projects in just a few seconds.  Decide on a domain name, click a button, and you're live.</p>
+			<h3>Highly Available Pocketbase</h3>
+			<ul>
+				<li>Setup Globally Distributed Replicas</li>
+				<li>Automatic Replication Setup</li>
+				<li>Failover Handling</li>
+				<li>Advanced Routing Capabilities</li>
+				<li>Direct Access to Regional Instances</li>
+			</ul>			
 		</div>
 		<div class="flex-item tertiary">
 			<h3>Standard Features</h3>
 			<ul>
-				<li>Quick view of your backend layout</li>
-				<li>CLI access to your site with SCP or SFTP</li>
-				<li>Site Logs</li>
-				<li>Site Metrics</li>
+				<li>Create & Manage Projects</li>
+				<li>Create & Manage Replicas</li>
 				<li>Full Pocketbase Admin Access</li>
+				<li>Clone Projects (Prod/Staging/Dev)</li>
+				<li>Online Management Tools</li>
 			</ul>
 		</div>
 		<div class="flex-item primary">
 			<h3>Advanced Features</h3>
 			<ul>
-				<li>Locations across the world</li>
-				<li>Streaming backups with point-in-time recovery</li>
-				<li>Read-Only or Read-Write replication</li>
-				<li>High availability</li>
-				<li>Global scalability</li>
+				<li>Manage Instance Status</li>
+				<li>View/Edit Project Files</li>
+				<li>Deploy Files with ssh/scp, sftp</li>
+				<li>Pocketbase Logs</li>
+				<li>Site Metrics: cpu, memory, disk, network</li>
 			</ul>
 		</div>
 		<div class="flex-item secondary">
 			<h3>Pocketbase Features</h3>
 			<ul>
-				<li>Database with automatic API</li>
+				<li>Database with Automatic API</li>
 				<li>Authentication (email, oauth, social)</li>
-				<li>Storage (upload/download from storage & S3)</li>
-				<li>Realtime database capabilities</li>
-				<li>Management dashboard, hooks, and more</li>
+				<li>Storage with S3 Support</li>
+				<li>Realtime Database</li>
+				<li>Management Dashboard, Hooks, & more</li>
 			</ul>
 		</div>
-		<div class="flex-item tertiary">
+		<!-- <div class="flex-item tertiary">
 			<h3>What else?</h3>
 			<p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Eius id cupiditate exercitationem itaque modi sequi debitis quidem ratione minus placeat beatae quos laudantium iure consequatur possimus rerum tempore, dolore in.</p>
-		</div>
+		</div> -->
 	</div><br/>
-	<br/><br/><br/><br/>&nbsp;
+	<!-- <br/><br/><br/><br/>&nbsp; -->
 	</ion-content>
 	<ion-footer>
 		{#if !$currentUser}
