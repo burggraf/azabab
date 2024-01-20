@@ -35,6 +35,9 @@
 	})
 
 	const loadData = async () => {
+        console.log('**********************')
+        console.log('****** loadData ******')
+        console.log('**********************')
 		console.log('tabmetrics loadata, $currentUser', $currentUser)
 		const resultList = await pb.collection('stats_view').getList(1, 50, {
 			filter: `instance_id = "${project_instance?.id}"`,
@@ -106,35 +109,43 @@
 	}
 	if (localStorage.getItem('instance.tab') === 'metrics') {
 		setTimeout(async () => {
-			await loadData()
+            if (stats.length === 0) {
+                await loadData()
+            }
 		}, 1000)
 	}
 	// ********************************
-	const createChart = (chartType: string, description: string, labels: string[], datasets: any[]) => {
-		const ctx: any = document.getElementById(`${chartType}Chart`)
+    const createChart = (chartType: string, description: string, labels: string[], datasets: any[]) => {
+        const canvasId = `${chartType}Chart`;
+        const existingChart = Chart.getChart(canvasId);
+        if (existingChart) {
+            existingChart.destroy();
+        }
 
-		new Chart(ctx, {
-			type: 'line',
-			data: {
-				labels: labels,
-				datasets: datasets,
-			},
-			options: {
-				scales: {
-					x: {
-						ticks: {
-							maxRotation: 90,
-							minRotation: 90,
-						},
-					},
+        const ctx: any = document.getElementById(canvasId);
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: datasets,
+            },
+            options: {
+                scales: {
+                    x: {
+                        ticks: {
+                            maxRotation: 90,
+                            minRotation: 90,
+                        },
+                    },
                     y: {
                         beginAtZero: true
                     }
-				},
-			},
-		})
-	}
-</script>
+                },
+            },
+        })
+    }
+    </script>
 
 <div class="ion-padding" style="overflow: scroll;height: 100%">
 	<ion-grid>
