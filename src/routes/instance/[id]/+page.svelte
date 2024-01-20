@@ -26,6 +26,7 @@
 	import cloneModal from './cloneModal.svelte'
 	import { currentState } from '$services/state.service'
 
+	let tabMetricsProxy: any;
 	let keys: Key[] = []
 	let project_instance_keys: ProjectInstanceKey[] = []
 
@@ -51,8 +52,7 @@
 		db_streaming_backup_retention: 0,
 		logs_streaming_backup_retention: 0,
 		instance_status: ''
-	};
-	
+	};	
 	let initTab: string;
 	onMount(async () => {
 		initTab = localStorage.getItem('instance.tab') || 'settings'
@@ -204,8 +204,6 @@
 
 		await modal.present()
 	}
-
-	
 	const actionMenu = async (e: any) => {
 		let syncItem: any;
 		if (project_instance.type === 'primary') {
@@ -291,6 +289,11 @@
 					<ion-button on:click={gotoAdminPage}>
 							<ion-icon slot="icon-only" src="/pb.svg" />
 					</ion-button> -->
+					{#if $instanceTab === 'metrics'}
+						<ion-button on:click={tabMetricsProxy.refresh}>
+							<ion-icon slot="icon-only" icon={allIonicIcons.refreshOutline} />
+						</ion-button>
+					{/if}
 					<ion-button on:click={actionMenu}>
 						<ion-icon slot="icon-only" icon={allIonicIcons.ellipsisVerticalOutline} />
 					</ion-button>
@@ -328,7 +331,7 @@
 					<TabLogs {project_instance} />
 			</ion-tab>
 			<ion-tab tab="metrics">
-					<TabMetrics {project_instance} />
+					<TabMetrics {project_instance} bind:this={tabMetricsProxy} />
 			</ion-tab>
 			<ion-tab-bar id="tab-bar" slot="top">
 				<ion-tab-button tab="settings">
