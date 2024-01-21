@@ -7,7 +7,6 @@
 	import { pb, currentUser } from '$services/backend.service'
 	import { goto } from '$app/navigation'
 	import { toast } from '$services/toast'
-	import { onMount } from 'svelte'
 	import { dropdownmenu } from '$components/DropdownMenu'
 	export let project_id = $page.params.id
 
@@ -45,14 +44,10 @@
 		instance_status: ''
 	};
 
-	onMount(async () => {
-		console.log('*** newproject onMount')
-	})
 	let existingInstances: any = []
 	let existingInstanceRecords: any[] = []
 	let primary_instance_id = ''
 	const ionViewWillEnter = async () => {
-		console.log('*** ionViewWillEnter')		
 		if (!$currentUser) {
 			goto('/');
 		}
@@ -62,7 +57,6 @@
 		})
 		if (record) {
 			for (let attr in project) {
-				console.log('attr', attr, record[attr])
 				project[attr] = record[attr]
 				if (attr !== 'id' && attr !== 'type') project_instance[attr] = record[attr]
 			}
@@ -80,26 +74,19 @@
 			}
 			primary_instance_id =
 				existingInstanceRecords.find((record) => record.type === 'primary')?.id || ''
-			console.log('primary_instance_id', primary_instance_id)
 		}
-		console.log('existingInstanceRecords', existingInstanceRecords)
-		console.log('existingInstances', existingInstances)
 		sites = await pb.collection('sites').getFullList({
 			fields: 'id, name, code, domain, active',
 		})
-		console.log('sites', sites)
 		// if (id === 'new') {
 		// 	project_instance[0].id = sites[0].id
 		// }
 	}
 
 	const save = async () => {
-		console.log('save')
-		console.log('project_instance 1', project_instance)
 		if (project_instance.project_id === '') {
 			project_instance.project_id = project_id
 		}
-		console.log('project_instance 2', project_instance)
 		let loader = await loadingBox('Creating new instance...')
 
         const { data, error } = await pb.send('/createinstance', {
@@ -109,18 +96,11 @@
 			},
 		})
         loader.dismiss();
-		console.log('createinstance data', data)
-		console.log('createinstance error', error)
 		if (error) {
-			console.log('/createinstance error', error)
 			toast(JSON.stringify(error), 'danger')
 		} else {
 			// open the project in a new window
 			// window.open(`https://${project.domain}.${project_instance.site_domain}/_/`, '_blank')
-
-			console.log('********************')
-			console.log(`/setup-marmot/${project.id}`)
-			console.log('********************')
             loader = await loadingBox('Setting up automatic syncing with Marmot...')
 			const { data: setupMarmotData, error: setupMarmotError } = await pb.send(
 				`/setup-marmot/${project.id}`,
@@ -130,13 +110,10 @@
 			)
             loader.dismiss();
 			if (setupMarmotError) {
-				console.log('/setup-marmot error', setupMarmotError)
 				toast(JSON.stringify(setupMarmotError), 'danger')
 			} else {
-				console.log('/setup-marmot data', setupMarmotData)
 				// ****** sync the instance here ******
 				if (primary_instance_id) {
-					console.log('Syncing primary instance with this new instance', primary_instance_id)
                     loader = await loadingBox('Saving primary instance snapshot to S3...')
                     const { data: upData, error: upError } = await pb.send(
 						`/sync/${primary_instance_id}/up`,
@@ -146,10 +123,8 @@
 					)
                     loader.dismiss();
 					if (upError) {
-						console.log('primary sync error', upError)
 						toast('primary sync error: ' + JSON.stringify(upError), 'danger')
 					} else {
-						console.log('primary sync data', upData)
 					}
                     loader = await loadingBox('Restoring primary instance to replica...')
 					const { data: downData, error: downError } = await pb.send(`/sync/${data}/down`, {
@@ -157,10 +132,8 @@
 					})
                     loader.dismiss();
 					if (downError) {
-						console.log('primary sync error', downError)
 						toast('replica sync error: ' + JSON.stringify(downError), 'danger')
 					} else {
-						console.log('replica sync data', downData)
 					}
 					// delete sync data
 					loader = await loadingBox('Cleaning up sync data...')
@@ -172,15 +145,11 @@
 					)
                     loader.dismiss();
 					if (deleteError) {
-						console.log('sync delete error', deleteError)
 						toast('sync delete error: ' + JSON.stringify(deleteError), 'danger')
 					} else {
-						console.log('sync delete data', deleteData)
                         toast('New instance created', 'success')
 					}
 				}
-
-				console.log('**** goto', `/instance/${data}`)
 				// id = data
 				goto(`/instance/${data}`)
 			}
@@ -233,7 +202,6 @@
 			})
 		}
 		const result = await dropdownmenu(e, items)
-		console.log('*** you chose site', result)
 	}
 	const chooseType = async (e: any) => {
 		let items = [
@@ -257,7 +225,6 @@
 			},
 		]
 		const result = await dropdownmenu(e, items)
-		console.log('*** you chose type', result)
 	}
 </script>
 
