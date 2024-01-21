@@ -146,7 +146,6 @@
 
 	<ion-row><ion-col>&nbsp;</ion-col></ion-row>
 
-	{#if projectInstances.length < 2}
 	<ion-button
 		size="small"
 		expand="block"
@@ -154,13 +153,6 @@
 			goto(`/streamingbackups/${project_instance.id}`)
 		}}>Streaming Backups</ion-button
 	>
-	{:else}
-		<ion-row>
-		<ion-col>
-			<div><b>Streaming backups are disabled if you have more than one instance.</b>  Streaming backups require a database lock that interferes with multi-instance replication.</div>
-		</ion-col>
-		</ion-row>
-	{/if}
 </ion-grid>
 
 <style>
