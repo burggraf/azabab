@@ -124,23 +124,23 @@ const frontendRouteTemplate = `
     acl is_[PORT]_global hdr(host) -i [GLOBAL_FQD] 
 
     # Define the condition for primary server down
-    acl primary_down_[PORT] nbsrv(backend_[PORT]_global) lt 2
+    acl primary_down_[PORT] nbsrv(backend_global_[PORT]_[GLOBAL_FQD]) lt 2
 
     # Backend selection based on ACLs
-    use_backend backend_[PORT]_local if is_[PORT]_local
-    use_backend backend_[PORT]_global if is_[PORT]_global
+    use_backend backend_local_[PORT]_[LOCAL_FQD] if is_[PORT]_local
+    use_backend backend_global_[PORT]_[GLOBAL_FQD] if is_[PORT]_global
 `;
 const backendRouteTemplate = `
 # Backend for alpha_lax_hh_azabab_com
-backend backend_[PORT]_local
+backend backend_local_[PORT]_[LOCAL_FQD]
     http-request set-header X-Original-URI %[url]
     http-request set-header X-Original-Port [PORT]
     http-request set-header X-PB-Version [PB_VERSION]
     server local_app_[PORT] 127.0.0.1:[STATUSPORT] check cookie [LOCAL_FQD]
     server local_error_handler_[PORT] 127.0.0.1:5000 backup cookie [LOCAL_FQD]
 
-# Backend for backend_[PORT]_global
-backend backend_[PORT]_global
+# Backend for backend_global_[PORT]_[GLOBAL_FQD]
+backend backend_global_[PORT]_[GLOBAL_FQD]
     http-request set-header X-Original-URI %[url]
     http-request set-header X-Original-Port [PORT]
     http-request set-header X-PB-Version [PB_VERSION]
