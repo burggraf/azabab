@@ -127,7 +127,6 @@
             project_instance.domain = value
             if (!project_instance.metadata) project_instance.metadata = {};
             project_instance.metadata.fqd = `${project.domain}.azabab.com`;
-            console.log('project_instance', project_instance)
 		} else if (field === 'name' && project?.id !== '') {
 			project[field] = value
 			try {

@@ -55,8 +55,6 @@
             for (let attr in project) {
                 project[attr] = record[attr]
             }
-            console.log('record', record)
-            console.log('project', project)
         } else {
             toast('Project not found', 'danger')
             goto('/projects')
@@ -100,8 +98,6 @@
 	}
 
 	const handleChange = async (event: any) => {
-        console.log('*** handleChange', event)
-        console.log(event.target.id)
         form[event.target.id as keyof typeof form] = event.target.value
         if (event.target.id === 'domain') {
             domainAvailable = await checkDomainAvailability(form.domain)
@@ -174,16 +170,12 @@
 				color: 'primary',
 				textcolor: 'dark',
 				handler: async () => {
-					console.log('you chose version', version)
 				},
 			})
 		}
 		const result = await dropdownmenu(e, items)
-		console.log('*** you chose version', result)
         if (!project.metadata) project.metadata = {}
         project.metadata.pb_version = result.text
-        console.log('project.metadata', project.metadata)
-        console.log('calling /changeversion from middleware')
         const loader = await loadingBox('Updating version...')
         const { data, error } = await pb.send(`/changeversion`, {
             method: 'POST',
@@ -197,9 +189,7 @@
             toast('Error: ' + JSON.stringify(error), 'danger')
             return
         }   
-        console.log('changeVersionResult', data)
         toast('Version changed', 'success')
-        console.log('project', project)
 	}
     const notready = () => {
         toast('This feature is not ready yet', 'danger')
@@ -251,7 +241,6 @@
         if (error) {
             toast('Error: ' + JSON.stringify(error), 'danger')
         } else {
-            console.log('change_domain data', data)
             project.domain = form.domain 
             toast('Domain changed', 'success')
         }
@@ -276,7 +265,6 @@
 				text: 'Cancel',
 				icon: allIonicIcons.closeOutline,
 				handler: () => {
-					console.log('Cancel clicked')
 				},
 			},
 		]
