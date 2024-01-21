@@ -6,7 +6,6 @@
 	let projects: any = []
 	let project_instances: any = []
 	const ionViewWillEnter = async () => {
-		console.log('ionViewWillEnter')
 		if (!$currentUser) {
 			goto('/');
 		}
@@ -23,9 +22,6 @@
 		}
 		if ($currentUser && $currentUser.verified === false) {
 			pb.collection('users').subscribe($currentUser.id, function (e) {
-				console.log('****** user changed ******')
-				console.log('e.action', e.action);
-				console.log('e.record', e.record);
 				if (e.record?.verified) {
 					currentUser.set({ ...$currentUser, verified: true })
 					pb.collection('users').unsubscribe(); 
@@ -44,7 +40,6 @@
 	}
 	let filterValue = ''
 	const filterProjects = (e: any) => {
-		console.log('filterProjects now')
 
 		for (let i = 0; i < projects.length; i++) {
 			const project = projects[i]
