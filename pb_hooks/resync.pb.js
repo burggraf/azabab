@@ -1,11 +1,9 @@
 /// <reference path="../pb_data/types.d.ts" />
 // **** add ssh keys to an instance ****
 routerAdd('GET', '/resync/:project_id', (c) => {
-	console.log('resync 01')
-	const { toggleinstance, sync } = require(`${__hooks}/modules/callbackend.js`)
+	//	const { toggleinstance, sync } = require(`${__hooks}/modules/callbackend.js`)
 	const { execute, select } = require(`${__hooks}/modules/sql.js`)
-	console.log('resync 03')
-
+	//
 	const project_id = c.pathParam('project_id')
 	if (!project_id) {
 		return c.json(200, { data: null, error: 'project_id is required' })
@@ -34,8 +32,6 @@ routerAdd('GET', '/resync/:project_id', (c) => {
 				`select type, owner, ownertype, port, site_domain from instance_view where project_id = '${project_id}' order by type`
 			)
 			.all(instances) // throw an error on db failure
-			console.log('resync 03')
-			console.log('instances', JSON.stringify(instances, null, 2))
 
 		if (instances.length < 2) {
 			return c.json(200, { data: null, error: 'less than 2 instances found' })
@@ -50,36 +46,26 @@ routerAdd('GET', '/resync/:project_id', (c) => {
 	if (primary.type !== 'primary') {
 		return c.json(200, { data: null, error: 'first instance is not a primary instance' })
 	}
-	console.log('resync 04')
-
+	//
 	const sync_all_instances = async () => {
 		try {
-			console.log('******** resync: sync_all_instances ********')
-			console.log('resync 05 - UP')
-			console.log(`sync ${primary.port} la:azabab/${primary.port}/sync --exclude marmot/marmot.toml`);
 			// destination hard-coded to "la" for now
 			const { data: primarySyncData, error: primarySyncError } = sync(
 				`sync ${primary.port} la:azabab/${primary.port}/sync --exclude marmot/marmot.toml`,
 				primary.site_domain
 			)
-			console.log('primarySyncData', primarySyncData)
-			console.log('primarySyncError', primarySyncError)
 			if (primarySyncError) {
 				return c.json(200, { data: null, error: primarySyncError })
 			}
-			console.log('resync 06 - DOWN')
 			for (let i = 1; i < instances.length; i++) {
 				const instance = instances[i]
 				if (instance.type === 'primary') {
 					continue
 				}
-				console.log(`sync la:azabab/${primary.port}/sync ${primary.port} --exclude marmot/marmot.toml`)
 				const { data: syncData, error: syncError } = sync(
 					`sync la:azabab/${primary.port}/sync ${primary.port} --exclude marmot/marmot.toml`,
 					instance.site_domain
 				)
-				console.log('syncData', syncData)
-				console.log('syncError', syncError)
 				if (syncError) {
 					return c.json(200, { data: null, error: syncError })
 				}
@@ -89,15 +75,12 @@ routerAdd('GET', '/resync/:project_id', (c) => {
 				`delete la:azabab/${primary.port}/sync`,
 				primary.site_domain
 			)
-			console.log('deleteSyncData', deleteSyncData)
-			console.log('deleteSyncError', deleteSyncError)
 			if (deleteSyncError) {
 				return c.json(200, { data: null, error: deleteSyncError })
 			}
 		} catch (err) {
 			return c.json(200, { data: null, error: err?.value?.error() || err })
 		}
-		console.log('resync 07')
 		// try {
 		// 	// take all instances offline
 		// 	for (let i = 0; i < instances.length; i++) {

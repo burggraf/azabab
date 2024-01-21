@@ -59,8 +59,6 @@ routerAdd('GET', '/sync/:instance_id/:direction', (c) => {
 				command,
 				instance.site_domain
 			)
-			console.log('syncData', syncData)
-			console.log('syncError', syncError)
 			if (syncError) {
 				return c.json(200, { data: null, error: syncError })
 			} else {

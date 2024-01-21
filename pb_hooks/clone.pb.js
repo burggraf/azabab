@@ -54,7 +54,6 @@ routerAdd('POST', '/clone', (c) => {
 				where id = '${source_id}' limit 1` 
 			)
 			.all(sourceData) // throw an error on db failure
-		console.log('clone 05: sourceData', sourceData)
 		if (sourceData.length === 0) {
 			return c.json(200, { data: null, error: 'source instance not found' })
 		}
@@ -94,7 +93,6 @@ routerAdd('POST', '/clone', (c) => {
 			return c.json(200, { data: null, error: 'you are not the destination project instance owner' })
 		}
 		destination = destinationData[0]
-		console.log('clone 07: destinationData', destinationData)
 	} catch (destinationError){
 		return c.json(200, { data: null, error: destinationError.value.error() || destinationError })
 	}
@@ -125,37 +123,29 @@ routerAdd('POST', '/clone', (c) => {
 			excludesString += ` --exclude ${excludes[i]}`
 		}
 		// copy source UP
-		console.log('clone 12')
 		let command = `sync ${source.port} la:azabab/${source.port}/sync ${excludesString}`
-		console.log('up command to',source.site_domain, command)
 
 		const { data: syncUpData, error: syncUpError } = 
 			await sync(command, source.site_domain);
 		if (syncUpError) return c.json(200, { data: null, error: syncUpError })
-		console.log('syncUpData', syncUpData)
 		// copy destination DOWN
-		console.log('clone 13')
 	 	command = `sync la:azabab/${source.port}/sync ${destination.port} ${excludesString}`
 		const { data: syncDownData, error: syncDownError } = 
 			await sync(command, destination.site_domain);
 		if (syncDownError) return c.json(200, { data: null, error: syncUpError })
 		// delete the clone data
 		// this will use the port of the SOURCE
-		console.log('clone 14')
-		console.log('skipping clone data delete')
 		command = `delete la:azabab/${source.port}/sync`
 		const { data: deleteData, error: deleteError } = 
 			await sync(command, source.site_domain);
 		if (deleteError) return c.json(200, { data: null, error: deleteError })
 
 		// take the source and destination instance online
-		console.log('clone 15')
 		const { data: offlineData, error: offlineError } = 
 			execute(`update project_instance 
 					set instance_status = 'online' 
 					where id in ('${source_id}','${destination_id}')`);
 		if (offlineError) return c.json(200, { data: null, error: offlineError })
-		console.log('clone 16')
 		const { data: offlineRoutes1, error: offlineRoutesError1 } = 
 			updateroutes(source.project_id, user?.id);
 		if (offlineRoutesError1) return c.json(200, { data: null, error: offlineRoutesError1 })
@@ -164,7 +154,6 @@ routerAdd('POST', '/clone', (c) => {
 				updateroutes(destination.project_id, user?.id);
 			if (offlineRoutesError2) return c.json(200, { data: null, error: offlineRoutesError2 })
 		}
-		console.log('clone 17')
 		return c.json(200, { data: 'OK', error: null })
 	}
 	doSyncs();
