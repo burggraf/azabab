@@ -35,7 +35,6 @@
 	export let streaming_backup_sites: StreamingBackupSite[] = []
 	instanceTab.subscribe((value: string) => {
 		if (value === 'settings') {
-			console.log('INSTANCE TAB SETTINGS')
 		}
 	})
 
@@ -74,10 +73,8 @@
 
 		]
 		const result = await dropdownmenu(e, items)
-		console.log('*** you chose status', result)
 	}
 	const toggleinstance = async (status: string) => {
-		console.log('calling hook /toggleinstance')
 		const { data, error } = await pb.send(`/toggleinstance`, {
 			method: 'POST',
 			body: {
@@ -85,8 +82,6 @@
 				status: status,
 			},
 		})
-		console.log('toggleinstance hook error', error)
-		console.log('toggleinstance hook data', data)
 		if (data === 'OK') {
 			project_instance.instance_status = status
 		}
