@@ -171,7 +171,8 @@ routerAdd('POST', '/update-streaming-backup-settings', async (c) => {
 		`      - type: s3\n` +
 		`        bucket: azabab\n` +
 		//`        path: ${site_domain}/${port}-data\n` +
-		`        path: backups/${port}-data\n` +
+		//`        path: backups/${port}-data\n` +
+		`        path: ${port}/litestream/${site_domain}/data\n` +
 		`        endpoint: ${lookup[0]?.db_endpoint}\n` +
 		`        access-key-id: ${lookup[0]?.db_access_key_id || ''}\n` +
 		`        secret-access-key: ${lookup[0]?.db_secret_access_key || ''}\n` +
@@ -191,7 +192,8 @@ routerAdd('POST', '/update-streaming-backup-settings', async (c) => {
 		`      - type: s3\n` +
 		`        bucket: azabab\n` +
 		// `        path: ${site_domain}/${port}-logs\n` +
-		`        path: backups/${port}-logs\n` +
+		//`        path: backups/${port}-logs\n` +
+		`        path: ${port}/litestream/${site_domain}/logs\n` +
 		`        endpoint: ${lookup[0]?.logs_endpoint}\n` +
 		`        access-key-id: ${lookup[0]?.logs_access_key_id || ''}\n` +
 		`        secret-access-key: ${lookup[0]?.logs_secret_access_key || ''}\n` +
