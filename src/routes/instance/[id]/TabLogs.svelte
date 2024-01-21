@@ -20,7 +20,6 @@
 	}
 	instanceTab.subscribe(async (value: string) => {
 		if (value === 'logs') {
-			console.log('INSTANCE TAB LOGS')
             await loadData();
         }
 	})
@@ -32,7 +31,6 @@
 	let sortDirection = 'forward'
 	let limit = 50
 	const loadData = async () => {
-		console.log('TabLogs loadata')
 		try {
 			const { data, error } = await pb.send(`/getinstancefile`, {
 				method: 'POST',
@@ -54,18 +52,15 @@
 				}
 			}
 		} catch (err) {
-			console.log('TabLogs loadData error', err)
+			console.error('TabLogs loadData error', err)
 		}
 	}
 	const changeSort = (e: any) => {
-		console.log('changeSort: e', e)
 		sortDirection = e.detail.value
 		loadData()
 	}
 	const changeLimit = (e: any) => {
-		console.log('changeLimit: e', e)
 		limit = e.detail.value
-		console.log('changeLimit: limit', limit)
 		loadData()
 	}
 </script>

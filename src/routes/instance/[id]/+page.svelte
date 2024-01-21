@@ -63,8 +63,6 @@
 			console.log('tb is ', tb)
 			if (tb) tb.select(initTab || 'settings')
 		}, 100)
-		// console.log('*** setting currentState.selectedMenuItem to window.location.pathname', window.location.pathname)
-		// currentState.set({ selectedMenuItem: window.location.pathname })
 		localStorage.setItem('page', window.location.pathname)
 		
 	})
@@ -268,7 +266,6 @@
 			items.splice(items.length - 2, 0, syncItem)
 		}
 		const result = await dropdownmenu(e, items)
-		// console.log('result', result)
 	}
 
 </script>

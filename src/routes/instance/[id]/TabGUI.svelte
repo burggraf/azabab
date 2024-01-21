@@ -109,10 +109,7 @@
 		else console.log('getinstancefiles error', error)
 
 		// remove any array entries that start with './.ssh'
-
-		// console.log(JSON.stringify(dir, null, 2))
 		tree = buildTree(dir)[0]
-		// console.log('tree', tree);
 	}
 
 	instanceTab.subscribe(async (value: string) => {
@@ -163,7 +160,6 @@
 			console.log('loadFileIntoEditor(data.raw)', data.raw.length + ' bytes')
 			loadFileIntoEditor(data.raw, modifiedPath);
 			return;
-			// console.log('data.raw', data.raw)
 			// const el = document.getElementById('preview')
 			// if (el) el.innerText = data.raw
 			// const el2 = document.getElementById('previewTitle')
