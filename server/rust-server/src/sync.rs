@@ -26,60 +26,23 @@ pub async fn handle_sync(mut req: Request<Body>, _auth_token: &str) -> Result<Re
     let body_str = String::from_utf8(body_bytes.to_vec()).unwrap();
     let body_params: Value = serde_json::from_str(&body_str).unwrap();
 
-    let port = body_params["port"].as_str().unwrap_or_default();
-    let direction = body_params["direction"].as_str().unwrap_or_default();
-    let destination = body_params["destination"].as_str().unwrap_or_default();
-    let destination_port = body_params["destination_port"].as_str().unwrap_or(port);
-
-    println!("sync port {}", port);
-    println!("sync direction {}", direction);
-    println!("sync destination {}", destination);
-    println!("sync destination_port {}", destination_port);
-
-    // Get the folder parameter, defaulting to "sync" if not provided
-    let folder = body_params["folder"].as_str().unwrap_or("sync");
-
-    // Initialize an empty vector for excludes
-    let mut excludes = Vec::new();
-    // Check if excludes parameter is provided and is an array
-    if let Some(ex_array) = body_params.get("excludes").and_then(Value::as_array) {
-        // Iterate over the array and collect string values
-        excludes = ex_array.iter()
-                           .filter_map(|e| e.as_str())
-                           .map(|e| format!("--exclude {}", e))
-                           .collect();
-    }
-    let exclude_str = excludes.join(" ");
+    let command = body_params["command"].as_str().unwrap_or_default();
+    println!("command: {}", command);
 
     env::set_current_dir("/home/ubuntu/data").unwrap();
 
-    match direction {
-        "up" | "down" => {
-            let sync_command = if direction == "up" {
-                format!("rclone sync {} {}:azabab/{}/{} {} --exclude marmot/marmot.toml", port, destination, folder, port, exclude_str)
-            } else {
-                format!("rclone sync {}:azabab/{}/{} {} {} --exclude marmot/marmot.toml", destination, folder, port, destination_port, exclude_str)
-            };
-            println!("{}", sync_command);
-            Command::new("sh")
-                .arg("-c")
-                .arg(&sync_command)
-                .output()
-                .expect("Failed to execute sync command");
-        },
-        "delete" => {
-            // New code for "delete" direction
-            let delete_command = format!("rclone delete {}:azabab/{}/{}", destination, folder, port);
-            println!("delete_command: {}", delete_command);
-            Command::new("sh")
-                .arg("-c")
-                .arg(&delete_command)
-                .output()
-                .expect("Failed to execute delete command");
-            // println!("Delete executed for port {}", port);
-        },        
-        _ => println!("Invalid direction: {} for port {}", direction, port),
-    }
+    let sync_command = format!("rclone {}", command);
+    println!("sync_command: {}", sync_command);
+    match Command::new("sh")
+        .arg("-c")
+        .arg(&sync_command)
+        .output() {
+        Ok(_) => (),
+        Err(_) => return Ok(Response::builder()
+            .status(StatusCode::INTERNAL_SERVER_ERROR)
+            .body(Body::from(json!({ "data": null, "error": "Failed to execute sync command" }).to_string()))
+            .unwrap()),
+    };
 
     Ok(Response::builder()
         .status(StatusCode::OK)

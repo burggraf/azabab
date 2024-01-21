@@ -64,7 +64,7 @@
 			for (let attr in project) {
 				console.log('attr', attr, record[attr])
 				project[attr] = record[attr]
-				if (attr !== 'id') project_instance[attr] = record[attr]
+				if (attr !== 'id' && attr !== 'type') project_instance[attr] = record[attr]
 			}
 		} else {
 			toast('Project not found', 'danger')
@@ -161,6 +161,21 @@
 						toast('replica sync error: ' + JSON.stringify(downError), 'danger')
 					} else {
 						console.log('replica sync data', downData)
+					}
+					// delete sync data
+					loader = await loadingBox('Cleaning up sync data...')
+                    const { data: deleteData, error: deleteError } = await pb.send(
+						`/sync/${primary_instance_id}/delete`,
+						{
+							method: 'GET',
+						}
+					)
+                    loader.dismiss();
+					if (deleteError) {
+						console.log('sync delete error', deleteError)
+						toast('sync delete error: ' + JSON.stringify(deleteError), 'danger')
+					} else {
+						console.log('sync delete data', deleteData)
                         toast('New instance created', 'success')
 					}
 				}

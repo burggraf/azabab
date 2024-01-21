@@ -73,32 +73,6 @@ stream_prefix="changes-<PORT>"
 			config_file = config_file.replace(/<NODE>/g, instance.node.toString())
 			config_file = config_file.replace(/<READWRITE>/g, (instance.type === 'read write replica' || instance.type === 'primary') ? 'true' : 'false')
 
-			if (projectData.length === 1) {
-				config_file = ''
-				// remove sync files now
-				// const { data, error } = await pb.send(`/sync/${project_instance.id}/${direction}`, {
-				// 	method: 'GET',
-				// })
-				try {
-					const deleteResponse = $http.send({
-						url:     `http://${instance.site_domain}:5000/sync`,
-						method:  "POST",
-						body:    JSON.stringify({
-							"direction": "delete",
-							"port": instance.port.toString(),
-							"destination": "la" // los angeles (for now)
-						}),
-						headers: {
-							"content-type": "application/json",
-							"Authorization": "your_predefined_auth_token"
-						},
-						timeout: 120, // in seconds
-					})
-					// console.log('deleteResponse', JSON.stringify(deleteResponse,null,2))	
-				} catch (deleteError) {
-					console.log(`ERROR deleting sync data for ${port} at destination "la":`, deleteError)
-				}
-			}
 			try {
 				const res = $http.send({
 					url:     `http://${instance.site_domain}:5000/setupmarmot`,

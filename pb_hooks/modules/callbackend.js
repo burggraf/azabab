@@ -156,19 +156,22 @@ backend backend_global_[PORT]_[GLOBAL_FQD]
 [OTHER_SERVERS]
 `;
 
-const sync = async (site_domain, port, direction, folder, excludes, destination_port) => {
-    if (typeof port !== 'string') port = port.toString();
-    if (destination_port && typeof destination_port !== 'string') destination_port = destination_port.toString();
+const sync = async (sync_command, site_domain) => {
+    console.log('**********************************************')
+    console.log('callbackend: sync_command', sync_command);
+    console.log('**********************************************')
+    console.log('sync 01')
     try {
+        console.log('sync 02')
         const data = {
-            direction: direction,
-            port: port,
-            destination: 'la', // los angeles (for now)
+            command: sync_command
         };
-        if (folder) data.folder = folder;
-        if (excludes) data.excludes = excludes;
-        if (destination_port) data.destination_port = destination_port;
-        console.log('sync data', JSON.stringify(data, null, 2));
+        console.log('sync 03')
+        console.log('**********************************************')
+        console.log(`calling: http://${site_domain}:5000/sync`)
+        console.log('with data', JSON.stringify(data, null, 2));
+        console.log('**********************************************')
+        console.log('sync 04')
         const res = $http.send({
             url: `http://${site_domain}:5000/sync`,
             method: 'POST',
@@ -179,6 +182,10 @@ const sync = async (site_domain, port, direction, folder, excludes, destination_
             },
             timeout: 120, // in seconds
         })
+        console.log('sync 05')
+        console.log('**********************************************')
+        console.log('callbackend: sync res', JSON.stringify(res, null, 2));
+        console.log('**********************************************')
         if (res.json?.data !== 'Sync operation complete') {
             return { data: null, error: res.json?.error || res.raw };
         }

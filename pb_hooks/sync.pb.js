@@ -2,13 +2,14 @@
 
 // **** add ssh keys to an instance ****
 routerAdd('GET', '/sync/:instance_id/:direction', (c) => {
+	const { toggleinstance, sync } = require(`${__hooks}/modules/callbackend.js`)
 	const instance_id = c.pathParam('instance_id')
 	const direction = c.pathParam('direction')
 	console.log('**** sync ****', instance_id, direction)
 	if (!instance_id) {
 		return c.json(200, { data: null, error: 'instance_id is required' })
 	}
-	if (!direction || (direction !== 'up' && direction !== 'down')) {
+	if (!direction || (direction !== 'up' && direction !== 'down' && direction !== 'delete')) {
 		return c.json(200, { data: null, error: 'direction must be up or down' })
 	}
 	const info = $apis.requestInfo(c)
@@ -45,33 +46,33 @@ routerAdd('GET', '/sync/:instance_id/:direction', (c) => {
 		const instance = instanceData[0]
 		let res;
 		try {
-			console.log(`http://${instance.site_domain}:5000/sync`);
-			console.log('direction', direction)
-			console.log('port', instance.port.toString())
-			console.log('destination', 'la')
-			res = $http.send({
-				url:     `http://${instance.site_domain}:5000/sync`,
-				method:  "POST",
-				body:    JSON.stringify({
-					"direction": direction,
-					"port": instance.port.toString(),
-					"destination": "la" // los angeles (for now)
-				}),
-				headers: {
-					"content-type": "application/json",
-					"Authorization": "your_predefined_auth_token"
-				},
-				timeout: 120, // in seconds
-			})	
-			console.log('res', JSON.stringify(res,null,2))
-		} catch (httpError) {
-			// console.log('httpError', httpError)
-			return c.json(200, { data: null, error: httpError.value.error() })
-		}		
-		return c.json(200, { data: res?.json?.data || "ok", error: null })
-	} catch (e){
-		return c.json(200, { data: null, error: e.value.error() || e })
-	}
-		
-})
+			let command;
+			if (direction === 'up') {
+				command = `sync ${instance.port} la:azabab/${instance.port}/sync --exclude marmot/marmot.toml`
+			} else if (direction === 'down') {
+				command = `sync la:azabab/${instance.port}/sync ${instance.port} --exclude marmot/marmot.toml`
+			} else if (direction === 'delete') {
+				command = `delete la:azabab/${instance.port}/sync`
+			}
+
+			const { data: syncData, error: syncError } = sync(
+				command,
+				instance.site_domain
+			)
+			console.log('syncData', syncData)
+			console.log('syncError', syncError)
+			if (syncError) {
+				return c.json(200, { data: null, error: syncError })
+			} else {
+				return c.json(200, { data: res?.json?.data || "ok", error: null })
+			}
+			
+		} catch (e){
+			return c.json(200, { data: null, error: e.value.error() || e })
+		}
+	
+	} catch (err) {
+		return c.json(200, { data: null, error: err.value.error() || err })
+	}});
+
 
