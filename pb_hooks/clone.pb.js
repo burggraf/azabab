@@ -120,22 +120,32 @@ routerAdd('POST', '/clone', (c) => {
 		// add to excludes
 		excludes.push('/.ssh/**');
 		excludes.push('/marmot/**');
+		let excludesString = '';
+		for (let i = 0; i < excludes.length; i++) {
+			excludesString += ` --exclude ${excludes[i]}`
+		}
 		// copy source UP
 		console.log('clone 12')
+		let command = `sync ${source.port} la:azabab/${source.port}/sync ${excludesString}`
+		console.log('up command to',source.site_domain, command)
+
 		const { data: syncUpData, error: syncUpError } = 
-			await sync(source.site_domain, source.port, 'up', 'clone', excludes);
+			await sync(command, source.site_domain);
 		if (syncUpError) return c.json(200, { data: null, error: syncUpError })
+		console.log('syncUpData', syncUpData)
 		// copy destination DOWN
 		console.log('clone 13')
+	 	command = `sync la:azabab/${source.port}/sync ${destination.port} ${excludesString}`
 		const { data: syncDownData, error: syncDownError } = 
-			await sync(destination.site_domain, source.port, 'down', 'clone', excludes, destination.port);
+			await sync(command, destination.site_domain);
 		if (syncDownError) return c.json(200, { data: null, error: syncUpError })
 		// delete the clone data
 		// this will use the port of the SOURCE
 		console.log('clone 14')
 		console.log('skipping clone data delete')
+		command = `delete la:azabab/${source.port}/sync`
 		const { data: deleteData, error: deleteError } = 
-			await sync(source.site_domain, source.port, 'delete', 'clone', excludes);
+			await sync(command, source.site_domain);
 		if (deleteError) return c.json(200, { data: null, error: deleteError })
 
 		// take the source and destination instance online
