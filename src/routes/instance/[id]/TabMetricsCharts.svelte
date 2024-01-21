@@ -98,8 +98,6 @@
 	}
     // when stats changes, create the charts
     $: {
-        console.log("******** STATS CHANGED ********")
-        console.log("stats.length", stats.length)
         createCharts();
     }
 
