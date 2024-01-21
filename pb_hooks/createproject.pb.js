@@ -1,5 +1,7 @@
 routerAdd('POST', '/createproject', (c) => {
 	console.log('createproject 01')
+	const { execute, select } = require(`${__hooks}/modules/sql.js`)
+	console.log('createproject 01A')
 	// try {
 		const { updateroutes } = require(`${__hooks}/modules/callbackend.js`)
 	// } catch (e) {
@@ -44,28 +46,38 @@ routerAdd('POST', '/createproject', (c) => {
 		return c.json(200, { data: null, error: 'type must be "primary" or "replica"' })
 	}
 	console.log('createproject 03')
-
+	// get new port number
+	let newPort;
+	const { data: portData, error: portError } = 
+		select({value: ''},
+		`update settings set value = (CAST(value as integer) + 1) where name = 'MAX_PORT' returning value`);
+	if (portError) return c.json(200, { data: null, error: 'error getting port' })
+	if (portData.length !== 1) {
+		const { data: insertSettingsData, error: insertSettingsError } = execute(`insert into settings (name, value) values ('MAX_PORT', '10002')`)
+		if (insertSettingsError) return c.json(200, { data: null, error: 'error inserting port' })
+		newPort = "10002";
+	} else {
+		newPort = portData[0].value;
+	}
 	try {
 		// create the project record
 		const projectInsert = arrayOf(
 			new DynamicModel({
 				id: '',
-				port: 0
 			})
 		)
-		let startingPort = "10002";
-		if ($os.getenv("ENVIRONMENT") === "dev") {
-			startingPort = "50001";
-		}
 		$app
 			.dao()
 			.db()
 			.newQuery(
 				`insert into projects (name, owner, ownertype, domain, port, type) 
-                    values ('${data?.project?.name}', '${data?.project?.owner}', '${data?.project?.ownertype}', '${data?.project?.domain}',
-					(select coalesce(max(port)+1,${startingPort}) from projects),
+                    values ('${data?.project?.name}', 
+					'${data?.project?.owner}', 
+					'${data?.project?.ownertype}', 
+					'${data?.project?.domain}',
+					${newPort},
 					'${data?.project?.type || "production"}')
-                    returning id, port`
+                    returning id`
 			)
 			.all(projectInsert) // throw an error on db failure
 		console.log('createproject: projectInsert', JSON.stringify(projectInsert, null, 2))
@@ -74,7 +86,6 @@ routerAdd('POST', '/createproject', (c) => {
 		}
 		// get the id of the newly inserted project
 		const newId = projectInsert[0].id
-		const newPort = projectInsert[0].port
 		// create the project_instance record
 		console.log('createproject 04')
 		console.log('newId', newId)
