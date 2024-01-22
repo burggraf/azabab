@@ -16,7 +16,6 @@
 		}
 
 		const ctx: any = document.getElementById(canvasId)
-
 		new Chart(ctx, {
 			type: 'line',
 			data: {
@@ -50,7 +49,8 @@
 				tension: 0.3,
 			},
 		]
-		createChart('cpu', 'CPU Usage', labels, datasets)
+		if (cpu_usage.length > 0)
+			createChart('cpu', 'CPU Usage', labels, datasets)
 		const mem_usage = stats.map((stat: any) => stat.mem_usage)
 		datasets = [
 			{
@@ -60,7 +60,8 @@
 				tension: 0.3,
 			},
 		]
-		createChart('mem', 'Memory Usage', labels, datasets)
+		if (mem_usage.length > 0)
+			createChart('mem', 'Memory Usage', labels, datasets)
 		const disk_read = stats.map((stat: any) => stat.disk_read)
 		const disk_write = stats.map((stat: any) => stat.disk_write)
 		datasets = [
@@ -77,7 +78,8 @@
 				tension: 0.3,
 			},
 		]
-		createChart('disk', 'Disk I/O', labels, datasets)
+		if (disk_read.length > 0 || disk_write.length > 0)
+			createChart('disk', 'Disk I/O', labels, datasets)
 		const net_in = stats.map((stat: any) => stat.net_in)
 		const net_out = stats.map((stat: any) => stat.net_out)
 		datasets = [
@@ -94,11 +96,14 @@
 				tension: 0.3,
 			},
 		]
-		createChart('net', 'Network I/O', labels, datasets)
+		if (net_in.length > 0 || net_out.length > 0)
+			createChart('net', 'Network I/O', labels, datasets)
 	}
     // when stats changes, create the charts
     $: {
-        createCharts();
+		console.log('stats changed')
+		if (stats.length > 0)
+	        createCharts();
     }
 
 </script>
