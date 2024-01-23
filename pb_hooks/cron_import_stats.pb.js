@@ -1,7 +1,12 @@
 /// <reference path="../pb_data/types.d.ts" />
 
 cronAdd("import_stats", "* * * * *", () => {
-    const IMPORT_STATS_ACTIVE = true;
+    let IMPORT_STATS_ACTIVE = false;
+    if (process.env.HOST === 'lax.azabab.com') {
+        IMPORT_STATS_ACTIVE = true;
+    } else {
+        return;
+    }
     const import_stats = async () => {
         const convertUnits = (str) => {
             // get units by looking for letters in the string
