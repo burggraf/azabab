@@ -1,25 +1,11 @@
 /// <reference path="../pb_data/types.d.ts" />
-routerAdd('GET', '/test', async (c) => {
+routerAdd('GET', '/gethost', async (c) => {
 	console.log('** ls')
 	try {
-		const domains = arrayOf(
-			new DynamicModel({
-				// describe the shape of the data (used also as initial values)
-				domain: '',
-				port: 0,
-			})
-		)
-
-		$app.dao().db().newQuery('SELECT domain, port FROM domain_mappings').all(domains) // throw an error on db failure
-
-		console.log('domains', JSON.stringify(domains, null, 2))
-
-		const cmd = $os.cmd('ssh', 'ubuntu@west-2.azabab.com', 'ls')
-		// const error = String.fromCharCode(...cmd.stderr());
-		console.log(JSON.stringify(cmd, null, 2))
-		const output = String.fromCharCode(...cmd.output())
-		console.log('output', output)
-		return c.json(200, { result: output })
+		// const cmd = $os.cmd('cat', '/etc/hostname')
+		// const output = String.fromCharCode(...cmd.output())
+		// return c.json(200, { result: output })
+		return c.json(200, { data: process.env.HOST, error: null})	
 	} catch (err) {
 		console.log('err', err)
 		const cmd = $os.cmd('ls', '-alt')
