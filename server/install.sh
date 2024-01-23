@@ -112,6 +112,7 @@ ssh ubuntu@$1 "sudo chown root:crontab /var/spool/cron/crontabs/root"
 echo ""
 echo "*** Build the Docker image ***"
 echo ""
+ssh ubuntu@$1 "~/inject-hostname-into-container.sh"
 ssh ubuntu@$1 "sudo docker build -t pbdocker ."
 
 echo ""
