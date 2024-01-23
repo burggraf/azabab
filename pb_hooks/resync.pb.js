@@ -1,7 +1,8 @@
 /// <reference path="../pb_data/types.d.ts" />
 // **** add ssh keys to an instance ****
 routerAdd('GET', '/resync/:project_id', (c) => {
-	//	const { toggleinstance, sync } = require(`${__hooks}/modules/callbackend.js`)
+	console.log('resync 01')
+	const { toggleinstance, sync } = require(`${__hooks}/modules/callbackend.js`)
 	const { execute, select } = require(`${__hooks}/modules/sql.js`)
 	//
 	const project_id = c.pathParam('project_id')
@@ -39,6 +40,7 @@ routerAdd('GET', '/resync/:project_id', (c) => {
 	} catch (instancesErr) {
 		return c.json(200, { data: null, error: instancesErr?.value?.error() || instancesErr })
 	}
+	console.log('resync 02, instances', instances, instances.length)
 	if (instances[0].owner !== user.id) {
 		return c.json(200, { data: null, error: 'not your project' })
 	}
@@ -48,17 +50,23 @@ routerAdd('GET', '/resync/:project_id', (c) => {
 	}
 	//
 	const sync_all_instances = async () => {
+		console.log('resync_all_instances')
 		try {
+			console.log('resync 03, primary', primary.site_domain, primary.port)
+			console.log('sync', typeof sync)
 			// destination hard-coded to "la" for now
 			const { data: primarySyncData, error: primarySyncError } = sync(
 				`sync ${primary.port} la:azabab/${primary.port}/sync --exclude marmot/marmot.toml`,
 				primary.site_domain
 			)
+			console.log('resync 03, primarySyncData', JSON.stringify(primarySyncData))
+			console.log('resync 03, primarySyncError', JSON.stringify(primarySyncError))
 			if (primarySyncError) {
 				return c.json(200, { data: null, error: primarySyncError })
 			}
 			for (let i = 1; i < instances.length; i++) {
 				const instance = instances[i]
+				console.log('resync 04, instance', instance.site_domain)
 				if (instance.type === 'primary') {
 					continue
 				}
@@ -67,6 +75,7 @@ routerAdd('GET', '/resync/:project_id', (c) => {
 					instance.site_domain
 				)
 				if (syncError) {
+					console.log(`${instance.site_domain} syncError`, syncError)
 					return c.json(200, { data: null, error: syncError })
 				}
 			}
@@ -79,6 +88,7 @@ routerAdd('GET', '/resync/:project_id', (c) => {
 				return c.json(200, { data: null, error: deleteSyncError })
 			}
 		} catch (err) {
+			console.log('ERROR: sync_all_instances', JSON.stringify(err))
 			return c.json(200, { data: null, error: err?.value?.error() || err })
 		}
 		// try {
@@ -96,5 +106,6 @@ routerAdd('GET', '/resync/:project_id', (c) => {
 
 		return c.json(200, { data: `resynced ${instances.length} instances`, error: null })
 	}
+	console.log('resync ready to resync_all_instances');
 	sync_all_instances()
 })
