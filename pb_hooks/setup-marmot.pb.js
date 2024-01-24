@@ -58,7 +58,7 @@ publish=<READWRITE>
 enabled=false
 
 [nats]
-urls=["nats://<HOST>:5222"]
+urls=["nats://<HOST>:4222"]
 subject_prefix="change-log-<PORT>"
 stream_prefix="changes-<PORT>"
 `;

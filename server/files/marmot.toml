@@ -28,7 +28,7 @@ secret="<SECRET>"
 bucket="<BUCKET>"
 
 [nats]
-urls=["nats://<HOST>:5222"]
+urls=["nats://<HOST>:4222"]
 #server_config=""
 subject_prefix="change-log-<PORT>"
 stream_prefix="changes-<PORT>"
