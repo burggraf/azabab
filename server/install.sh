@@ -150,6 +150,7 @@ echo "Copy nats-server files to the server"
 echo ""
 ssh ubuntu@$1 "mkdir ~/nats-server"
 scp nats-server/* ubuntu@$1:~/nats-server
+ssh ubuntu@$1 "cd ~/nats-server;sudo dpkg -i *.deb"
 
 echo ""
 echo "*** Build the nats-server Docker image ***"
