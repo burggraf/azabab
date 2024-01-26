@@ -15,6 +15,11 @@ if sudo /usr/bin/docker ps -a --format '{{.Names}}' | grep -q "^${CONTAINER_NAME
     fi
 else
     echo "Container ${CONTAINER_NAME} does not exist. Running a new container."
-    sudo /usr/bin/docker run --restart=unless-stopped --detach -p 4222:4222 -p 5222:5222 -v /home/ubuntu/nats-server:/nats-server --name "${CONTAINER_NAME}" nats-server
+    sudo /usr/bin/docker run --restart=unless-stopped --detach \
+	-p 4222:4222 \
+	-p 5222:5222 \
+	-p 5223:5223 \
+        -p 5224:5224 \
+	-v /home/ubuntu/nats-server:/nats-server --name "${CONTAINER_NAME}" nats-server
 fi
 

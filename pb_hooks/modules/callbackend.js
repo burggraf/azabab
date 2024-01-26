@@ -26,9 +26,21 @@ const updateroutes = (project_id, current_user_id) => {
                     port: otherInstance.port,
                 })
             }
-        }    
-        const { data, error } = updateroute(port, domain, site_domain, pb_version, otherServers, instance_status);
-        if (error) return { data: null, error: error };
+        }
+        let updateRouteTrials = 0;
+        let updatedRoute = false;
+        if (updateRouteTrials <= 3 && !updatedRoute) {
+            const { data, error } = updateroute(port, domain, site_domain, pb_version, otherServers, instance_status);
+            if (error) {
+                console.log('got error from updateroute (port, domain, site_domain, error)',
+                port, domain, site_domain, error)
+                console.log('updateRouteTrials', updateRouteTrials)
+                updateRouteTrials++;
+                if (updateRouteTrials === 3) return { data: null, error: error };
+            } else {
+                updatedRoute = true;   
+            }
+        }
     } 
     return { data: 'OK', error: null };
 }
@@ -64,9 +76,11 @@ const updateroute = (port, domain, site_domain, pb_version, otherServers, instan
     }
     frontendRoute = frontendRoute.replace(/\[OTHER_SERVERS\]/g, otherServersString);
     backendRoute = backendRoute.replace(/\[OTHER_SERVERS\]/g, otherServersString);
+    let retryCount = 0;
     // put the routing file on the server
+    let updateRouteResponse;
     try {
-        const res = $http.send({
+        updateRouteResponse = $http.send({
             url: `http://${site_domain}:5000/updateroute`,
             method: 'POST',
             body: JSON.stringify({
@@ -80,14 +94,18 @@ const updateroute = (port, domain, site_domain, pb_version, otherServers, instan
             },
             timeout: 120, // in seconds
         })
-        if (res.json?.error) {
-            return { data: null, error: res.json.error || res.json || res.raw };                
+        if (updateRouteResponse.json?.error) {
+            console.log('**********************************************')
+            console.log('update route error (port, domain, site_domain, pb_version, otherServers, instance_status)', 
+                    port, domain, site_domain, pb_version, otherServers, instance_status)
+            console.log('**********************************************')
+            return { data: null, error: updateRouteResponse.json.error || updateRouteResponse.json || updateRouteResponse.raw };                
         }  else {
             const ts = +new Date();
             let healthy = false;
             let tries = 0;
-            while (!healthy && (+new Date()) - ts < 10000) {
-                // only perform check once per second for 10 seconds
+            while (!healthy && (+new Date()) - ts < 20000) {
+                // only perform check once per second for 20 seconds
                 const elapsed = (+new Date()) - ts;
                 if (elapsed > (tries * 1000)) {
                     const result = checkHealth(domain + '.' + site_domain);
@@ -101,22 +119,24 @@ const updateroute = (port, domain, site_domain, pb_version, otherServers, instan
             if (!healthy) {
                 return { data: null, error: 'health check failed' };    
             } else {
-                return { data: res, error: null };
+                return { data: updateRouteResponse, error: null };
             }
         }
     } catch (updaterouteError) {
         console.log('updaterouteError', updaterouteError);
+        console.log('updateRouteResponse', JSON.stringify(updateRouteResponse, null, 2))
         return { data: null, error: updaterouteError?.value?.error() || updaterouteError };		
     }
-
 }
 
 const checkHealth = (domain) => {
+    console.log('checkHealth: ',`https://${domain}/api/health`)
     const test = $http.send({
         url: `https://${domain}/api/health`,
         method: 'GET',
         timeout: 120, // in seconds                    
     })
+    if (test.statusCode !== 200) console.log(`checkHealth https://${domain}/api/health status code ${test.statusCode}`)
     return test.statusCode;
 }
 const frontendRouteTemplate = `
