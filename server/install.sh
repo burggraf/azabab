@@ -220,16 +220,29 @@ ssh ubuntu@$1 "mv ~/litestream-v0.3.9-linux-amd64.deb ~/litestream.config"
 
 echo ""
 echo "Calling configure server on the app server: https://app.lax.azabab.com/configureserver/$1"
-echo "This will create the rClone.conf and nats-server.conf files"
-echo "Then it will start / restart the nats-server"
+echo "This will create the rclone.conf file"
 echo ""
 echo "files to be created:"
 echo "/root/.config/rclone/rclone.conf"
-echo "/home/ubuntu/nats-server/nats-server.conf"
 echo ""
 curl -H "Authorization: my_secret_token" https://app.lax.azabab.com/configureserver/$1
 echo ""
+echo "Configure nats-server"
 echo ""
+DESTINATION=ubuntu@$1:~/nats-server/nats-server.conf
+
+if [ -f "./nats-conf/$1.conf" ]; then
+    scp ./nats-conf/$1.conf ubuntu@$1:~/nats-server/nats-server.conf
+    ssh ubuntu@$1 "cd /home/ubuntu;./start-nats-server.sh"
+else
+    echo "*******************"
+    echo "***** WARNING *****"
+    echo "*******************"
+    echo "The file ./nats-conf/$1.conf does not exist."
+    echo "You need to create ubuntu@$1:~/nats-server/nats-server.conf and manually start the nats server."
+    echo "*******************"
+fi
+
 echo "************"
 echo "*** DONE ***"
 echo "************"

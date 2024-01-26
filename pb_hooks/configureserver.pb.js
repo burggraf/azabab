@@ -31,30 +31,13 @@ routerAdd('GET', '/configureserver/:fqd', async (c) => {
 		rcloneConf += `secret_access_key = ${s3[i].secret_access_key}\n`
 		rcloneConf += `endpoint = ${s3[i].endpoint}\n`
 	}
-	const { data:natsData, error:natsError } = 
-	  select({nats: ''}, 
-	  `select nats from sites where domain = '${fqd}'`)
-	if (natsError) {
-		return c.json(200, { data: null, error: natsError?.value?.error() || natsError })
-	}
-	if (natsData.length === 0) {
-		return c.json(200, { data: null, error: 'nats: site not found' })
-	}
-	if (natsData.length > 1) {
-		return c.json(200, { data: null, error: 'nats: more than one site found' })
-	}
-	const natsServerConf = natsData[0].nats || ''
-	if (natsServerConf && natsServerConf.length > 0) {
-		const { data, error } = await configureserver(fqd, rcloneConf, natsServerConf);
-		console.log('configureserver returned', data, error)
-		if (error) {
-			return c.json(200, { data: null, error: error?.value?.error() || error })
-		} else {
-			console.log('looks like it worked', data)
-			return c.json(200, { data: data, error: null })
-		}	
+	const { data, error } = await configureserver(fqd, rcloneConf);
+	console.log('configureserver returned', data, error)
+	if (error) {
+		return c.json(200, { data: null, error: error?.value?.error() || error })
 	} else {
-		return c.json(200, { data: null, error: 'nats: no nats configuration found -- NATS WAS NOT CONFIGURED' })
-	}
+		console.log('configureserver completed', data)
+		return c.json(200, { data: data, error: null })
+	}	
 })
 
