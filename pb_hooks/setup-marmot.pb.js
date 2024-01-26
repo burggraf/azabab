@@ -58,7 +58,7 @@ publish=<READWRITE>
 enabled=false
 
 [nats]
-urls=["nats://<HOST>:4222"]
+urls=["nats://jetstream:pass@<HOST>:4222"]
 subject_prefix="change-log-<PORT>"
 stream_prefix="changes-<PORT>"
 `;
