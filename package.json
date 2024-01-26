@@ -63,6 +63,7 @@
     "moment": "^2.29.4",
     "momentjs": "^2.0.0",
     "monaco-editor": "^0.45.0",
+    "ol": "^8.2.0",
     "pocketbase": "^0.19.0",
     "pptxgenjs": "^3.11.0",
     "svelte": "^3.59.1",
