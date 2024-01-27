@@ -72,7 +72,7 @@ const updateroute = (port, domain, site_domain, pb_version, otherServers, instan
     for (let i = 0; i < otherServers.length; i++) {
         const otherServer = otherServers[i];
         otherServersString += 
-        `    server ${otherServer.site_domain}_${otherServer.port} ${otherServer.domain}.${otherServer.site_domain}:80 check ssl verify none\n`;
+        `    server ${otherServer.site_domain}_${otherServer.port} ${otherServer.domain}.${otherServer.site_domain}:80 check\n`;
     }
     frontendRoute = frontendRoute.replace(/\[OTHER_SERVERS\]/g, otherServersString);
     backendRoute = backendRoute.replace(/\[OTHER_SERVERS\]/g, otherServersString);
@@ -166,14 +166,14 @@ backend backend_global_[PORT]_[GLOBAL_FQD]
     http-request set-header X-PB-Version [PB_VERSION]
 
     balance roundrobin
-    option ssl-hello-chk
+    # option ssl-hello-chk
     stick-table type string len 50 size 30k expire 30m 
     stick on src
 
-    server global_app_[PORT] 127.0.0.1:[STATUSPORT] check
-    server global_error_handler_[PORT] 127.0.0.1:5000 backup
     # other servers below
+    server global_app_[PORT] 127.0.0.1:[STATUSPORT] check
 [OTHER_SERVERS]
+    server global_error_handler_[PORT] 127.0.0.1:5000 backup
 `;
 
 const sync = async (sync_command, site_domain) => {
