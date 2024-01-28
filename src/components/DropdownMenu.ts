@@ -11,6 +11,10 @@ export const dropdownmenu = async (e: any /*event*/, items: any) => {
         },
         showBackdrop: true,
         backdropDismiss: true,
+        // htmlAttributes: {
+        //     style: 'overlfow: scroll !important;',
+        //     overflow: 'scroll !important'
+        // }
     })
     await openPopover.present(e);
     const { data } = await openPopover.onDidDismiss();

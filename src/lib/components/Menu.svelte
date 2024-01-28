@@ -59,6 +59,12 @@
 			children: [],
 		},
 		{
+			title: 'Server Map',
+			url: 'servermap',
+			icon: 'map',
+			children: [],
+		},
+		{
 			title: 'Account',
 			url: 'account',
 			icon: 'person',

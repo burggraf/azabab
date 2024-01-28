@@ -8,6 +8,10 @@ http://ionicframework.com/docs/theming/ */
 
 /** Ionic CSS Variables **/
 :root {
+
+    .popover-viewport {
+      overflow: scroll !important
+    }
      /*  tailored elements */
     --ion-background-color:#ffffff;
 
