@@ -37,8 +37,8 @@
 			target: mapElement,
 			layers: [osmLayer, vectorLayer],
 			view: new View({
-				center: [0, 0], // Center of the map
-				zoom: 2, // Initial zoom level
+				center: [0, 0 ], // Center of the map
+				zoom: 1, // Initial zoom level
 			}),
 		})
 		map.addOverlay(tooltipOverlay)
@@ -88,14 +88,20 @@
 							Domain: ${server.domain}<br/>
 							Active: ${server.active}<br/>
 							Region: ${server.region}<br/>
+							City: ${JSON.stringify(server.metadata?.city)}<br/>
 							Type: ${server.server_type}<br/>
-							Metadata: ${JSON.stringify(server.metadata)}<br/>
 						`						
 						detailElement.appendChild(serverElement)
 					}
 				}
 			}
 		})
+		// Transform your coordinates from EPSG:4326 to EPSG:3857
+		// Gibraltar: 36.14474 and -5.35257 
+		const coordinates = fromLonLat([-5.35257, 36.14474]);
+
+		// Set the center of the map view
+		map.getView().setCenter(coordinates);
 	}
 	let cities: any[] = []
 	const loadCities = async () => {
@@ -175,7 +181,7 @@
 <style>
 	.map {
 		width: 100%;
-		height: 600px !important;
+		height: 50%;/*600px;*/
 	}
 	/* ol-attribution ol-unselectable ol-control ol-uncollapsible */
 </style>
