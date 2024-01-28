@@ -2,6 +2,7 @@
 	import '$styles/grid-styles.css'
 	import IonPage from '$ionpage'
 	import { page } from '$app/stores'
+	import * as allIonicIcons from 'ionicons/icons'
 	import {
 		arrowBackOutline,
 		checkmarkCircleOutline,
@@ -65,6 +66,7 @@
 		}
 		sites = await pb.collection('sites').getFullList({
 			fields: 'id, name, code, domain, active',
+			sort: 'name',
 		})
 	}
 	const save = async () => {
@@ -145,7 +147,7 @@
 			const site = sites[i]
 			items.push({
 				text: site.name,
-				icon: {globeOutline},
+				icon: allIonicIcons.globeOutline,
 				color: site.active ? 'primary' : 'medium',
 				textcolor: site.active ? 'primary' : 'medium',
 				handler: async () => {

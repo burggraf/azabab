@@ -77,6 +77,7 @@
 		}
 		sites = await pb.collection('sites').getFullList({
 			fields: 'id, name, code, domain, active',
+			sort: 'name',
 		})
 		// if (id === 'new') {
 		// 	project_instance[0].id = sites[0].id
