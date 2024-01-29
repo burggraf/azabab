@@ -131,8 +131,8 @@
 				<li>Setup Globally Distributed Replicas</li>
 				<li>Automatic Replication Setup</li>
 				<li>Failover Handling</li>
-				<li>Advanced Routing Capabilities</li>
 				<li>Direct Access to Regional Instances</li>
+				<li>Streaming Backups to S3 (with PITR)</li>
 			</ul>			
 		</div>
 		<div class="flex-item primary">
