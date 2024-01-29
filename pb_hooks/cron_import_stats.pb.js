@@ -1,11 +1,35 @@
 /// <reference path="../pb_data/types.d.ts" />
 
-cronAdd("import_stats", "* * * * *", () => {
+cronAdd("import_stats", "* * * * *", async () => {
     let IMPORT_STATS_ACTIVE = false;
     if (process.env.HOST === 'lax.azabab.com') {
         IMPORT_STATS_ACTIVE = true;
     } else {
         return;
+    }
+    let sites = [];
+    const get_sites = async () => {
+        try {
+            const sites_buffer = arrayOf(
+                new DynamicModel({
+                    id: '',
+                    name: '',
+                    domain: '',
+                })
+            )
+            $app
+                .dao()
+                .db()
+                .newQuery(
+                    `select id, name, domain from sites where active = true`
+                )
+                .all(sites_buffer) // throw an error on db failure
+            sites = sites_buffer
+            return true;
+        } catch (err) {
+            console.log('cron: get_sites error', err)
+            return false;
+        }
     }
     const import_stats = async () => {
         const convertUnits = (str) => {
@@ -38,21 +62,6 @@ cronAdd("import_stats", "* * * * *", () => {
                 return 0
             }
         }
-    
-        const sites = arrayOf(
-            new DynamicModel({
-                id: '',
-                name: '',
-                domain: '',
-            })
-        )
-        $app
-            .dao()
-            .db()
-            .newQuery(
-                `select id, name, domain from sites where active = true`
-            )
-            .all(sites) // throw an error on db failure
     
         const process_site = async (site) => {
             try {
@@ -171,7 +180,11 @@ cronAdd("import_stats", "* * * * *", () => {
     
     }
     if (IMPORT_STATS_ACTIVE) {
-        import_stats();
+        if (await get_sites()) {
+            import_stats();
+        } else {
+            console.log('cron: get_sites failed')
+        }
     }
 })    
 //update stats set instance_id = coalesce((select id from project_instance where project_instance.port = stats.port and project_instance.site_id = stats.site_id),'MISSING') where stats.instance_id = '';
