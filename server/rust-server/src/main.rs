@@ -14,6 +14,7 @@ mod sync;
 mod change_version;
 mod update_route;
 mod configure_server;
+mod get_disk_space;
 
 use std::convert::Infallible;
 use hyper::{Body, Request, Response, Server};
@@ -127,6 +128,9 @@ async fn request_handler(req: Request<Body>) -> Result<Response<Body>, hyper::Er
         },
         ("/configureserver", &hyper::Method::POST) => {
             configure_server::handle_configure_server(req).await
+        },
+        ("/getdiskspace", &hyper::Method::POST) => {
+            get_disk_space::handle_get_disk_space(req, AUTH_TOKEN).await
         },
         _ => catch_all_handler::handle_catch_all(req).await
     }

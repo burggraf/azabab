@@ -1,5 +1,4 @@
 /// <reference path="../pb_data/types.d.ts" />
-
 cronAdd("import_stats", "* * * * *", async () => {
     let IMPORT_STATS_ACTIVE = false;
     if (process.env.HOST === 'lax.azabab.com') {

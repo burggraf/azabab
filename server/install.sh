@@ -243,6 +243,11 @@ else
     echo "*******************"
 fi
 
+echo ""
+echo "add the following line to the crontab to gather disk usage stats"
+echo "curl -H "Authorization: my_secret_token" https://app.lax.azabab.com/log-disk-usage"
+echo ""
+
 echo "************"
 echo "*** DONE ***"
 echo "************"

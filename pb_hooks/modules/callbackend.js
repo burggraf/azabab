@@ -266,5 +266,26 @@ const configureserver = async (fqd, rclone_conf, nats_server_conf) => {
         return {data: null, error: httpError.value.error() };
     }
 }
+const getdiskspace = (site_domain, port, depth) => {
+    if (typeof port !== 'string') port = port.toString();
+    if (typeof depth !== 'string') depth = depth.toString();
+    // console.log(`---> https://${site_domain}/getdiskspace`)
+    const res = $http.send({
+        url: `http://${site_domain}:5000/getdiskspace`,
+        method: 'POST',
+        body: JSON.stringify({
+            port: port,
+            depth: depth,
+        }),
+        headers: {
+            'content-type': 'application/json',
+            Authorization: 'your_predefined_auth_token',
+        },
+        timeout: 120, // in seconds
+    })
+    // console.log('res', JSON.stringify(res, null, 2))
+    if (res.statusCode !== 200) console.log(`http://${site_domain}:5000/getdiskspace failed with status code ${res.statusCode}`)
+    return { data: res?.json?.data || null, error: res?.json?.error || null };
+}
 
-module.exports = { updateroutes, sync, createuser, configureserver }
+module.exports = { updateroutes, sync, createuser, configureserver, getdiskspace }
