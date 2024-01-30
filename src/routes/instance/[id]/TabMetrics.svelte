@@ -1,8 +1,8 @@
 <script lang="ts">
 	let stats: any = []
 	let diskstats: any = []
-	let itemcount = 50;
-	let cutoff = 'current time';
+	let itemcount = 50
+	let cutoff = 'current time'
 	import type { ProjectInstance } from '$models/interfaces'
 	import { currentUser, pb } from '$services/backend.service'
 	import moment from 'moment'
@@ -12,7 +12,12 @@
 	import { getRelativePosition } from 'chart.js/helpers'
 	import TabMetricsCharts from './TabMetricsCharts.svelte'
 	import { dropdownmenu } from '$components/DropdownMenu'
-	import { checkmarkOutline, closeOutline } from 'ionicons/icons'
+	import {
+		arrowBackOutline,
+		arrowForwardOutline,
+		checkmarkOutline,
+		closeOutline,
+	} from 'ionicons/icons'
 	export let project_instance: ProjectInstance = {
 		name: '',
 		project_id: '',
@@ -39,7 +44,7 @@
 	})
 
 	export const refresh = () => {
-		loadData();
+		loadData()
 	}
 
 	const loadData = async (cutoffDateTime?: string) => {
@@ -47,8 +52,8 @@
 		// convert cutoffDateTime to timestamp using moment
 
 		if (cutoffDateTime && cutoffDateTime !== 'current time') {
-			const newTS = moment(cutoffDateTime).unix();
-			filter += ` && ts <= ${newTS}`;
+			const newTS = moment(cutoffDateTime).unix()
+			filter += ` && ts <= ${newTS}`
 		}
 		const resultList = await pb.collection('stats_view').getList(1, itemcount, {
 			filter,
@@ -71,15 +76,15 @@
 	}
 	if (localStorage.getItem('instance.tab') === 'metrics') {
 		setTimeout(async () => {
-            if (stats.length === 0) {
-                await loadData()
-            }
+			if (stats.length === 0) {
+				await loadData()
+			}
 		}, 1000)
 	}
 	// ********************************
 	const chooseItemCount = async (e: any) => {
 		const opts = [10, 20, 50, 100, 200]
-		const items = [];
+		const items = []
 		for (let opt of opts) {
 			items.push({
 				text: opt.toString(),
@@ -87,8 +92,8 @@
 				color: 'primary',
 				textcolor: 'primary',
 				handler: async () => {
-					itemcount = opt;
-					await loadData(cutoff);
+					itemcount = opt
+					await loadData(cutoff)
 				},
 			})
 		}
@@ -101,81 +106,149 @@
 		console.log('dateChanged', e.detail.value)
 		cutoff = e.detail.value
 	}
-
 </script>
 
 <div class="ion-padding" style="overflow: scroll;height: 100%">
 	<ion-toolbar>
-		<ion-grid>
-			<ion-row>
+		<ion-grid style="width: 100%;">
+			<ion-row style="width: 100%;">
 				<ion-col>
-					<ion-button size="small" expand="block" on:click={chooseItemCount}
-					>show {itemcount} items</ion-button>					
+						<ion-button
+						size="small"
+						fill="outline"
+						on:click={() => {
+							console.log('navigateBack')
+							const el = document.querySelector('ion-modal')
+							if (el) el.dismiss()
+						}}
+						strong={true}><ion-icon slot="icon-only" icon={arrowBackOutline} /></ion-button>			
 				</ion-col>
 				<ion-col>
-					<ion-modal trigger="open-modal">
-
-
-						<ion-header>
-							<ion-toolbar>
-							<ion-buttons slot="start">
-								<ion-button on:click={() => {
-									const el = document.querySelector('ion-modal');
-									if (el) el.dismiss();
-								}} strong={true}><ion-icon slot="icon-only" icon={closeOutline} /></ion-button>
-							</ion-buttons>
-							<ion-title>Ending Time</ion-title>
-							<ion-buttons slot="end">
-								<ion-button on:click={() => {
-									loadData(cutoff);
-									const el = document.querySelector('ion-modal');
-									if (el) el.dismiss();
-								}} strong={true}><ion-icon slot="icon-only" icon={checkmarkOutline} /></ion-button>
-							</ion-buttons>
-							</ion-toolbar>
-						</ion-header>
-						<ion-content class="ion-padding">
-							<div class="ion-text-center" style="display: flex; align-items: center; justify-content: center;">
-							<ion-datetime on:ionChange={dateChanged}></ion-datetime>
-							</div>
-							<div class="ion-text-center" style="display: flex; align-items: center; justify-content: center;">
-
-							<ion-button expand="block" 
-								style="max-width: 500px;"
-								size="small"
-								on:click={() => {
-									cutoff = 'current time';
-									loadData();
-									const el = document.querySelector('ion-modal');
-									if (el) el.dismiss();
-							}}>Use Current Time</ion-button>
-
-							<ion-button expand="block" 
-								style="max-width: 500px;"
-								size="small"
-								on:click={() => {
-									// do something here
-									loadData(cutoff);
-									const el = document.querySelector('ion-modal');
-									if (el) el.dismiss();
-							}}>{cutoff}</ion-button>
-
-
-							</div>
-						</ion-content>
-						
-
-					</ion-modal>
-					<ion-button id="open-modal" size="small" expand="block" on:click={chooseCutoff}
-					>through {cutoff}</ion-button>
+					<ion-button size="small" expand="block" fill="outline" on:click={chooseItemCount}
+					>{itemcount}</ion-button>			
+				</ion-col>
+				<ion-col>
+					<ion-button id="open-modal" size="small" fill="outline" expand="block" on:click={chooseCutoff}
+					>to {cutoff === 'current time' ? cutoff : moment(cutoff).format('MM-DD HH:mm')}</ion-button>			
+				</ion-col>
+				<ion-col style="text-align: right;">
+					<ion-button
+					size="small"
+					fill="outline"
+					on:click={() => {
+						console.log('navigateForward')
+						const el = document.querySelector('ion-modal')
+						if (el) el.dismiss()
+					}}
+					strong={true}><ion-icon slot="icon-only" icon={arrowForwardOutline} /></ion-button>
+		
 				</ion-col>
 			</ion-row>
 		</ion-grid>
 
-
 	</ion-toolbar>
-	
-    <TabMetricsCharts {stats} {diskstats} />
+	<!-- <ion-toolbar>
+		<ion-buttons slot="start" style="background-color: cyan;">
+			<ion-button
+			size="small"
+			on:click={() => {
+				console.log('navigateBack')
+				const el = document.querySelector('ion-modal')
+				if (el) el.dismiss()
+			}}
+			strong={true}><ion-icon slot="icon-only" icon={arrowBackOutline} /></ion-button>
+
+		</ion-buttons>
+		<ion-title style="width: 100%;">
+			<ion-grid style="background-color:burlywood;">
+				<ion-row>
+					<ion-col size={"4"}>
+						<ion-button size="small" expand="block" fill="outline" on:click={chooseItemCount}
+						>{itemcount} items</ion-button>			
+					</ion-col>
+					<ion-col size={"8"}>
+						<ion-button id="open-modal" size="small" fill="outline" expand="block" on:click={chooseCutoff}
+						>thru {cutoff}</ion-button>			
+					</ion-col>
+				</ion-row>
+			</ion-grid>
+		</ion-title>
+		<ion-buttons slot="end">
+
+			<ion-button
+			size="small"
+			on:click={() => {
+				console.log('navigateForward')
+				const el = document.querySelector('ion-modal')
+				if (el) el.dismiss()
+			}}
+			strong={true}><ion-icon slot="icon-only" icon={arrowForwardOutline} /></ion-button>
+		</ion-buttons>
+	</ion-toolbar> -->
+
+	<ion-modal trigger="open-modal">
+		<ion-header>
+			<ion-toolbar>
+				<ion-buttons slot="start">
+					<ion-button
+						on:click={() => {
+							const el = document.querySelector('ion-modal')
+							if (el) el.dismiss()
+						}}
+						strong={true}><ion-icon slot="icon-only" icon={closeOutline} /></ion-button
+					>
+				</ion-buttons>
+				<ion-title>Ending Time</ion-title>
+				<ion-buttons slot="end">
+					<ion-button
+						on:click={() => {
+							loadData(cutoff)
+							const el = document.querySelector('ion-modal')
+							if (el) el.dismiss()
+						}}
+						strong={true}><ion-icon slot="icon-only" icon={checkmarkOutline} /></ion-button
+					>
+				</ion-buttons>
+			</ion-toolbar>
+		</ion-header>
+		<ion-content class="ion-padding">
+			<div
+				class="ion-text-center"
+				style="display: flex; align-items: center; justify-content: center;"
+			>
+				<ion-datetime on:ionChange={dateChanged} />
+			</div>
+			<div
+				class="ion-text-center"
+				style="display: flex; align-items: center; justify-content: center;"
+			>
+				<ion-button
+					expand="block"
+					style="max-width: 500px;"
+					size="small"
+					on:click={() => {
+						cutoff = 'current time'
+						loadData()
+						const el = document.querySelector('ion-modal')
+						if (el) el.dismiss()
+					}}>Use Current Time</ion-button
+				>
+
+				<ion-button
+					expand="block"
+					style="max-width: 500px;"
+					size="small"
+					on:click={() => {
+						loadData(cutoff)
+						const el = document.querySelector('ion-modal')
+						if (el) el.dismiss()
+					}}>{cutoff}</ion-button
+				>
+			</div>
+		</ion-content>
+	</ion-modal>
+
+	<TabMetricsCharts {stats} {diskstats} />
 	<ion-grid class="ion-padding" id="statGrid" style="width: 100%">
 		<ion-row style="color:var(--ion-color-light);background-color:var(--ion-color-medium)">
 			<ion-col>Date</ion-col>
