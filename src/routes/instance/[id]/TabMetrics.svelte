@@ -50,9 +50,6 @@
 			columns: `ts, size`,
 			sort: '-ts',
 		})
-		for (let i = 0; i < diskList.items.length; i++) {
-			diskList.items[i].size = Math.round(diskList.items[i].size / 1000000)
-		}
 		//console.log('loadData: resultList', JSON.stringify(resultList))
 		diskstats = diskList.items.reverse()
 		console.log('loadData: diskstats', diskstats)

@@ -10,6 +10,7 @@
 		description: string,
 		labels: string[],
 		datasets: any[],
+		autoAdjust: boolean = true,
 		chartStyle: any = 'line'
 	) => {
 		const canvasId = `${chartType}Chart`
@@ -35,6 +36,18 @@
 					},
 					y: {
 						beginAtZero: true,
+						ticks: autoAdjust ? {
+							// Custom callback to format ticks
+							callback: function (value: any, index: any, values: any) {
+								const units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
+								let unitIndex = 0
+								while (value >= 1024 && unitIndex < units.length - 1) {
+									value /= 1024
+									unitIndex++
+								}
+								return `${value.toFixed(1)} ${units[unitIndex]}`
+							},
+						} : undefined,
 					},
 				},
 			},
@@ -52,8 +65,7 @@
 				tension: 0.3,
 			},
 		]
-		if (cpu_usage.length > 0)
-			createChart('cpu', 'CPU Usage', labels, datasets)
+		if (cpu_usage.length > 0) createChart('cpu', 'CPU Usage', labels, datasets, false)
 		const mem_usage = stats.map((stat: any) => stat.mem_usage)
 		datasets = [
 			{
@@ -63,19 +75,18 @@
 				tension: 0.3,
 			},
 		]
-		if (mem_usage.length > 0)
-			createChart('mem', 'Memory Usage', labels, datasets)
+		if (mem_usage.length > 0) createChart('mem', 'Memory Usage', labels, datasets, false)
 		const disk_read = stats.map((stat: any) => stat.disk_read)
 		const disk_write = stats.map((stat: any) => stat.disk_write)
 		datasets = [
 			{
-				label: 'Disk I/O IN (bytes)',
+				label: 'Disk I/O IN',
 				data: disk_read,
 				borderWidth: 1,
 				tension: 0.3,
 			},
 			{
-				label: 'Disk I/O OUT (bytes)',
+				label: 'Disk I/O OUT',
 				data: disk_write,
 				borderWidth: 1,
 				tension: 0.3,
@@ -87,20 +98,19 @@
 		const net_out = stats.map((stat: any) => stat.net_out)
 		datasets = [
 			{
-				label: 'Net I/O IN (bytes)',
+				label: 'Net I/O IN',
 				data: net_in,
 				borderWidth: 1,
 				tension: 0.3,
 			},
 			{
-				label: 'Net I/O OUT (bytes)',
+				label: 'Net I/O OUT',
 				data: net_out,
 				borderWidth: 1,
 				tension: 0.3,
 			},
 		]
-		if (net_in.length > 0 || net_out.length > 0)
-			createChart('net', 'Network I/O', labels, datasets)
+		if (net_in.length > 0 || net_out.length > 0) createChart('net', 'Network I/O', labels, datasets)
 	}
 	const createDiskCharts = () => {
 		// ***** disk usage chart *****
@@ -110,25 +120,22 @@
 
 		let datasets = [
 			{
-				label: 'Disk Usage (mb)',
+				label: 'Disk Usage',
 				data: disk_usage,
 				borderWidth: 1,
 				tension: 0.3,
 			},
 		]
 		if (disk_usage.length > 0) {
-			createChart('diskusage', 'Disk Usage', disk_usage_labels, datasets, 'bar')
+			createChart('diskusage', 'Disk Usage', disk_usage_labels, datasets, true, 'bar')
 		}
 	}
-    // when stats changes, create the charts
-    $: {
+	// when stats changes, create the charts
+	$: {
 		console.log('stats changed')
-		if (stats.length > 0)
-	        createCharts();
-		if (diskstats.length > 0)
-			createDiskCharts();
-    }
-
+		if (stats.length > 0) createCharts()
+		if (diskstats.length > 0) createDiskCharts()
+	}
 </script>
 
 <ion-grid>
@@ -163,9 +170,7 @@
 			</div>
 		</ion-col>
 		<ion-col>
-			<div style="width: 100%;">
-				&nbsp;
-			</div>
+			<div style="width: 100%;">&nbsp;</div>
 		</ion-col>
 	</ion-row>
 </ion-grid>
