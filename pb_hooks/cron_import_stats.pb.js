@@ -27,7 +27,7 @@ cronAdd("import_stats", "* * * * *", async () => {
             sites = sites_buffer
             return true;
         } catch (err) {
-            console.log('cron: get_sites error', err)
+            console.log('cron: get_sites error', err, (new Date()).toLocaleString())
             return false;
         }
     }
@@ -156,14 +156,13 @@ cronAdd("import_stats", "* * * * *", async () => {
                 }
                 // console.log(`${site.name} SUCCESS: ${counter} files processed, ${records_inserted} records inserted.`)
                 // return c.json(200, { data: `SUCCESS: ${counter} files processed, ${records_inserted} records inserted.`, error: null })
-
+                // console.log('cron: import_stats done', (new Date()).toLocaleString())
                 return;
             } catch (err) {
-                console.log(`${site.name} error`, err)
+                console.log(`${site.name} error`, err, (new Date()).toLocaleString())
                 return;
                 //return c.json(200, { ERROR: JSON.stringify(err) })
             }
-        
         }
         for (const site of sites) {
             await process_site(site)
@@ -175,15 +174,19 @@ cronAdd("import_stats", "* * * * *", async () => {
             .execute() // throw an error on db failure
             // console.log('updated instance_ids')
         } catch (update_error) {
-            console.log('update instance_ids error', update_error)
+            console.log('update instance_ids error', update_error, (new Date()).toLocaleString())
         }
     
     }
     if (IMPORT_STATS_ACTIVE) {
-        if (await get_sites()) {
-            import_stats();
-        } else {
-            console.log('cron: get_sites failed')
+        try {
+            if (await get_sites()) {
+                import_stats();
+            } else {
+                console.log('cron: get_sites failed',(new Date()).toLocaleString())
+            }    
+        } catch (error) {
+            console.log('cron: import_stats error', error, (new Date()).toLocaleString())
         }
     }
 })    
