@@ -18,6 +18,7 @@
 		checkmarkOutline,
 		closeOutline,
 	} from 'ionicons/icons'
+	import { toast } from '$services/toast'
 	export let project_instance: ProjectInstance = {
 		name: '',
 		project_id: '',
@@ -106,6 +107,30 @@
 		console.log('dateChanged', e.detail.value)
 		cutoff = e.detail.value
 	}
+	const navigateForward = async () => {
+		// get new cutoff
+		if (cutoff === 'current time') {
+			cutoff = moment().format('YYYY-MM-DDTHH:mm:ss')
+		}
+		let filter = `instance_id = "${project_instance?.id}" && ts > ${moment(cutoff).unix()}`
+		const list: any = await pb.collection('stats_view').getList(1, itemcount, {
+			filter,
+			columns: `ts`,
+			sort: 'ts',
+		})
+		if (list.items.length > 0) {
+			cutoff = moment(list.items[list.items.length - 1].ts * 1000).format('YYYY-MM-DDTHH:mm:ss')
+			loadData(cutoff)
+		} else {
+			toast('No more data', 'danger')
+		}
+	}
+	const navigateBack = () => {
+		const firstItem = stats[0].ts;
+		// use momment.js to convert unix timestamp to date
+		cutoff = moment(firstItem * 1000).format('YYYY-MM-DDTHH:mm:ss')
+		loadData(cutoff)
+	}
 </script>
 
 <div class="ion-padding" style="overflow: scroll;height: 100%">
@@ -118,8 +143,7 @@
 						fill="outline"
 						on:click={() => {
 							console.log('navigateBack')
-							const el = document.querySelector('ion-modal')
-							if (el) el.dismiss()
+							navigateBack();
 						}}
 						strong={true}><ion-icon slot="icon-only" icon={arrowBackOutline} /></ion-button>			
 				</ion-col>
@@ -137,8 +161,7 @@
 					fill="outline"
 					on:click={() => {
 						console.log('navigateForward')
-						const el = document.querySelector('ion-modal')
-						if (el) el.dismiss()
+						navigateForward();
 					}}
 					strong={true}><ion-icon slot="icon-only" icon={arrowForwardOutline} /></ion-button>
 		
