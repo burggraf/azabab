@@ -1,5 +1,6 @@
 <script lang="ts">
 	let stats: any = []
+	let diskstats: any = []
 	import type { ProjectInstance } from '$models/interfaces'
 	import { currentUser, pb } from '$services/backend.service'
 	import moment from 'moment'
@@ -44,6 +45,19 @@
 		})
 		//console.log('loadData: resultList', JSON.stringify(resultList))
 		stats = resultList.items.reverse()
+		const diskList = await pb.collection('disk_usage_view').getList(1, 50, {
+			filter: `instance_id = "${project_instance?.id}"`,
+			columns: `ts, size`,
+			sort: '-ts',
+		})
+		for (let i = 0; i < diskList.items.length; i++) {
+			diskList.items[i].size = Math.round(diskList.items[i].size / 1000000)
+		}
+		//console.log('loadData: resultList', JSON.stringify(resultList))
+		diskstats = diskList.items.reverse()
+		console.log('loadData: diskstats', diskstats)
+		// load chart stuff here
+
 		// load chart stuff here
 	}
 	if (localStorage.getItem('instance.tab') === 'metrics') {
@@ -57,7 +71,7 @@
     </script>
 
 <div class="ion-padding" style="overflow: scroll;height: 100%">
-    <TabMetricsCharts {stats} />
+    <TabMetricsCharts {stats} {diskstats} />
 	<ion-grid class="ion-padding" id="statGrid" style="width: 100%">
 		<ion-row style="color:var(--ion-color-light);background-color:var(--ion-color-medium)">
 			<ion-col>Date</ion-col>

@@ -2,12 +2,15 @@
 	import moment from 'moment'
 	import Chart from 'chart.js/auto'
 	export let stats: any = []
+	export let diskstats: any = []
 	const formatDate = (timestamp: number) => moment(timestamp * 1000).format('MM/DD HH:mm')
+	const formatDateWithoutTime = (timestamp: number) => moment(timestamp * 1000).format('MM/DD')
 	const createChart = (
 		chartType: string,
 		description: string,
 		labels: string[],
-		datasets: any[]
+		datasets: any[],
+		chartStyle: any = 'line'
 	) => {
 		const canvasId = `${chartType}Chart`
 		const existingChart = Chart.getChart(canvasId)
@@ -17,7 +20,7 @@
 
 		const ctx: any = document.getElementById(canvasId)
 		new Chart(ctx, {
-			type: 'line',
+			type: chartStyle,
 			data: {
 				labels: labels,
 				datasets: datasets,
@@ -99,11 +102,31 @@
 		if (net_in.length > 0 || net_out.length > 0)
 			createChart('net', 'Network I/O', labels, datasets)
 	}
+	const createDiskCharts = () => {
+		// ***** disk usage chart *****
+		console.log('ready to create disk usage chart', diskstats)
+		const disk_usage = diskstats.map((diskstat: any) => diskstat.size)
+		let disk_usage_labels = diskstats.map((diskstat: any) => formatDateWithoutTime(diskstat.ts))
+
+		let datasets = [
+			{
+				label: 'Disk Usage (mb)',
+				data: disk_usage,
+				borderWidth: 1,
+				tension: 0.3,
+			},
+		]
+		if (disk_usage.length > 0) {
+			createChart('diskusage', 'Disk Usage', disk_usage_labels, datasets, 'bar')
+		}
+	}
     // when stats changes, create the charts
     $: {
 		console.log('stats changed')
 		if (stats.length > 0)
 	        createCharts();
+		if (diskstats.length > 0)
+			createDiskCharts();
     }
 
 </script>
@@ -130,6 +153,18 @@
 		<ion-col>
 			<div style="width: 100%;">
 				<canvas id="netChart" />
+			</div>
+		</ion-col>
+	</ion-row>
+	<ion-row>
+		<ion-col>
+			<div style="width: 100%;">
+				<canvas id="diskusageChart" />
+			</div>
+		</ion-col>
+		<ion-col>
+			<div style="width: 100%;">
+				&nbsp;
 			</div>
 		</ion-col>
 	</ion-row>
