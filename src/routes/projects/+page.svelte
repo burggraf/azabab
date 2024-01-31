@@ -150,7 +150,7 @@
 										<ion-button
 										slot="end"
 										size="small"
-										fill="outline"
+										fill="solid"
 										color={instance.instance_status === 'online' ? 'success' : instance.instance_status === 'offline' ? 'danger' : 'warning'}
 										on:click|stopPropagation={() => {
 											// launch in another windows
