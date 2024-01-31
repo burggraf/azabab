@@ -14,33 +14,43 @@
     let monaco: typeof Monaco;
     let editorContainer: HTMLElement;
 
-    onMount(async () => {
-        // Remove the next two lines to load the monaco editor from a CDN
-        // see https://www.npmjs.com/package/@monaco-editor/loader#config
-		console.log('onMount 01')
-        const monacoEditor = await import('monaco-editor');
-		console.log('onMount 02')
-        loader.config({ monaco: monacoEditor.default });
-		console.log('onMount 03')
-        monaco = await loader.init();
-		console.log('onMount 04')
-        // Your monaco instance is ready, let's display some code!
-		setTimeout(() =>{
+	const setupEditor =() => {
+		console.log('TabGUI-onMount 04A')
+		console.log('editor', editor)
+		if (editor) {
+			resizeContainer();
+			return;
+		}
 			editor = monaco.editor.create(editorContainer);
-			console.log('onMount 05')
+			console.log('TabGUI-onMount 05')
 			const model = monaco.editor.createModel(
 				"console.log('Hello from Monaco! (the editor, not the city...)')",
 				'javascript'
 			);
-			console.log('onMount 06')
+			console.log('TabGUI-onMount 06')
 			editor.setModel(model);
-			console.log('onMount 07')
+			console.log('TabGUI-onMount 07')
 			window.addEventListener('resize', resizeContainer);
-			console.log('onMount 08')
+			console.log('TabGUI-onMount 08')
 			// Initial resize to set the correct height
 			resizeContainer();
-			console.log('onMount 09')
+			console.log('TabGUI-onMount 09')
 
+	}
+    onMount(async () => {
+        // Remove the next two lines to load the monaco editor from a CDN
+        // see https://www.npmjs.com/package/@monaco-editor/loader#config
+		console.log('TabGUI-onMount 01')
+        const monacoEditor = await import('monaco-editor');
+		console.log('TabGUI-onMount 02')
+        loader.config({ monaco: monacoEditor.default });
+		console.log('TabGUI-onMount 03')
+        monaco = await loader.init();
+		console.log('TabGUI-onMount 04')
+        // Your monaco instance is ready, let's display some code!
+		setTimeout(() =>{
+			//setupEditor();
+			console.log('*** skipping setupEditor() ***')
 		}, 1000)
     });
 
@@ -115,16 +125,30 @@
 	instanceTab.subscribe(async (value: string) => {
 		if (value === 'gui') {
 			console.log('INSTANCE TAB GUI')
-			await getDir()
+			console.log('*******************************')
+			console.log('****** SETTING UP EDITOR ******')
+			console.log('*******************************')
+			setTimeout(async ()=> {
+				setupEditor();
+				//await getDir()
+			}, 1000)
+			setTimeout(async ()=> {
+				//setupEditor();
+				await getDir()
+			}, 100)
 		}
 	})
-	if (localStorage.getItem('instance.tab') === 'gui') {
-		console.log('>>>>>>>>> instance.tab is gui <<<<<<<<<<')
-		setTimeout(async () => {
-			console.log('SET TIMEOUT FIRED, getDir()...')
-			await getDir()
-		}, 1000)
-	}
+	// if (localStorage.getItem('instance.tab') === 'gui') {
+	// 	console.log('>>>>>>>>> instance.tab is gui <<<<<<<<<<')
+	// 	setTimeout(async () => {
+	// 		console.log('**********************************')
+	// 		console.log('****** SETTING UP EDITOR: 2 ******')
+	// 		console.log('**********************************')
+	// 		// setupEditor();
+	// 		console.log('SET TIMEOUT FIRED, getDir()...')
+	// 		//await getDir()
+	// 	}, 1000)
+	// }
 
 	const callback = async (item: any) => {
 		console.log('handler', item)
