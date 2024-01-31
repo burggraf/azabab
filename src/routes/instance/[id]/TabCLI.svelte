@@ -29,7 +29,7 @@
         };
 	
     instanceTab.subscribe(async (value: string) => {
-        console.log('tab switched to cli, load keys now')
+        // console.log('tab switched to cli, load keys now')
         if (value === 'cli') {
             await loadProjectInstanceKeys()
         }
@@ -60,7 +60,7 @@
             try {
                 const result = await pb.collection('project_instance_keys').create(payload)
             } catch (toggleError) {
-                console.log('toggleKey error', toggleError)
+                console.error('toggleKey error', toggleError)
             }
 		}
 		const { data, error } = await pb.send(`/create-ssh-keys/${project_instance.id}`, {

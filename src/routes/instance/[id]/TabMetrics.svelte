@@ -53,7 +53,7 @@
 
 	const loadData = async (cutoffDateTime?: string) => {
 		pageWidth = window.innerWidth;
-		console.log('**** pageWidth', pageWidth)
+		// console.log('**** pageWidth', pageWidth)
 		if (pageWidth < 500) {
 			cutoffButtonText = 'to ' + (cutoff === 'current time' ? cutoff : moment(cutoff).format('MM-DD HH:mm'))
 			itemcountButtonText = itemcount.toString()
@@ -83,7 +83,7 @@
 		})
 		//console.log('loadData: resultList', JSON.stringify(resultList))
 		diskstats = diskList.items.reverse()
-		console.log('loadData: diskstats', diskstats)
+		// console.log('loadData: diskstats', diskstats)
 		// load chart stuff here
 
 		// load chart stuff here
@@ -117,7 +117,6 @@
 		console.log('not implemented')
 	}
 	const dateChanged = (e: any) => {
-		console.log('dateChanged', e.detail.value)
 		cutoff = e.detail.value
 	}
 	const navigateForward = async () => {
@@ -155,7 +154,7 @@
 						size="small"
 						fill="outline"
 						on:click={() => {
-							console.log('navigateBack')
+							// console.log('navigateBack')
 							navigateBack();
 						}}
 						strong={true}><ion-icon slot="icon-only" icon={arrowBackOutline} /></ion-button>			
@@ -173,7 +172,7 @@
 					size="small"
 					fill="outline"
 					on:click={() => {
-						console.log('navigateForward')
+						// console.log('navigateForward')
 						navigateForward();
 					}}
 					strong={true}><ion-icon slot="icon-only" icon={arrowForwardOutline} /></ion-button>

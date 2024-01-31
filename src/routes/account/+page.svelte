@@ -19,7 +19,7 @@
 				name: name,
 			})
 		} else {
-			console.log('*** no currentUser -- aborting name change ***')
+			console.error('*** no currentUser -- aborting name change ***')
 			return
 		}
 	}
@@ -34,14 +34,14 @@
 		}
 	}
 	const ionViewWillEnter = async () => {
-		console.log('ionViewWillEnter')
+		// console.log('ionViewWillEnter')
 		if ($currentUser) {
 			name = $currentUser.name
 		}
 	}
 
 	onMount(async () => {
-		console.log('account onMount')
+		// console.log('account onMount')
 		const fileInput: any = document.getElementById('fileInput')
 		if (fileInput) {
 			fileInput.addEventListener('change', async function () {
@@ -58,7 +58,7 @@
 				}
 			})
 		} else {
-			console.log('*** fileInput not found ***')
+			console.error('*** fileInput not found ***')
 		}
 
 	})

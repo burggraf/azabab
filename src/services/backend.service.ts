@@ -28,7 +28,7 @@ if (false && (host === 'localhost' || host === '127.0.0.1')) {
   if (port) apiURL += `:${port}`;
   apiURL += '/';
 }
-console.log('apiURL', apiURL);
+// console.log('apiURL', apiURL);
 export const pb = new PocketBase(apiURL);
 
 export let currentUser: any = writable<any | null>(null);

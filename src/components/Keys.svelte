@@ -27,7 +27,7 @@
 	}
 
 	onMount(async () => {
-		console.log('onMount loadKeys()')
+		// console.log('onMount loadKeys()')
         loadKeys()
 		const reorderGroup = document.getElementById('keygroup')
 		if (reorderGroup) {

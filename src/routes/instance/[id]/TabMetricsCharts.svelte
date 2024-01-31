@@ -114,7 +114,7 @@
 	}
 	const createDiskCharts = () => {
 		// ***** disk usage chart *****
-		console.log('ready to create disk usage chart', diskstats)
+		// console.log('ready to create disk usage chart', diskstats)
 		const disk_usage = diskstats.map((diskstat: any) => diskstat.size)
 		let disk_usage_labels = diskstats.map((diskstat: any) => formatDateWithoutTime(diskstat.ts))
 
@@ -132,7 +132,7 @@
 	}
 	// when stats changes, create the charts
 	$: {
-		console.log('stats changed')
+		// console.log('stats changed')
 		if (stats.length > 0) createCharts()
 		if (diskstats.length > 0) createDiskCharts()
 	}
