@@ -1,6 +1,6 @@
-<script context="module">
+<script context="module" lang="ts">
 	// retain module scoped expansion state for each tree node
-	const _expansionState = {
+	const _expansionState: any = {
 		/* treeNodeId: expanded <boolean> */
 	}
 </script>
