@@ -15,43 +15,39 @@
     let editorContainer: HTMLElement;
 
 	const setupEditor =() => {
-		console.log('TabGUI-onMount 04A')
-		console.log('editor', editor)
+		// console.log('TabGUI-onMount 04A')
+		// console.log('editor', editor)
 		if (editor) {
 			resizeContainer();
 			return;
 		}
 			editor = monaco.editor.create(editorContainer);
-			console.log('TabGUI-onMount 05')
+			// console.log('TabGUI-onMount 05')
 			const model = monaco.editor.createModel(
-				"console.log('Hello from Monaco! (the editor, not the city...)')",
+				"console.log('Editor initialized')",
 				'javascript'
 			);
-			console.log('TabGUI-onMount 06')
+			// console.log('TabGUI-onMount 06')
 			editor.setModel(model);
-			console.log('TabGUI-onMount 07')
+			// console.log('TabGUI-onMount 07')
 			window.addEventListener('resize', resizeContainer);
-			console.log('TabGUI-onMount 08')
+			// console.log('TabGUI-onMount 08')
 			// Initial resize to set the correct height
 			resizeContainer();
-			console.log('TabGUI-onMount 09')
+			// console.log('TabGUI-onMount 09')
 
 	}
     onMount(async () => {
         // Remove the next two lines to load the monaco editor from a CDN
         // see https://www.npmjs.com/package/@monaco-editor/loader#config
-		console.log('TabGUI-onMount 01')
+		// console.log('TabGUI-onMount 01')
         const monacoEditor = await import('monaco-editor');
-		console.log('TabGUI-onMount 02')
+		// console.log('TabGUI-onMount 02')
         loader.config({ monaco: monacoEditor.default });
-		console.log('TabGUI-onMount 03')
+		// console.log('TabGUI-onMount 03')
         monaco = await loader.init();
-		console.log('TabGUI-onMount 04')
+		// console.log('TabGUI-onMount 04')
         // Your monaco instance is ready, let's display some code!
-		setTimeout(() =>{
-			//setupEditor();
-			console.log('*** skipping setupEditor() ***')
-		}, 1000)
     });
 
     onDestroy(() => {
@@ -100,8 +96,8 @@
 	let dir: string[] = []
 	let tree: any
 	const getDir = async () => {
-		console.log('getDir project_instance.id: ', project_instance.id)
-		console.log('getDir project_instance: ', project_instance)
+		// console.log('getDir project_instance.id: ', project_instance.id)
+		// console.log('getDir project_instance: ', project_instance)
 		const { data, error } = await pb.send(`/getinstancefiles/${project_instance.id}`, {
 			method: 'GET',
 		})
@@ -116,7 +112,7 @@
 						!item.startsWith('./ ')
 				)
 				.sort()
-		else console.log('getinstancefiles error', error)
+		else console.error('getinstancefiles error', error)
 
 		// remove any array entries that start with './.ssh'
 		tree = buildTree(dir)[0]
@@ -124,10 +120,10 @@
 
 	instanceTab.subscribe(async (value: string) => {
 		if (value === 'gui') {
-			console.log('INSTANCE TAB GUI')
-			console.log('*******************************')
-			console.log('****** SETTING UP EDITOR ******')
-			console.log('*******************************')
+			// console.log('INSTANCE TAB GUI')
+			// console.log('*******************************')
+			// console.log('****** SETTING UP EDITOR ******')
+			// console.log('*******************************')
 			setTimeout(async ()=> {
 				setupEditor();
 				//await getDir()
@@ -151,13 +147,13 @@
 	// }
 
 	const callback = async (item: any) => {
-		console.log('handler', item)
+		// console.log('handler', item)
 		/*
             {label: 'data.db', fullpath: './pb_data/data.db', typ: 'f', len: '921600'}        
         */
 		const modifiedPath = item.fullpath.replace('./', '')
-		console.log('modifiedPath', modifiedPath)
-		console.log('TabGUI => project_instance.id', project_instance.id)
+		// console.log('modifiedPath', modifiedPath)
+		// console.log('TabGUI => project_instance.id', project_instance.id)
 
 		// get the file extension
 		const ext = '.' + modifiedPath.split('.').pop()
@@ -169,7 +165,7 @@
 
 			return
 		}
-		console.log('calling /getinstancefile')
+		// console.log('calling /getinstancefile')
 		const { data, error } = await pb.send(`/getinstancefile`, {
 			method: 'POST',
 			body: {
@@ -179,9 +175,9 @@
 			//instance_id
 			//path: fullpath
 		})
-		console.log('*** getinstancefile: data, error', data, error)
+		// console.log('*** getinstancefile: data, error', data, error)
 		if (data?.raw) {
-			console.log('loadFileIntoEditor(data.raw)', data.raw.length + ' bytes')
+			// console.log('loadFileIntoEditor(data.raw)', data.raw.length + ' bytes')
 			loadFileIntoEditor(data.raw, modifiedPath);
 			return;
 			// const el = document.getElementById('preview')
@@ -231,7 +227,7 @@
 		return [{ label: 'root', children: root }]
 	}
 	const resizeContainer = () => {
-		console.log('resizeContainer()')
+		// console.log('resizeContainer()')
         if (editorContainer && editorContainer?.parentElement?.parentElement) {
             // Set the height of the container to the height of the parent element
             editorContainer.style.height = `${editorContainer.parentElement.parentElement.offsetHeight}px`;
