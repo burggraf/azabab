@@ -3,6 +3,9 @@
 	let diskstats: any = []
 	let itemcount = 50
 	let cutoff = 'current time'
+	let pageWidth = window.innerWidth;
+	let cutoffButtonText = ''
+	let itemcountButtonText = ''
 	import type { ProjectInstance } from '$models/interfaces'
 	import { currentUser, pb } from '$services/backend.service'
 	import moment from 'moment'
@@ -49,6 +52,16 @@
 	}
 
 	const loadData = async (cutoffDateTime?: string) => {
+		pageWidth = window.innerWidth;
+		console.log('**** pageWidth', pageWidth)
+		if (pageWidth < 500) {
+			cutoffButtonText = 'to ' + (cutoff === 'current time' ? cutoff : moment(cutoff).format('MM-DD HH:mm'))
+			itemcountButtonText = itemcount.toString()
+		} else {
+			cutoffButtonText = 'thru ' + (cutoff === 'current time' ? cutoff : moment(cutoff).format('MM-DD-YYYY HH:mm'))
+			itemcountButtonText = itemcount.toString() + ' items'
+		}
+
 		let filter = `instance_id = "${project_instance?.id}"`
 		// convert cutoffDateTime to timestamp using moment
 
@@ -149,11 +162,11 @@
 				</ion-col>
 				<ion-col>
 					<ion-button size="small" expand="block" fill="outline" on:click={chooseItemCount}
-					>{itemcount}</ion-button>			
+					>{itemcountButtonText}</ion-button>			
 				</ion-col>
 				<ion-col>
 					<ion-button id="open-modal" size="small" fill="outline" expand="block" on:click={chooseCutoff}
-					>to {cutoff === 'current time' ? cutoff : moment(cutoff).format('MM-DD HH:mm')}</ion-button>			
+					>{cutoffButtonText}</ion-button>			
 				</ion-col>
 				<ion-col style="text-align: right;">
 					<ion-button
