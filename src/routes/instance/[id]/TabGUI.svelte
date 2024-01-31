@@ -169,7 +169,7 @@
 
 			return
 		}
-
+		console.log('calling /getinstancefile')
 		const { data, error } = await pb.send(`/getinstancefile`, {
 			method: 'POST',
 			body: {
@@ -243,7 +243,7 @@
 <ion-content class="ion-padding">
 	{#if tree}
 		<Split initialPrimarySize="30%" resetOnDoubleClick>
-			<div slot="primary">
+			<div slot="primary" style="height: 100%; width: 100%; overflow: scroll;">
 				<TreeView {tree} {callback} />
 			</div>
 			<div slot="secondary">
