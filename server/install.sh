@@ -146,23 +146,33 @@ ssh ubuntu@$1 "sudo systemctl restart haproxy.service"
 echo ""
 
 echo ""
-echo "Copy nats-server files to the server"
+echo "Setup nats-server"
 echo ""
-ssh ubuntu@$1 "mkdir ~/nats-server"
-scp nats-server/* ubuntu@$1:~/nats-server
-ssh ubuntu@$1 "cd ~/nats-server;sudo dpkg -i *.deb"
+ssh ubuntu@$1 "sudo mv ~/nats-server /usr/bin"
+ssh ubuntu@$1 "sudo mv ~/nats.service /etc/systemd/system"
+ssh ubuntu@$1 "sudo chmod 644 /etc/systemd/system/nats.service"
+ssh ubuntu@$1 "sudo chown root:root /etc/systemd/system/nats.service"
+ssh ubuntu@$1 "sudo systemctl enable nats.service"
 
-echo ""
-echo "*** Build the nats-server Docker image ***"
-echo ""
-ssh ubuntu@$1 "cd ~/nats-server;sudo docker build -t nats-server ."
+
+# echo ""
+# echo "Copy nats-server files to the server"
+# echo ""
+# ssh ubuntu@$1 "mkdir ~/nats-server"
+# scp nats-server/* ubuntu@$1:~/nats-server
+# ssh ubuntu@$1 "cd ~/nats-server;sudo dpkg -i *.deb"
+
+# echo ""
+# echo "*** Build the nats-server Docker image ***"
+# echo ""
+# ssh ubuntu@$1 "cd ~/nats-server;sudo docker build -t nats-server ."
 #scp files/start-nats-server.sh ubuntu@$1:~
 #########################################
 #### configure nats-server.conf here ####
 #########################################
 #scp files/start-nats-server.sh ubuntu@$1:~
 # replace HOSTNAME
-ssh ubuntu@$1 "~/configure-nats-server.sh"
+# ssh ubuntu@$1 "~/configure-nats-server.sh"
 #ssh ubuntu@$1 "~/start-nats-server.sh"
 
 echo ""
@@ -229,17 +239,16 @@ curl -H "Authorization: my_secret_token" https://app.lax.azabab.com/configureser
 echo ""
 echo "Configure nats-server"
 echo ""
-DESTINATION=ubuntu@$1:~/nats-server/nats-server.conf
 
-if [ -f "./nats-conf/$1.conf" ]; then
-    scp ./nats-conf/$1.conf ubuntu@$1:~/nats-server/nats-server.conf
-    ssh ubuntu@$1 "cd /home/ubuntu;./start-nats-server.sh"
+if [ -f "/etc/nats.conf" ]; then
+    ssh ubuntu@$1 "sudo systemctl start nats.service"
 else
     echo "*******************"
     echo "***** WARNING *****"
     echo "*******************"
-    echo "The file ./nats-conf/$1.conf does not exist."
-    echo "You need to create ubuntu@$1:~/nats-server/nats-server.conf and manually start the nats server."
+    echo "The file /etc/nats.conf does not exist."
+    echo "You need to create this file and manually start the nats server:"
+    echo "sudo systemctl start nats.service"
     echo "*******************"
 fi
 

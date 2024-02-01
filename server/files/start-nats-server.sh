@@ -19,7 +19,7 @@ else
 	-p 4222:4222 \
 	-p 5222:5222 \
 	-p 5223:5223 \
-        -p 5224:5224 \
-	-v /home/ubuntu/nats-server:/nats-server --name "${CONTAINER_NAME}" nats-server
+    -p 5224:5224 \
+    -v /home/ubuntu/nats-server:/nats-server --name "${CONTAINER_NAME}" nats-server
 fi
 
