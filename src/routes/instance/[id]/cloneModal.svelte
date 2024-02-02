@@ -42,13 +42,13 @@
 			toast('You must be logged in to clone a project instance', 'danger')
 			closeModal()
 		}
-		console.log('we got instance', instance)
+		// console.log('we got instance', instance)
         const records: ProjectInstance[] = await pb.collection('instance_view').getFullList({
             sort: 'name, site_domain',
             fields: '*'//'id,name,project_id,owner,ownertype,code,domain,port,site_domain,site_name,site_id,type,db_streaming_backup_location,logs_streaming_backup_location,db_streaming_backup_retention,logs_streaming_backup_retention,instance_status',
         });
         // delete this instance from the list
-        console.log('instances', records)
+        // console.log('instances', records)
         instances = records;
         if (instances.length === 0) {
             toast('No other instances available as a destination', 'danger')
@@ -60,8 +60,8 @@
 		modalController.dismiss()
 	}
 	const chooseInstance = async (e: any) => {
-        console.log('instances', instances)
-        console.log('instance', instance)
+        // console.log('instances', instances)
+        // console.log('instance', instance)
         const items = [];
         for (let i = 0; i < instances.length; i++) {
             const instanceItem: ProjectInstance = instances[i];
@@ -146,7 +146,7 @@
             source_id: instance.id,
             direction: 'up'
         }
-        console.log('cloneData', cloneData)
+        // console.log('cloneData', cloneData)
         const { data, error } = await pb.send('/clone', {
 					method: 'POST',
 					body: cloneData,

@@ -10,9 +10,8 @@ export const checkDomainAvailability = async (domain: string) => {
         const { data, error } = await pb.send(`/check-domain/${domain}`, {
 			method: 'GET',
 		})
-        console.log('check-domain data, error', data, error)
         if (error) {
-            console.log('ERROR checking domain ' + domain, error)
+            console.error('ERROR checking domain ' + domain, error)
             return false;
         } else {
             if (data === 0)
@@ -20,8 +19,8 @@ export const checkDomainAvailability = async (domain: string) => {
             else
                 retval = false;
         }
-    } catch (error: any) {
-        console.log('ERROR checking domain ' + domain, error)
+    } catch (err: any) {
+        console.error('ERROR checking domain ' + domain, err)
         return false;
     }
     return retval;

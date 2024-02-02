@@ -37,13 +37,11 @@
         };
 	let streaming_backup_sites: StreamingBackupSite[] = []
     const ionViewWillEnter = async () => {
-        console.log('*** ionViewWillEnter, id', id)
 		if (!$currentUser) {
 			goto('/');
 		}
         localStorage.setItem('page', window.location.pathname)
         const inst = await pb.collection('instance_view').getOne(id)
-        console.log('inst is', inst);
         if (inst) {
             for (let attr in project_instance) {
                 project_instance[attr] = inst[attr]            
@@ -85,7 +83,6 @@
         await updateLogsGenerations();
     }, 1000)
     const updateDataGenerations = async () => {
-        console.log('updateDataGenerations')
         if (project_instance.db_streaming_backup_location && project_instance.db_streaming_backup_location.length > 0) {
             const data_generations = await getBackupGenerations('data')
             const el = document.getElementById('data-generations')
@@ -180,7 +177,7 @@
             }
         }
         catch (err) {
-            console.log("ERROR", err)
+            console.error("ERROR", err)
         }
 
     }
@@ -197,11 +194,9 @@
             },
         });
         if (error) {
-            console.error('error', error)
+            console.error('getBackupGenerations error', error)
             return ''
         } else {
-            console.log('data')
-            console.log(data)
             let arr = data.split('\n');
             let o: string = '';
             for (let i = 0; i < arr.length; i++) {
@@ -216,12 +211,6 @@
                         const endDate = moment.utc(utcEndDate).local().format('YYYY-MM-DD hh:mm:ss A');
                         const sDate = moment.utc(startDate).toISOString();
                         const eDate = moment.utc(endDate).toISOString();
-                        console.log('utcStartDate', utcStartDate)
-                        console.log('utcEndDate', utcEndDate)
-                        console.log('startDate', startDate)
-                        console.log('endDate', endDate)
-                        console.log('sDate', sDate)
-                        console.log('eDate', eDate)
                         o += startDate + ' - ' + endDate + '\n';
                         // set min and max dateRanges for db
                         if (dateRanges[db].min === '') dateRanges[db].min = sDate;
@@ -242,7 +231,6 @@
         destination: 'backup-folder',
     }
     const startRestore = async (db: string) => {
-        console.log('startRestore', db)
         const restoreGrid = document.getElementById('restoreGrid');
         const regularGrid = document.getElementById('regularGrid');
         if (restoreGrid && regularGrid) {
@@ -254,9 +242,6 @@
         }
     }
     const executeRestore = async () => {
-        console.log('executeRestore')
-        console.log(JSON.stringify(restoreSettings, null, 2))
-        console.log('project_instance', project_instance)
         let utcSelectedDate;
         // check to see if restoreSettings.selectedDate is a valid date string
         if (restoreSettings.selectedDate !== 'latest') {
@@ -272,12 +257,6 @@
             utcSelectedDate = 'latest';
         }
 
-        console.log({
-                instance_id: project_instance.id,
-                db: restoreSettings.db,
-                timestamp: utcSelectedDate,
-                mode: restoreSettings.destination
-            })
         const { data, error } = await pb.send(`/pitr`, {
             method: 'POST',
             body: {
@@ -287,8 +266,6 @@
                 mode: restoreSettings.destination
             },
         });
-        console.log('data', data)
-        console.log('**** -> error', error)
         if (error) {
             toast(error, 'danger')
         } else {
@@ -298,22 +275,17 @@
     }
     let restoreFromLatest = true;
     const toggleLatest = (e: any) => {
-        console.log('toggleLatest', e.detail.checked)
         restoreFromLatest = e.detail.checked;
         if (restoreFromLatest) {
-            console.log('setting selectedDate to latest')
             restoreSettings.selectedDate = 'latest';
         } else {
-            console.log('setting selectedDate to max', restoreSettings.max)
             restoreSettings.selectedDate = restoreSettings.max
         }
     }
     const selectDateChange = (e: any) => {
-        console.log('selectDateChange', e.detail.value)
         restoreSettings.selectedDate = e.detail.value;
     }
     const changemode = (e: any) => {
-        console.log('changemode', e.detail.value)
         restoreSettings.destination = e.detail.value;
         
     }
