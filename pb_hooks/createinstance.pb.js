@@ -18,6 +18,9 @@ routerAdd('POST', '/createinstance', async (c) => {
 	if (!user) {
 		return c.json(200, { data: null, error: 'not logged in' })
 	}
+	if (!user.verified) {
+		return c.json(200, { data: null, error: 'user not verified' })
+	}
 	if (!data?.project_instance) {
 		return c.json(200, { data: null, error: 'project_instance is required' })
 	}

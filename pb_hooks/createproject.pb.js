@@ -21,6 +21,9 @@ routerAdd('POST', '/createproject', (c) => {
 	if (!user) {
 		return c.json(200, { data: null, error: 'not logged in' })
 	}
+	if (!user.verified) {
+		return c.json(200, { data: null, error: 'user not verified' })
+	}
 	if (data?.project?.owner !== user?.id) {
 		return c.json(200, { data: null, error: 'not your project' })
 	}

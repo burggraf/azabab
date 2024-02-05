@@ -132,8 +132,8 @@
 			if ((error.message = 'Failed to create record.'))
 				// this usually means the user already exists
 			signUpMode = false
-			toast('Please check your email for a confirmation link', 'dark', 5000)
-			// doSignInWithEmail()
+			// toast('Please check your email for a confirmation link', 'dark', 5000)
+			doSignInWithEmail()
 			return
 		}
 		if (error) {
