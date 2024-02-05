@@ -1,8 +1,8 @@
 {
-    "name": "Diet Tracker",
-    "short_name": "Diet Tracker",
+    "name": "Azabab",
+    "short_name": "Azabab",
     "start_url": "/",
-    "description": "Diet Tracker: Track your diet and exercise across multiple devices",
+    "description": "Azabab: High Availablity Made Easy",
     "background_color": "#387ef5",
     "theme_color": "#387ef5",
     "icons": [
