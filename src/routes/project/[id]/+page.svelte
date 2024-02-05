@@ -27,7 +27,7 @@
 	import { version } from '$app/environment'
 	import { checkDomainAvailability } from '$services/project-utils.service'
 
-	const versions = ['v0.20.6', 'v0.20.5', 'v0.20.4', 'v0.20.3', 'v0.20.2', 'v0.20.1', 'v0.20.0']
+	const versions = ['v0.21.1', 'v0.21.0', 'v0.20.7', 'v0.20.6', 'v0.20.5', 'v0.20.4', 'v0.20.3', 'v0.20.2', 'v0.20.1', 'v0.20.0']
 	const default_version = versions[0]
 
 	let instances: ProjectInstance[] = []

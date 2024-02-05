@@ -20,7 +20,7 @@ const updateroutes = (project_id, current_user_id) => {
         const port = instance.port.toString();
         const domain = instance.domain;
         const site_domain = instance.site_domain;
-        const pb_version = instance.project_metadata?.get("pb_version") || 'v0.20.6';
+        const pb_version = instance.project_metadata?.get("pb_version") || 'v0.21.1';
         const otherServers = [];
         const instance_status = instance.instance_status;
         for (let j = 0; j < instanceData.length; j++) {
@@ -163,7 +163,7 @@ const update_dns_only_routes = (dnsData, instanceData) => {
     // console.log('with these instances:', instanceData.map(i => i.site_domain))
     const port = instanceData[0].port.toString();
     const domain = instanceData[0].domain;
-    const pb_version = instanceData[0].project_metadata?.get("pb_version") || 'v0.20.6';
+    const pb_version = instanceData[0].project_metadata?.get("pb_version") || 'v0.21.1';
 
     let frontendRoute = frontendRouteTemplateForDNS;
     let backendRoute = backendRouteTemplateForDNS;
