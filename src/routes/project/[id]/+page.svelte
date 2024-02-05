@@ -143,10 +143,10 @@
 		})
 	}
 	const updateRoutes = async () => {
-		if (instances.length < 2) {
-			toast('You must have at least two instances to update routes', 'danger')
-			return
-		}
+		// if (instances.length < 2) {
+		// 	toast('You must have at least two instances to update routes', 'danger')
+		// 	return
+		// }
 		await showConfirm({
 			header: 'Update Routing Rules',
 			message: `This will sync all routing rules on the primary and replica instances.  Are you SURE?`,
