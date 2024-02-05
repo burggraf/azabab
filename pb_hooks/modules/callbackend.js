@@ -250,8 +250,8 @@ backend backend_local_[PORT]_[LOCAL_FQD]
     http-request set-header X-Original-URI %[url]
     http-request set-header X-Original-Port [PORT]
     http-request set-header X-PB-Version [PB_VERSION]
-    server local_app_[PORT] 127.0.0.1:[STATUSPORT] check [LOCAL_FQD]
-    server local_error_handler_[PORT] 127.0.0.1:5000 backup [LOCAL_FQD]
+    server local_app_[PORT] 127.0.0.1:[STATUSPORT] check
+    server local_error_handler_[PORT] 127.0.0.1:5000 backup
 
 # Backend for backend_global_[PORT]_[GLOBAL_FQD]
 backend backend_global_[PORT]_[GLOBAL_FQD]
