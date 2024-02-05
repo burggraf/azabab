@@ -121,8 +121,8 @@
 	const signUp = async () => {
 		const loader = await loadingBox('Signing you up...')
 		const { user, error } = await signUpWithEmail(email, password) // , name)
+		loader.dismiss()
 		if (user) {
-			loader.dismiss()
 			showModal = false
 			modalController.dismiss({ data: Date.now() })
 			if (onSignIn) {
@@ -131,20 +131,16 @@
 		} else {
 			if ((error.message = 'Failed to create record.'))
 				// this usually means the user already exists
-				loader.dismiss()
 			signUpMode = false
-			doSignInWithEmail()
+			toast('Please check your email for a confirmation link', 'dark', 5000)
+			// doSignInWithEmail()
 			return
 		}
 		if (error) {
 			console.error(error)
-			loader.dismiss()
 			toast(error.message)
 		} else {
-			loader.dismiss()
-			if (!error) {
-				toast('Please check your email for a confirmation link', 'dark', 5000)
-			}
+			toast('Please check your email for a confirmation link', 'dark', 5000)
 		}
 	}
 	const toggleSignUpMode = () => {
