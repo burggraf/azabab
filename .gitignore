@@ -47,4 +47,4 @@ static/icon-512.png
 static/icon-64.png
 static/icon-96.png
 server/private/cloudflare.ini
-server/nats-conf/*.conf
+server/nats-conf
