@@ -20,21 +20,21 @@
 	const app_name = __APP_NAME__
 
 	onMount(() => {
-		const page = localStorage.getItem('page')
-		// remove page from localStorage
-		if (page) {
-			localStorage.removeItem('page')
-			goto(page)
-		}
-		return () => {}
-		if ($currentUser && $currentState.selectedMenuItem) {
-			console.log('**********************************')
-			console.log('$currentState.selectedMenuItem', $currentState.selectedMenuItem)
-			console.log('going to', $currentState.selectedMenuItem)
-			console.log('**********************************')
-			//goto($currentState.selectedMenuItem);
-		}
-		return () => {}
+		// const page = localStorage.getItem('page')
+		// // remove page from localStorage
+		// if (page) {
+		// 	localStorage.removeItem('page')
+		// 	goto(page)
+		// }
+		// return () => {}
+		// if ($currentUser && $currentState.selectedMenuItem) {
+		// 	console.log('**********************************')
+		// 	console.log('$currentState.selectedMenuItem', $currentState.selectedMenuItem)
+		// 	console.log('going to', $currentState.selectedMenuItem)
+		// 	console.log('**********************************')
+		// 	//goto($currentState.selectedMenuItem);
+		// }
+		// return () => {}
 	})
 
 	const openLoginBox = async () => {
